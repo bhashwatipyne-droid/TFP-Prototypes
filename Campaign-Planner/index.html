@@ -168,6 +168,7 @@
   .sq-badge { position: absolute; top: 8px; right: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   .sq-badge.trend { background: #fdeee0; color: #b6560a; }
   .sq-badge.seg { background: #e6f1fb; color: #0c447c; }
+  .sq-badge.concept { background: #ede4fb; color: #5a2ea6; }
 
   /* ============ FLOATING BROWSE MODAL ============ */
   .browse-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 30; display: none; align-items: center; justify-content: center; }
@@ -184,6 +185,7 @@
   .achip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 10px 6px 12px; border-radius: 999px; background: #fdeee0; color: #b6560a; }
   .achip .x { font-size: 11px; cursor: pointer; opacity: 0.7; }
   .achip.seg { background: #e6f1fb; color: #0c447c; }
+  .achip.concept { background: #ede4fb; color: #5a2ea6; }
   .bm-layout { flex: 1; display: flex; overflow: hidden; }
   .bm-cat-rail { width: 170px; flex-shrink: 0; padding: 18px 10px; border-right: 1px solid #e4e2da; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
   .bm-cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px; border-radius: 10px; cursor: pointer; text-align: center; }
@@ -496,7 +498,6 @@
 </head>
 <body>
 
-<span class="label-tag">Full prototype — State A (dismissible tip) + State B (View all → custom campaign → schedule)</span>
 
 <div class="frame">
   <div class="topbar">
@@ -514,7 +515,6 @@
       <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
       <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
       <div class="btn btn-tertiary">🔗 Connect your channel</div>
-      <div class="sidebar-note">Click "Create campaign" to see State A. Click "View all" inside to reach State B.</div>
     </div>
 
     <div class="scrim" id="scrim" onclick="closePanels()"></div>
@@ -913,13 +913,13 @@
     education: [
       {icon:'🎬', title:'Why investing early matters', meta:'Reel · English', badge:{type:'seg', text:'New investors'}},
       {icon:'📝', title:'5 mistakes new SIP investors make', meta:'Post · Hindi', badge:{type:'seg', text:'New investors'}},
-      {icon:'🖼️', title:'What happens if you skip an SIP', meta:'Carousel · English'},
+      {icon:'🖼️', title:'What happens if you skip an SIP', meta:'Carousel · English', badge:{type:'concept', text:'SIP'}},
       {icon:'✨', title:'The power of compounding', meta:'Story · Tamil'},
     ],
     concepts: [
-      {icon:'📘', title:'SIP vs Lumpsum explained', meta:'Carousel · English'},
-      {icon:'📗', title:'What is NAV, really?', meta:'Post · Hindi'},
-      {icon:'📙', title:'STP for beginners', meta:'Reel · English'},
+      {icon:'📘', title:'SIP vs Lumpsum explained', meta:'Carousel · English', badge:{type:'concept', text:'SIP'}},
+      {icon:'📗', title:'What is NAV, really?', meta:'Post · Hindi', badge:{type:'concept', text:'NAV'}},
+      {icon:'📙', title:'STP for beginners', meta:'Reel · English', badge:{type:'concept', text:'STP'}},
       {icon:'📕', title:'Expense ratio, decoded', meta:'Post · English'},
     ],
     market: [
@@ -993,6 +993,8 @@
   const discoveryFilterGroups = {
     trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
       options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
+    concept: { label: 'Concept', note: 'The specific term or mechanism this content explains — cuts across every lifecycle category above.',
+      options: [ {label:'SIP',count:420}, {label:'STP',count:110}, {label:'SWP',count:95}, {label:'NAV',count:180}, {label:'Lumpsum',count:150}, {label:'XIRR',count:60}, {label:'Expense Ratio',count:75}, {label:'Exit Load',count:40}, {label:'CAGR',count:55}, {label:'Asset Allocation',count:130}, {label:'Compounding',count:140}, {label:'Tax Harvesting',count:35} ] },
     segment: { label: 'Client segment', note: 'Which client this content suits best — independent of category.',
       options: [ {label:'New investors',count:310}, {label:'Pre-retirees',count:210}, {label:'HNI',count:95}, {label:'Lapsed clients',count:60} ] },
     format: { label: 'Format', note: '', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
@@ -1034,7 +1036,7 @@
   function renderDiscoveryChips() {
     let chips = [];
     Object.keys(selected).forEach(k => selected[k].forEach(label => {
-      chips.push(`<div class="achip ${k==='segment'?'seg':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleOption('${label}');setActiveGroup('${k}')">✕</span></div>`);
+      chips.push(`<div class="achip ${k==='segment'?'seg':''}${k==='concept'?'concept':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleOption('${label}');setActiveGroup('${k}')">✕</span></div>`);
     }));
     document.getElementById('activeChips').innerHTML = chips.join('');
     const total = Object.values(selected).reduce((a,s)=>a+s.size,0);
