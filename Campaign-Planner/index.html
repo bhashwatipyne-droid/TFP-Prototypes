@@ -248,7 +248,20 @@
   .wk-event .we-status { opacity: 0.75; font-size: 9.5px; }
   .wk-event.st-draft { background: #fdf6e0; border: 1px dashed #d4b106; color: #6b5900; }
   .wk-event.st-scheduled { background: #e6f1fb; color: #0c447c; }
-  .wk-event.st-published { background: #eaf3de; color: #27500a; }
+  .wk-event.st-posted { background: #eaf3de; color: #27500a; }
+  .wk-event.st-failed { background: #fbe4e4; color: #9c2b2b; }
+  .wk-event.dimmed { opacity: 0.35; }
+
+  /* status legend — shared toggle strip for Week/Month/List */
+  .cal-legend { display: flex; align-items: center; gap: 16px; padding: 8px 24px; border-bottom: 1px solid #e4e2da; background: #fbfbfa; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #6a6a66; cursor: pointer; user-select: none; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-dot.scheduled { background: #378add; }
+  .legend-dot.posted { background: #639922; }
+  .legend-dot.draft { background: #d4b106; }
+  .legend-dot.failed { background: #d84c4c; }
+  .legend-item.off { color: #c7c5bc; text-decoration: line-through; }
+  .legend-item.off .legend-dot { background: #d8d6cf; }
 
   /* ================= CALENDAR: month view ================= */
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; }
@@ -266,7 +279,9 @@
   }
   .month-item.st-draft { background: #fdf6e0; color: #6b5900; border: 1px dashed #d4b106; }
   .month-item.st-scheduled { background: #e6f1fb; color: #0c447c; }
-  .month-item.st-published { background: #eaf3de; color: #27500a; }
+  .month-item.st-posted { background: #eaf3de; color: #27500a; }
+  .month-item.st-failed { background: #fbe4e4; color: #9c2b2b; }
+  .month-item.dimmed { opacity: 0.35; }
   .month-more { font-size: 10.5px; font-weight: 600; color: #0c447c; cursor: pointer; }
   .month-cell-plus {
     position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
@@ -296,7 +311,8 @@
   .dp-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; flex-shrink: 0; }
   .dp-badge.st-draft { background: #fdf6e0; color: #6b5900; }
   .dp-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
-  .dp-badge.st-published { background: #eaf3de; color: #27500a; }
+  .dp-badge.st-posted { background: #eaf3de; color: #27500a; }
+  .dp-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
 
   /* ================= CALENDAR: list view ================= */
   .list-view { padding: 20px 24px; overflow-y: auto; flex: 1; }
@@ -319,7 +335,8 @@
   .lr-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
   .lr-badge.st-draft { background: #fdf6e0; color: #6b5900; }
   .lr-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
-  .lr-badge.st-published { background: #eaf3de; color: #27500a; }
+  .lr-badge.st-posted { background: #eaf3de; color: #27500a; }
+  .lr-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
 
   /* ================= EDIT POST MODAL ================= */
   .ep-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 40; display: none; align-items: center; justify-content: center; }
@@ -494,6 +511,17 @@
   .ep-btn { font-size: 13.5px; font-weight: 600; padding: 11px 22px; border-radius: 8px; cursor: pointer; }
   .ep-btn.ghost { background: #fff; color: #1a1a1a; border: 1px solid #d8d6cf; }
   .ep-btn.primary { background: #1a1a1a; color: #fff; }
+
+  .ep-fail-banner { background: #fbe4e4; border-bottom: 1px solid #f0b8b8; padding: 14px 26px; }
+  .ep-fail-title { color: #9c2b2b; font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .ep-fail-platforms { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .ep-fail-platform-chip { font-size: 11px; font-weight: 600; background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; padding: 3px 10px; border-radius: 999px; }
+  .ep-fail-reason { font-size: 12.5px; color: #7a2020; margin-bottom: 12px; line-height: 1.55; max-width: 720px; }
+  .ep-fail-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .ep-fail-btn { font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 7px; cursor: pointer; }
+  .ep-fail-btn.primary { background: #9c2b2b; color: #fff; }
+  .ep-fail-btn.ghost { background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; }
+  .ep-fail-link { font-size: 12px; color: #9c2b2b; text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -639,6 +667,7 @@
           <h2 id="epTitle">Edit post</h2>
           <span class="ep-close" onclick="closeEditPost()">✕</span>
         </div>
+        <div id="epFailBanner"></div>
         <div class="ep-body">
           <div class="ep-col ep-col-platforms">
             <div class="ep-section-title">Select Platforms</div>
@@ -907,6 +936,7 @@
     {key:'market', label:'Market Updates', icon:'📉', count:980},
     {key:'trending', label:'Trending', icon:'🔥', count:210},
     {key:'risk', label:'Risk Profiling', icon:'🎯', count:340},
+    {key:'templates', label:'Custom Templates', icon:'📁', count:222, noFilters:true},
   ];
 
   const sampleCards = {
@@ -940,6 +970,14 @@
       {icon:'🎯', title:'Risk profiling — client conversation guide', meta:'Story · English', badge:{type:'seg', text:'Pre-retirees'}},
       {icon:'🎯', title:'Matching fund philosophy to temperament', meta:'Post · English'},
     ],
+    templates: [
+      {icon:'🧩', title:'Personalization templates', meta:'65 templates'},
+      {icon:'📊', title:'Sales deck', meta:'28 templates'},
+      {icon:'📄', title:'Client proposal templates', meta:'34 templates'},
+      {icon:'🎓', title:'Fund education templates', meta:'52 templates'},
+      {icon:'📦', title:'Onboarding kit', meta:'19 templates'},
+      {icon:'📈', title:'Review deck', meta:'24 templates'},
+    ],
   };
 
   let activeCat = 'education';
@@ -951,13 +989,16 @@
   }
   function renderDrawerGrid() {
     document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
-    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => `
-      <div class="sq-card" draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx})" ondragend="onCardDragEnd(event)">
+    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => {
+      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx})" ondragend="onCardDragEnd(event)"`;
+      return `
+      <div class="sq-card" ${dragAttrs}>
         <div class="sq-thumb">${c.icon}</div>
         ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
         <div class="sq-title">${c.title}</div>
         <div class="sq-meta">${c.meta}</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
   function setActiveCat(k) { activeCat = k; renderDrawerPills(); renderDrawerGrid(); renderBmCatRail(); renderBmGrid(); }
 
@@ -978,15 +1019,20 @@
   function renderBmGrid() {
     const cat = categories.find(c=>c.key===activeCat);
     document.getElementById('bmMainTitle').textContent = cat.label;
-    document.getElementById('bmMainCount').textContent = cat.count + ' creatives';
-    const cards = sampleCards[activeCat].concat(sampleCards[activeCat]);
-    document.getElementById('bmGrid').innerHTML = cards.map((c,idx) => `
-      <div class="sq-card" draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx % sampleCards[activeCat].length})" ondragend="onCardDragEnd(event)">
+    document.getElementById('bmMainCount').textContent = cat.count + (activeCat==='templates' ? ' templates' : ' creatives');
+    document.getElementById('bmFiltersBtn').style.display = cat.noFilters ? 'none' : 'flex';
+    const source = sampleCards[activeCat];
+    const cards = activeCat==='templates' ? source : source.concat(source);
+    document.getElementById('bmGrid').innerHTML = cards.map((c,idx) => {
+      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx % source.length})" ondragend="onCardDragEnd(event)"`;
+      return `
+      <div class="sq-card" ${dragAttrs}>
         <div class="sq-thumb">${c.icon}</div>
         ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
         <div class="sq-title">${c.title}</div>
         <div class="sq-meta">${c.meta}</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   /* ---- discovery filter panel ---- */
@@ -1070,9 +1116,11 @@
     { id:'e1', date:'2026-07-12', hour:11, minute:20, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'🖼️' },
     { id:'e2', date:'2026-07-12', hour:13, minute:23, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:null },
     { id:'e3', date:'2026-07-13', hour:8,  minute:0,  title:'SIP vs Lumpsum — Reel', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'🎬' },
-    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'published', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈' },
+    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'posted', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈' },
     { id:'e5', date:'2026-07-16', hour:10, minute:0,  title:'Client story — FIRE journey', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'✨' },
     { id:'e6', date:'2026-07-18', hour:13, minute:0,  title:'Year-end portfolio CTA', caption:'', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'▦' },
+    { id:'e7', date:'2026-07-15', hour:9,  minute:0,  title:'Tax saving webinar invite', caption:'', status:'failed', platform:'instagram', account:'thefinpedia', thumbnail:'🎯',
+      failedPlatforms:['instagram'], failReason:'Instagram rejected the media file — the aspect ratio (4:3) isn\u2019t supported for Reels, which require 9:16.' },
   ];
   let eventSeq = 100;
 
@@ -1111,11 +1159,31 @@
   }
 
   /* ---------------- WEEK VIEW ---------------- */
+  /* ---------------- STATUS LEGEND (shared across all 3 views) ---------------- */
+  const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
+  const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
+  let statusFilter = new Set(STATUS_LIST);
+  function legendHTML() {
+    return '<div class="cal-legend">' + STATUS_LIST.map(s => {
+      const off = !statusFilter.has(s);
+      return `<div class="legend-item ${off?'off':''}" onclick="toggleStatus('${s}')">
+        <span class="legend-dot ${s}"></span>${STATUS_LABEL[s]}
+      </div>`;
+    }).join('') + '</div>';
+  }
+  function toggleStatus(s) {
+    if (statusFilter.has(s)) statusFilter.delete(s); else statusFilter.add(s);
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    if (currentView === 'list') renderListView();
+  }
+
   function renderWeekView() {
     const days = [];
     for (let i=0;i<7;i++) days.push(addDays(WEEK_START, i));
 
-    let html = '<div class="cal-header"><div></div>';
+    let html = legendHTML();
+    html += '<div class="cal-header"><div></div>';
     const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
     days.forEach(d => {
       const isToday = toDateStr(d) === TODAY_STR;
@@ -1131,8 +1199,9 @@
       TIME_SLOTS.forEach(h => {
         const ev = events.find(e => e.date===dateStr && e.hour===h);
         if (ev) {
+          const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
           html += `<div class="wk-slot" style="padding:0">
-            <div class="wk-event st-${ev.status}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+            <div class="wk-event st-${ev.status} ${dim}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
               <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
               <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
             </div>
@@ -1160,7 +1229,8 @@
     const cells = [];
     for (let i=0;i<35;i++) cells.push(addDays(gridStart, i));
 
-    let html = '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
+    let html = legendHTML();
+    html += '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
     html += '<div class="month-grid">';
     cells.forEach(d => {
       const dateStr = toDateStr(d);
@@ -1172,7 +1242,8 @@
       if (dayEvents.length) {
         const first2 = dayEvents.slice(0,1);
         first2.forEach(ev => {
-          inner += `<div class="month-item st-${ev.status}">${ev.title || ev.caption || 'Untitled'}</div>`;
+          const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
+          inner += `<div class="month-item st-${ev.status} ${dim}">${ev.title || ev.caption || 'Untitled'}</div>`;
         });
         if (dayEvents.length > 1) {
           inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
@@ -1223,13 +1294,18 @@
 
   /* ---------------- LIST VIEW ---------------- */
   function renderListView() {
-    const sorted = [...events].sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
+    const sorted = [...events]
+      .filter(e => statusFilter.has(e.status))
+      .sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
     let html = `
       <div class="list-filters">
         <div class="lf-pill">📅 Jul 12, 2026 – Jul 18, 2026</div>
-        <div class="lf-pill">Status: All ▾</div>
         <div class="lf-pill">Sort: New to Old ▾</div>
       </div>`;
+    html += legendHTML();
+    if (!sorted.length) {
+      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts match the selected statuses.</div>`;
+    }
     sorted.forEach(ev => {
       const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
       html += `
@@ -1240,6 +1316,7 @@
               <div class="lr-account">${ev.account || 'Unnamed account'}</div>
               <div class="lr-platform">${pm.label}</div>
             </div>
+            <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
             <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
             <div class="lr-icons">
               <div class="lr-icon-btn" title="Duplicate">⧉</div>
@@ -1253,7 +1330,6 @@
               <div class="lr-caption-text">${ev.caption || ev.title || '(no caption)'}</div>
             </div>
           </div>
-          <div class="lr-foot"><span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span></div>
         </div>`;
     });
     document.getElementById('listView').innerHTML = html;
@@ -1302,6 +1378,7 @@
         mode: 'edit', eventId: ev.id, date: ev.date,
         caption: ev.caption || '', thumbnail: ev.thumbnail || null,
         mediaKind: ev.thumbnail === '🎬' ? 'video' : 'image',
+        failInfo: ev.status === 'failed' ? { platforms: ev.failedPlatforms || [ev.platform], reason: ev.failReason || 'No reason was returned by the platform.' } : null,
         platforms: {}
       };
       Object.keys(PLATFORM_META).forEach(k => {
@@ -1313,6 +1390,7 @@
         caption: opts.prefillCard ? opts.prefillCard.title : '',
         thumbnail: opts.prefillCard ? opts.prefillCard.icon : null,
         mediaKind: opts.prefillCard ? cardKind(opts.prefillCard) : 'image',
+        failInfo: null,
         platforms: {}
       };
       Object.keys(PLATFORM_META).forEach(k => {
@@ -1338,9 +1416,31 @@
     renderEpMediaSlot();
     renderEpPlatformTabs();
     renderMusicNotice();
+    renderEpFailBanner();
     document.getElementById('epBackdrop').classList.add('show');
   }
   function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); }
+
+  function renderEpFailBanner() {
+    const el = document.getElementById('epFailBanner');
+    if (!epState.failInfo) { el.innerHTML = ''; return; }
+    const chips = epState.failInfo.platforms.map(p => {
+      const meta = PLATFORM_META[p];
+      return `<span class="ep-fail-platform-chip">${meta ? meta.label : p}</span>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="ep-fail-banner">
+        <div class="ep-fail-title">⚠ This post failed to publish</div>
+        <div class="ep-fail-platforms">${chips}</div>
+        <div class="ep-fail-reason">${epState.failInfo.reason}</div>
+        <div class="ep-fail-actions">
+          <div class="ep-fail-btn primary" onclick="alert('This would open a pre-filled support ticket with this post\\'s details attached.')">Raise a ticket</div>
+          <div class="ep-fail-btn ghost" onclick="alert('This would open live chat with support.')">Contact support</div>
+          <span class="ep-fail-link" onclick="alert('This would open: Why do posts fail to publish? — a short help doc.')">Why do posts fail? →</span>
+        </div>
+      </div>`;
+  }
+
 
   function toggleCustomize() {
     epState.customize = !epState.customize;
@@ -1603,6 +1703,7 @@
         ev.status = status;
         ev.platform = platform;
         ev.hour = st.hour; ev.minute = st.minute;
+        if (status !== 'failed') { ev.failedPlatforms = null; ev.failReason = null; }
       }
     } else {
       events.push({
