@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Campaign scheduler — full prototype (State A + B)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f4f4f2;
+    color: #1a1a1a;
+    padding: 40px;
+  }
+  .label-tag {
+    display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: #8a8a86; background: #eceae4;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 16px;
+  }
+  .frame {
+    width: 1440px; max-width: 100%; margin: 0 auto;
+    background: #ffffff; border: 1px solid #d8d6cf; border-radius: 10px; overflow: hidden;
+  }
+  .topbar { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #e4e2da; }
+  .search { flex: 1; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border: 1px solid #e4e2da; border-radius: 8px; padding: 10px 14px; color: #9a9a94; font-size: 14px; }
+  .pill { display: flex; align-items: center; gap: 6px; border: 1px solid #e4e2da; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #4a4a46; white-space: nowrap; }
+  .view-toggle { display: flex; background: #f4f4f2; border-radius: 8px; padding: 3px; }
+  .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; }
+  .view-toggle span.active { background: #fff; color: #1a1a1a; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+  .layout { display: flex; height: 780px; position: relative; }
+
+  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; }
+  .btn { width: 100%; padding: 13px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: opacity .12s, transform .08s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: #1a1a1a; color: #fff; }
+  .btn-secondary { background: #fff; color: #1a1a1a; border: 1px solid #d8d6cf; }
+  .btn-secondary.on { background: #1a1a1a; color: #fff; }
+  .btn-tertiary { background: #fff; color: #4a4a46; border: 1px dashed #d8d6cf; font-weight: 500; }
+  .btn-tertiary:hover { border-color: #b3b2ac; color: #1a1a1a; background: #f9f9f7; }
+  .sidebar-note { margin-top: 16px; font-size: 12px; color: #b3b2ac; line-height: 1.5; }
+
+  .calendar { flex: 1; display: flex; flex-direction: column; }
+  .cal-header { display: grid; grid-template-columns: 60px repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
+  .cal-header div { text-align: center; font-size: 12px; color: #9a9a94; padding: 12px 0; font-weight: 600; }
+  .cal-header div.today { color: #1a1a1a; }
+  .cal-header div.today span { display: block; font-size: 15px; margin-top: 2px; }
+  .cal-body { flex: 1; display: grid; grid-template-columns: 60px repeat(7, 1fr); overflow: hidden; }
+  .time-col { display: flex; flex-direction: column; }
+  .time-slot { height: 90px; font-size: 11px; color: #b3b2ac; padding: 4px 8px; border-bottom: 1px solid #ececea; }
+  .day-col { border-left: 1px solid #ececea; }
+  .slot { height: 90px; border-bottom: 1px solid #ececea; }
+
+  .scrim { position: absolute; top:0; left:220px; right:0; bottom:0; background: rgba(20,20,18,0.03); z-index: 4; opacity:0; pointer-events:none; transition: opacity .15s; }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+
+  /* DRAWER */
+  .drawer {
+    position: absolute; top:0; left:220px; bottom:0; width: 360px;
+    background: #fff; border-right: 1px solid #d8d6cf; box-shadow: 10px 0 28px rgba(0,0,0,0.10);
+    padding: 18px 20px; display: flex; flex-direction: column; z-index: 5;
+    transform: translateX(-16px); opacity: 0; pointer-events: none; transition: transform .16s, opacity .16s;
+  }
+  .drawer.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .drawer-header .title { font-size: 15px; font-weight: 700; }
+  .drawer-header .close { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #8a8a86; font-size: 14px; cursor: pointer; }
+  .drawer-header .close:hover { background: #f4f4f2; }
+  .drawer-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+
+  .sources-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 7px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #9a9a94; }
+  .source-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .source-tabs span { font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
+  .source-tabs span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
+
+  /* ---- unified square content cards ---- */
+  .sq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sq-grid.modal-grid { grid-template-columns: repeat(3, 1fr); }
+  .sq-card { border: 1px solid #e4e2da; border-radius: 10px; padding: 9px; background: #fbfbfa; cursor: pointer; position: relative; }
+  .sq-card:hover { border-color: #c7c5bc; }
+  .sq-thumb { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; background: #dcebfa; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .sq-thumb.targeted { background: #fbe6cf; }
+  .sq-title { font-size: 12px; font-weight: 600; line-height: 1.35; margin-bottom: 2px; }
+  .sq-meta { font-size: 10.5px; color: #9a9a94; }
+  .sq-tag { position: absolute; top: 8px; right: 8px; font-size: 9px; font-weight: 700; color: #b6560a; background: #fff; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .tip-card { display: flex; gap: 10px; align-items: flex-start; background: #eaf1fb; border-radius: 10px; padding: 12px; margin-bottom: 14px; position: relative; }
+  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 12px; color: #0c447c; line-height: 1.55; padding-right: 16px; }
+  .tip-dismiss { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #5a86ad; font-size: 11px; cursor: pointer; }
+  .tip-dismiss:hover { background: rgba(255,255,255,0.5); }
+
+  .view-all-row { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 10px; }
+  .section-label { font-size: 12px; font-weight: 700; color: #6a6a66; text-transform: uppercase; letter-spacing: 0.03em; }
+  .view-all-link { font-size: 12px; font-weight: 600; color: #0c447c; cursor: pointer; }
+  .divider { border-top: 1px solid #e4e2da; margin: 14px 0 14px; }
+
+  /* ================= MODAL (State B) ================= */
+  .modal-backdrop {
+    position: absolute; inset: 0; background: rgba(20,20,18,0.45);
+    z-index: 20; display: none; align-items: center; justify-content: center;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    width: 640px; max-height: 660px; background: #fff; border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-head { display: flex; align-items: center; gap: 10px; padding: 18px 22px; border-bottom: 1px solid #e4e2da; }
+  .modal-back { width: 28px; height: 28px; border-radius: 7px; display: none; align-items: center; justify-content: center; color: #6a6a66; cursor: pointer; font-size: 15px; }
+  .modal-back.show { display: flex; }
+  .modal-back:hover { background: #f4f4f2; }
+  .modal-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .modal-close { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 15px; }
+  .modal-close:hover { background: #f4f4f2; }
+  .modal-steps { display: flex; gap: 6px; padding: 0 22px; margin-top: -1px; }
+  .step-dot { height: 3px; flex: 1; background: #eceae4; border-radius: 2px; }
+  .step-dot.active { background: #1a1a1a; }
+  .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+  .modal-foot { padding: 16px 22px; border-top: 1px solid #e4e2da; display: flex; justify-content: flex-end; gap: 10px; }
+  .m-btn { font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+  .m-btn.primary { background: #1a1a1a; color: #fff; }
+  .m-btn.primary.disabled { background: #d8d6cf; color: #fff; cursor: not-allowed; }
+  .m-btn.ghost { background: #fff; color: #4a4a46; border: 1px solid #d8d6cf; }
+
+  /* list step */
+  .modal-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; font-size: 13px; color: #9a9a94; }
+  .filter-chips { display: flex; gap: 6px; margin-bottom: 14px; }
+  .filter-chips span { font-size: 12px; padding: 6px 14px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
+  .filter-chips span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
+  .create-custom-card {
+    display: flex; align-items: center; gap: 12px; border: 1.5px dashed #c7c5bc;
+    border-radius: 10px; padding: 14px; cursor: pointer; background: #fbfbfa;
+  }
+  .create-custom-card:hover { border-color: #1a1a1a; background: #f4f4f2; }
+  .cc-icon { width: 34px; height: 34px; border-radius: 8px; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .cc-text .cctitle { font-size: 13px; font-weight: 700; }
+  .cc-text .ccdesc { font-size: 11.5px; color: #9a9a94; }
+
+  /* type select step */
+  .type-grid { display: flex; gap: 14px; }
+  .type-card { flex: 1; border: 1.5px solid #e4e2da; border-radius: 12px; padding: 20px 16px; cursor: pointer; text-align: center; }
+  .type-card:hover { border-color: #c7c5bc; }
+  .type-card.selected { border-color: #1a1a1a; background: #f9f9f7; }
+  .type-card .ticon { font-size: 26px; margin-bottom: 10px; }
+  .type-card .ttitle { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .type-card .tdesc { font-size: 12px; color: #8a8a86; line-height: 1.5; }
+
+  /* form fields */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: #4a4a46; margin-bottom: 6px; }
+  .field select, .field input {
+    width: 100%; padding: 10px 12px; border: 1px solid #d8d6cf; border-radius: 8px; font-size: 13px; color: #1a1a1a; font-family: inherit;
+  }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1; }
+  .field-hint { font-size: 11px; color: #b3b2ac; margin-top: 5px; }
+
+  .summary-box { background: #f9f9f7; border: 1px solid #e4e2da; border-radius: 10px; padding: 14px; margin-top: 4px; font-size: 12px; color: #6a6a66; line-height: 1.7; }
+  .summary-box b { color: #1a1a1a; }
+
+  /* ---- lifecycle pills (minimized Content Sources drawer) ---- */
+  .cat-pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
+  .cat-pills::-webkit-scrollbar { display: none; }
+  .cat-pill { flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; white-space: nowrap; }
+  .cat-pill.active { background: #1a1a1a; color: #fff; }
+  .cat-pill.trend-pill.active { background: #b6560a; }
+  .drawer-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .drawer-section-title { font-size: 12px; font-weight: 700; color: #6a6a66; }
+  .sq-badge { position: absolute; top: 8px; right: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .sq-badge.trend { background: #fdeee0; color: #b6560a; }
+  .sq-badge.seg { background: #e6f1fb; color: #0c447c; }
+
+  /* ============ FLOATING BROWSE MODAL ============ */
+  .browse-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 30; display: none; align-items: center; justify-content: center; }
+  .browse-backdrop.show { display: flex; }
+  .browse-modal { width: 1240px; max-width: 94%; height: 760px; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .bm-topbar { display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-bottom: 1px solid #e4e2da; }
+  .bm-title { font-size: 16px; font-weight: 700; margin-right: 8px; white-space: nowrap; }
+  .bm-search { flex: 1; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border: 1px solid #e4e2da; border-radius: 8px; padding: 10px 14px; color: #9a9a94; font-size: 14px; max-width: 420px; }
+  .bm-filters-btn { display: flex; align-items: center; gap: 6px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .bm-filters-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .bm-close { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; margin-left: auto; }
+  .bm-close:hover { background: #f4f4f2; }
+  .bm-chips { display: flex; gap: 8px; padding: 12px 22px 0; flex-wrap: wrap; }
+  .achip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 10px 6px 12px; border-radius: 999px; background: #fdeee0; color: #b6560a; }
+  .achip .x { font-size: 11px; cursor: pointer; opacity: 0.7; }
+  .achip.seg { background: #e6f1fb; color: #0c447c; }
+  .bm-layout { flex: 1; display: flex; overflow: hidden; }
+  .bm-cat-rail { width: 170px; flex-shrink: 0; padding: 18px 10px; border-right: 1px solid #e4e2da; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+  .bm-cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px; border-radius: 10px; cursor: pointer; text-align: center; }
+  .bm-cat-item:hover { background: #f9f9f7; }
+  .bm-cat-item.active { background: #f0ece2; }
+  .bm-cat-icon { width: 48px; height: 48px; border-radius: 50%; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .bm-cat-item.active .bm-cat-icon { background: #1a1a1a; }
+  .bm-cat-label { font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+  .bm-cat-count { font-size: 10px; color: #b3b2ac; }
+  .bm-main { flex: 1; padding: 18px 22px; overflow-y: auto; }
+  .bm-main-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .bm-main-title { font-size: 14px; font-weight: 700; }
+  .bm-main-count { font-size: 12px; color: #9a9a94; }
+  .bm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* filter panel inside browse modal */
+  .fp-backdrop2 { position: absolute; inset: 0; background: rgba(20,20,18,0.25); z-index: 32; display: none; }
+  .fp-backdrop2.show { display: block; }
+  .filter-panel2 { position: absolute; top: 0; right: 0; bottom: 0; width: 480px; background: #fff; box-shadow: -12px 0 32px rgba(0,0,0,0.15); z-index: 33; display: flex; flex-direction: column; transform: translateX(16px); opacity: 0; transition: transform .16s, opacity .16s; pointer-events: none; }
+  .filter-panel2.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .fp-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #e4e2da; }
+  .fp-title { font-size: 15px; font-weight: 700; }
+  .fp-close { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; }
+  .fp-close:hover { background: #f4f4f2; }
+  .fp-search2 { margin: 14px 20px 0; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #9a9a94; }
+  .fp-body { flex: 1; display: flex; overflow: hidden; margin-top: 14px; }
+  .fp-groups { width: 160px; flex-shrink: 0; border-right: 1px solid #e4e2da; overflow-y: auto; padding: 4px 0; }
+  .fp-group-item { padding: 11px 16px; font-size: 12.5px; color: #6a6a66; cursor: pointer; border-left: 3px solid transparent; }
+  .fp-group-item.active { color: #1a1a1a; font-weight: 700; background: #f9f9f7; border-left-color: #1a1a1a; }
+  .fp-options { flex: 1; overflow-y: auto; padding: 8px 18px; }
+  .fp-option-note { font-size: 11px; color: #b3b2ac; line-height: 1.5; margin-bottom: 10px; padding: 9px 11px; background: #f9f9f7; border-radius: 8px; }
+  .fp-option { display: flex; align-items: center; gap: 10px; padding: 9px 2px; cursor: pointer; }
+  .fp-check { width: 17px; height: 17px; border: 1.5px solid #c7c5bc; border-radius: 5px; flex-shrink: 0; position: relative; }
+  .fp-check.checked { background: #1a1a1a; border-color: #1a1a1a; }
+  .fp-check.checked::after { content: '✓'; color: #fff; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .fp-opt-label { flex: 1; font-size: 13px; }
+  .fp-opt-count { font-size: 11.5px; color: #b3b2ac; }
+  .fp-trend-flag { font-size: 9px; font-weight: 700; color: #b6560a; background: #fdeee0; padding: 2px 6px; border-radius: 999px; margin-left: 6px; }
+  .fp-foot { padding: 14px 20px; border-top: 1px solid #e4e2da; display: flex; gap: 10px; }
+  .fp-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .fp-btn.clear { border: 1px solid #d8d6cf; color: #4a4a46; background: #fff; }
+  .fp-btn.apply { background: #1a1a1a; color: #fff; }
+</style>
+</head>
+<body>
+
+<span class="label-tag">Full prototype — State A (dismissible tip) + State B (View all → custom campaign → schedule)</span>
+
+<div class="frame">
+  <div class="topbar">
+    <div class="search">🔍 Search campaigns, posts, leads...</div>
+    <div class="pill">📅 Jul 5 – 11, 2026</div>
+    <div class="view-toggle"><span class="active">Week</span><span>Month</span></div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
+      <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
+      <div class="btn btn-tertiary">🔗 Connect your channel</div>
+      <div class="sidebar-note">Click "Create campaign" to see State A. Click "View all" inside to reach State B.</div>
+    </div>
+
+    <div class="scrim" id="scrim" onclick="closePanels()"></div>
+
+    <!-- CONTENT SOURCES DRAWER (minimized, lifecycle-based) -->
+    <div class="drawer" id="postDrawer">
+      <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
+      <div class="sources-search">🔍 Search content...</div>
+      <div class="cat-pills" id="drawerPills"></div>
+      <div class="drawer-section-head">
+        <span class="drawer-section-title" id="drawerSectionTitle">Investor Education</span>
+        <span class="view-all-link" onclick="openBrowseModal()">View all</span>
+      </div>
+      <div class="drawer-scroll">
+        <div class="sq-grid" id="drawerGrid"></div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN DRAWER (State A lives here) -->
+    <div class="drawer" id="campaignDrawer">
+      <div class="drawer-header"><span class="title">Build a campaign</span><span class="close" onclick="closePanels()">✕</span></div>
+      <div class="drawer-scroll">
+        <div class="tip-card" id="tipCard">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text">Playlists are ready-made content sets. Drag any card below onto your calendar to schedule it.</div>
+          <div class="tip-dismiss" onclick="document.getElementById('tipCard').style.display='none'">✕</div>
+        </div>
+
+        <div class="view-all-row">
+          <span class="section-label">Playlists</span>
+          <span class="view-all-link" onclick="openModal('list','all')">View all</span>
+        </div>
+        <div class="sq-grid">
+          <div class="sq-card"><div class="sq-thumb">▦</div><div class="sq-title">Brand awareness starter pack</div><div class="sq-meta">6 posts · reach-focused</div></div>
+          <div class="sq-card"><div class="sq-thumb">💰</div><div class="sq-title">Tax season push</div><div class="sq-meta">5 posts · seasonal</div></div>
+          <div class="sq-card"><div class="sq-thumb">🚀</div><div class="sq-title">Product launch — new SIP plan</div><div class="sq-meta">8 posts · announcement</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="view-all-row">
+          <span class="section-label">Targeted</span>
+          <span class="view-all-link" onclick="openModal('list','targeted')">View all</span>
+        </div>
+        <div class="sq-grid">
+          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
+          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar">
+      <div class="cal-header">
+        <div></div>
+        <div>SUN<span>5</span></div><div class="today">MON<span>6</span></div><div>TUE<span>7</span></div>
+        <div>WED<span>8</span></div><div>THU<span>9</span></div><div>FRI<span>10</span></div><div>SAT<span>11</span></div>
+      </div>
+      <div class="cal-body">
+        <div class="time-col"><div class="time-slot">8 AM</div><div class="time-slot">9 AM</div><div class="time-slot">10 AM</div><div class="time-slot">11 AM</div><div class="time-slot">12 PM</div><div class="time-slot">1 PM</div><div class="time-slot">2 PM</div><div class="time-slot">3 PM</div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+      </div>
+    </div>
+
+    <!-- ============= STATE B MODAL ============= -->
+    <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <div class="modal-head">
+          <span class="modal-back" id="modalBack" onclick="goBack()">←</span>
+          <span class="modal-title" id="modalTitle">All campaigns</span>
+          <span class="modal-close" onclick="closeModal()">✕</span>
+        </div>
+        <div class="modal-steps" id="modalSteps">
+          <div class="step-dot" data-s="list"></div>
+          <div class="step-dot" data-s="type"></div>
+          <div class="step-dot" data-s="form"></div>
+          <div class="step-dot" data-s="schedule"></div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot" id="modalFoot"></div>
+      </div>
+    </div>
+
+    <!-- ============= FLOATING BROWSE MODAL (Content Sources → View all) ============= -->
+    <div class="browse-backdrop" id="browseBackdrop" onclick="if(event.target===this) closeBrowseModal()">
+      <div class="browse-modal">
+        <div class="bm-topbar">
+          <div class="bm-title">Browse content</div>
+          <div class="bm-search">🔍 Search 4,200+ creatives...</div>
+          <div class="bm-filters-btn" id="bmFiltersBtn" onclick="toggleFilterPanel()">☰ Filters <span id="filterCountBadge"></span></div>
+          <div class="bm-close" onclick="closeBrowseModal()">✕</div>
+        </div>
+        <div class="bm-chips" id="activeChips"></div>
+        <div class="bm-layout">
+          <div class="bm-cat-rail" id="bmCatRail"></div>
+          <div class="bm-main">
+            <div class="bm-main-head">
+              <div class="bm-main-title" id="bmMainTitle">Investor Education</div>
+              <div class="bm-main-count" id="bmMainCount">640 creatives</div>
+            </div>
+            <div class="bm-grid" id="bmGrid"></div>
+          </div>
+        </div>
+
+        <div class="fp-backdrop2" id="fpBackdrop2" onclick="if(event.target===this) toggleFilterPanel()">
+          <div class="filter-panel2" id="filterPanel2">
+            <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleFilterPanel()">✕</span></div>
+            <div class="fp-search2">🔍 Search across filters...</div>
+            <div class="fp-body">
+              <div class="fp-groups" id="fpGroups"></div>
+              <div class="fp-options" id="fpOptions"></div>
+            </div>
+            <div class="fp-foot">
+              <div class="fp-btn clear" onclick="clearFilters()">Clear filters</div>
+              <div class="fp-btn apply" onclick="toggleFilterPanel()">Apply</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ---------- drawer toggle ---------- */
+  let openPanel = null;
+  function togglePanel(which) {
+    if (openPanel === which) { closePanels(); return; }
+    openPanel = which;
+    document.getElementById('postDrawer').classList.toggle('show', which === 'post');
+    document.getElementById('campaignDrawer').classList.toggle('show', which === 'campaign');
+    document.getElementById('scrim').classList.add('show');
+    document.getElementById('btnPost').classList.toggle('on', which === 'post');
+    document.getElementById('btnCampaign').classList.toggle('on', which === 'campaign');
+  }
+  function closePanels() {
+    openPanel = null;
+    document.getElementById('postDrawer').classList.remove('show');
+    document.getElementById('campaignDrawer').classList.remove('show');
+    document.getElementById('scrim').classList.remove('show');
+    document.getElementById('btnPost').classList.remove('on');
+    document.getElementById('btnCampaign').classList.remove('on');
+  }
+
+  /* ---------- modal state machine ---------- */
+  const allCampaigns = [
+    {name:'Brand awareness starter pack', meta:'6 posts · reach-focused', targeted:false},
+    {name:'Tax season push', meta:'5 posts · seasonal', targeted:false},
+    {name:'Product launch — new SIP plan', meta:'8 posts · announcement', targeted:false},
+    {name:'Trust builders — client stories', meta:'4 posts · social proof', targeted:false},
+    {name:'Pre-retirees, age 45–60', meta:'5 posts · retirement planning', targeted:true},
+    {name:'New investors, first SIP', meta:'6 posts · beginner education', targeted:true},
+    {name:'High net-worth, FIRE seekers', meta:'4 posts · advanced strategy', targeted:true},
+  ];
+
+  let modalStep = 'list';
+  let listFilter = 'all';
+  let chosenType = null; // 'regular' | 'targeted'
+  const stepOrderRegular = ['list','type','schedule'];
+  const stepOrderTargeted = ['list','type','form','schedule'];
+
+  function openModal(step, filter) {
+    listFilter = filter || 'all';
+    modalStep = step;
+    chosenType = null;
+    document.getElementById('modalBackdrop').classList.add('show');
+    render();
+  }
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('show');
+  }
+  function currentStepOrder() {
+    return chosenType === 'targeted' ? stepOrderTargeted : stepOrderRegular;
+  }
+  function goBack() {
+    const order = currentStepOrder();
+    const idx = order.indexOf(modalStep);
+    if (idx > 0) { modalStep = order[idx - 1]; render(); }
+  }
+  function goNext() {
+    const order = currentStepOrder();
+    const idx = order.indexOf(modalStep);
+    if (idx < order.length - 1) { modalStep = order[idx + 1]; render(); }
+  }
+
+  function render() {
+    const order = currentStepOrder();
+    document.getElementById('modalBack').classList.toggle('show', order.indexOf(modalStep) > 0);
+
+    // step dots
+    document.querySelectorAll('.step-dot').forEach(dot => {
+      const s = dot.getAttribute('data-s');
+      dot.style.display = order.includes(s) ? 'block' : 'none';
+      dot.classList.toggle('active', order.indexOf(s) <= order.indexOf(modalStep) && order.includes(s));
+    });
+
+    const body = document.getElementById('modalBody');
+    const foot = document.getElementById('modalFoot');
+    const title = document.getElementById('modalTitle');
+
+    if (modalStep === 'list') {
+      title.textContent = 'All campaigns';
+      let html = `
+        <div class="modal-search">🔍 Search campaigns...</div>
+        <div class="filter-chips">
+          <span class="${listFilter==='all'?'active':''}" onclick="setFilter('all')">All</span>
+          <span class="${listFilter==='targeted'?'active':''}" onclick="setFilter('targeted')">Targeted</span>
+        </div>
+        <div class="sq-grid modal-grid" style="margin-bottom:16px">`;
+      allCampaigns.filter(c => listFilter==='all' || c.targeted).forEach(c => {
+        html += `<div class="sq-card">
+          <div class="sq-thumb ${c.targeted?'targeted':''}">${c.targeted?'🎯':'▦'}</div>
+          ${c.targeted?'<div class="sq-tag">Targeted</div>':''}
+          <div class="sq-title">${c.name}</div>
+          <div class="sq-meta">${c.meta}</div>
+        </div>`;
+      });
+      html += `</div>
+        <div class="create-custom-card" onclick="startCustom()">
+          <div class="cc-icon">+</div>
+          <div class="cc-text"><div class="cctitle">Create custom campaign</div><div class="ccdesc">Build one from scratch — regular or targeted</div></div>
+        </div>`;
+      body.innerHTML = html;
+      foot.innerHTML = '';
+    }
+
+    else if (modalStep === 'type') {
+      title.textContent = 'New custom campaign';
+      body.innerHTML = `
+        <div class="type-grid">
+          <div class="type-card ${chosenType==='regular'?'selected':''}" onclick="selectType('regular')">
+            <div class="ticon">▦</div>
+            <div class="ttitle">Regular campaign</div>
+            <div class="tdesc">A themed set of posts scheduled across your calendar. No audience targeting.</div>
+          </div>
+          <div class="type-card ${chosenType==='targeted'?'selected':''}" onclick="selectType('targeted')">
+            <div class="ticon">🎯</div>
+            <div class="ttitle">Targeted campaign</div>
+            <div class="tdesc">Pick a segment, add a CTA and duration — built for audience-based drip outreach.</div>
+          </div>
+        </div>`;
+      foot.innerHTML = `<span class="m-btn ${chosenType?'primary':'primary disabled'}" onclick="${chosenType?'goNext()':''}">Continue</span>`;
+    }
+
+    else if (modalStep === 'form') {
+      title.textContent = 'Targeted campaign details';
+      body.innerHTML = `
+        <div class="field">
+          <label>Audience segment</label>
+          <select>
+            <option>Pre-retirees, age 45–60</option>
+            <option>New investors, first SIP</option>
+            <option>High net-worth, FIRE seekers</option>
+            <option>Lapsed clients, 6+ months inactive</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Call to action</label>
+          <input type="text" placeholder="e.g. Book a free portfolio review" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Start date</label>
+            <input type="text" placeholder="Jul 14, 2026" />
+          </div>
+          <div class="field">
+            <label>Duration</label>
+            <select>
+              <option>Runs for 7 days</option>
+              <option>Runs for 14 days</option>
+              <option>Runs for 30 days</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-hint">This is the only setup screen for targeted campaigns — next step is scheduling.</div>`;
+      foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">Back</span><span class="m-btn primary" onclick="goNext()">Continue</span>`;
+    }
+
+    else if (modalStep === 'schedule') {
+      title.textContent = 'Schedule';
+      const isTargeted = chosenType === 'targeted';
+      body.innerHTML = `
+        <div class="field">
+          <label>Campaign name</label>
+          <input type="text" placeholder="${isTargeted ? 'Pre-retiree FIRE outreach' : 'Untitled campaign'}" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Start date</label>
+            <input type="text" placeholder="Jul 14, 2026" />
+          </div>
+          <div class="field">
+            <label>Time of day</label>
+            <input type="text" placeholder="10:00 AM" />
+          </div>
+        </div>
+        <div class="summary-box">
+          ${isTargeted
+            ? '<b>Targeted</b> · Pre-retirees, age 45–60 · CTA set · runs 14 days'
+            : '<b>Regular</b> · 5 posts · themed content set'}
+          <br>Posts will drop onto your calendar automatically once scheduled.
+        </div>`;
+      foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">Back</span><span class="m-btn primary" onclick="closeModal()">Schedule campaign</span>`;
+    }
+  }
+
+  function setFilter(f) { listFilter = f; render(); }
+  function startCustom() { modalStep = 'type'; chosenType = null; render(); }
+  function selectType(t) { chosenType = t; render(); }
+
+  /* ============= CONTENT DISCOVERY (Create Post) ============= */
+  const categories = [
+    {key:'education', label:'Investor Education', icon:'🌱', count:640},
+    {key:'concepts', label:'Financial Concepts', icon:'📘', count:1120},
+    {key:'market', label:'Market Updates', icon:'📉', count:980},
+    {key:'trending', label:'Trending', icon:'🔥', count:210},
+    {key:'risk', label:'Risk Profiling', icon:'🎯', count:340},
+  ];
+
+  const sampleCards = {
+    education: [
+      {icon:'🎬', title:'Why investing early matters', meta:'Reel · English', badge:{type:'seg', text:'New investors'}},
+      {icon:'📝', title:'5 mistakes new SIP investors make', meta:'Post · Hindi', badge:{type:'seg', text:'New investors'}},
+      {icon:'🖼️', title:'What happens if you skip an SIP', meta:'Carousel · English'},
+      {icon:'✨', title:'The power of compounding', meta:'Story · Tamil'},
+    ],
+    concepts: [
+      {icon:'📘', title:'SIP vs Lumpsum explained', meta:'Carousel · English'},
+      {icon:'📗', title:'What is NAV, really?', meta:'Post · Hindi'},
+      {icon:'📙', title:'STP for beginners', meta:'Reel · English'},
+      {icon:'📕', title:'Expense ratio, decoded', meta:'Post · English'},
+    ],
+    market: [
+      {icon:'📉', title:'Why the dip is not a reason to exit', meta:'Reel · Hindi'},
+      {icon:'📈', title:'Weekly market wrap', meta:'Post · English'},
+      {icon:'📰', title:'Rate cut — what it means for you', meta:'Carousel · English'},
+      {icon:'🌍', title:'Global cues affecting Indian markets', meta:'Story · English'},
+    ],
+    trending: [
+      {icon:'🔥', title:'Balanced Advantage Funds explained', meta:'Reel · English', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Why Multi-Asset Funds are booming', meta:'Post · Hindi', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Gold ETFs — the current rally', meta:'Carousel · English', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Small cap correction, explained calmly', meta:'Reel · Tamil', badge:{type:'trend', text:'Trending'}},
+    ],
+    risk: [
+      {icon:'🎯', title:'Understanding your risk appetite', meta:'Carousel · English'},
+      {icon:'🎯', title:'Conservative vs aggressive investing', meta:'Post · Hindi'},
+      {icon:'🎯', title:'Risk profiling — client conversation guide', meta:'Story · English', badge:{type:'seg', text:'Pre-retirees'}},
+      {icon:'🎯', title:'Matching fund philosophy to temperament', meta:'Post · English'},
+    ],
+  };
+
+  let activeCat = 'education';
+
+  function renderDrawerPills() {
+    document.getElementById('drawerPills').innerHTML = categories.map(c =>
+      `<div class="cat-pill ${c.key==='trending'?'trend-pill':''} ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">${c.icon} ${c.label}</div>`
+    ).join('');
+  }
+  function renderDrawerGrid() {
+    document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
+    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map(c => `
+      <div class="sq-card">
+        <div class="sq-thumb">${c.icon}</div>
+        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+        <div class="sq-title">${c.title}</div>
+        <div class="sq-meta">${c.meta}</div>
+      </div>`).join('');
+  }
+  function setActiveCat(k) { activeCat = k; renderDrawerPills(); renderDrawerGrid(); renderBmCatRail(); renderBmGrid(); }
+
+  function openBrowseModal() {
+    document.getElementById('browseBackdrop').classList.add('show');
+    renderBmCatRail(); renderBmGrid();
+  }
+  function closeBrowseModal() { document.getElementById('browseBackdrop').classList.remove('show'); }
+
+  function renderBmCatRail() {
+    document.getElementById('bmCatRail').innerHTML = categories.map(c =>
+      `<div class="bm-cat-item ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">
+        <div class="bm-cat-icon">${c.icon}</div>
+        <div class="bm-cat-label">${c.label}</div>
+        <div class="bm-cat-count">${c.count}</div>
+      </div>`).join('');
+  }
+  function renderBmGrid() {
+    const cat = categories.find(c=>c.key===activeCat);
+    document.getElementById('bmMainTitle').textContent = cat.label;
+    document.getElementById('bmMainCount').textContent = cat.count + ' creatives';
+    const cards = sampleCards[activeCat].concat(sampleCards[activeCat]);
+    document.getElementById('bmGrid').innerHTML = cards.map(c => `
+      <div class="sq-card">
+        <div class="sq-thumb">${c.icon}</div>
+        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+        <div class="sq-title">${c.title}</div>
+        <div class="sq-meta">${c.meta}</div>
+      </div>`).join('');
+  }
+
+  /* ---- discovery filter panel ---- */
+  const discoveryFilterGroups = {
+    trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
+      options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
+    segment: { label: 'Client segment', note: 'Which client this content suits best — independent of category.',
+      options: [ {label:'New investors',count:310}, {label:'Pre-retirees',count:210}, {label:'HNI',count:95}, {label:'Lapsed clients',count:60} ] },
+    format: { label: 'Format', note: '', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
+    language: { label: 'Language', note: '', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
+    platform: { label: 'Platform', note: '', options: [ {label:'Instagram',count:2400}, {label:'LinkedIn',count:1300}, {label:'WhatsApp Status',count:500} ] },
+    complexity: { label: 'Complexity level', note: '', options: [ {label:'Beginner',count:1800}, {label:'Intermediate',count:1500}, {label:'Advanced',count:900} ] },
+    fundtype: { label: 'Fund type', note: '', options: [ {label:'Equity',count:1100}, {label:'Debt',count:700}, {label:'Hybrid',count:520}, {label:'ELSS',count:340}, {label:'International',count:180} ] }
+  };
+  let activeGroup = 'trending';
+  let selected = {};
+  Object.keys(discoveryFilterGroups).forEach(k => selected[k] = new Set());
+
+  function renderGroups() {
+    document.getElementById('fpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
+      const g = discoveryFilterGroups[k]; const n = selected[k].size;
+      return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
+    }).join('');
+  }
+  function renderOptions() {
+    const g = discoveryFilterGroups[activeGroup];
+    let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
+    g.options.forEach(o => {
+      const checked = selected[activeGroup].has(o.label);
+      html += `<div class="fp-option" onclick="toggleOption('${o.label}')">
+        <div class="fp-check ${checked?'checked':''}"></div>
+        <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
+        <div class="fp-opt-count">${o.count}</div>
+      </div>`;
+    });
+    document.getElementById('fpOptions').innerHTML = html;
+  }
+  function setActiveGroup(k) { activeGroup = k; renderGroups(); renderOptions(); }
+  function toggleOption(label) {
+    const s = selected[activeGroup];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    renderGroups(); renderOptions(); renderDiscoveryChips();
+  }
+  function clearFilters() { Object.keys(selected).forEach(k => selected[k].clear()); renderGroups(); renderOptions(); renderDiscoveryChips(); }
+  function renderDiscoveryChips() {
+    let chips = [];
+    Object.keys(selected).forEach(k => selected[k].forEach(label => {
+      chips.push(`<div class="achip ${k==='segment'?'seg':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleOption('${label}');setActiveGroup('${k}')">✕</span></div>`);
+    }));
+    document.getElementById('activeChips').innerHTML = chips.join('');
+    const total = Object.values(selected).reduce((a,s)=>a+s.size,0);
+    document.getElementById('filterCountBadge').textContent = total ? '('+total+')' : '';
+    document.getElementById('bmFiltersBtn').classList.toggle('active', total > 0);
+  }
+  function toggleFilterPanel() {
+    document.getElementById('fpBackdrop2').classList.toggle('show');
+    document.getElementById('filterPanel2').classList.toggle('show');
+  }
+
+  renderDrawerPills(); renderDrawerGrid();
+  renderGroups(); renderOptions(); renderDiscoveryChips();
+</script>
+
+</body>
+</html>
