@@ -39,7 +39,7 @@
   .btn-tertiary:hover { border-color: #b3b2ac; color: #1a1a1a; background: #f9f9f7; }
   .sidebar-note { margin-top: 16px; font-size: 12px; color: #b3b2ac; line-height: 1.5; }
 
-  .calendar { flex: 1; display: flex; flex-direction: column; }
+  .calendar { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
   .cal-header { display: grid; grid-template-columns: 60px repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
   .cal-header div { text-align: center; font-size: 12px; color: #9a9a94; padding: 12px 0; font-weight: 600; }
   .cal-header div.today { color: #1a1a1a; }
@@ -226,6 +226,272 @@
   .fp-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
   .fp-btn.clear { border: 1px solid #d8d6cf; color: #4a4a46; background: #fff; }
   .fp-btn.apply { background: #1a1a1a; color: #fff; }
+
+  /* ================= CALENDAR: week hover-plus ================= */
+  .wk-slot { height: 64px; border-bottom: 1px solid #ececea; position: relative; cursor: pointer; }
+  .wk-slot:hover { background: #f7f8fc; }
+  .wk-slot-plus {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.7);
+    width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity .12s ease, transform .12s ease; pointer-events: none; z-index: 2;
+  }
+  .wk-slot:hover .wk-slot-plus { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  .wk-slot.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
+  .wk-event {
+    position: absolute; inset: 3px; border-radius: 6px; padding: 5px 7px; font-size: 10.5px;
+    cursor: pointer; overflow: hidden; z-index: 1;
+  }
+  .wk-event .we-title { font-weight: 600; margin-bottom: 2px; line-height: 1.25; }
+  .wk-event .we-status { opacity: 0.75; font-size: 9.5px; }
+  .wk-event.st-draft { background: #fdf6e0; border: 1px dashed #d4b106; color: #6b5900; }
+  .wk-event.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .wk-event.st-published { background: #eaf3de; color: #27500a; }
+
+  /* ================= CALENDAR: month view ================= */
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; }
+  .month-head-row { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
+  .month-head-row div { text-align: center; font-size: 12px; color: #9a9a94; padding: 10px 0; font-weight: 600; }
+  .month-cell { border-right: 1px solid #ececea; border-bottom: 1px solid #ececea; padding: 8px; min-height: 108px; position: relative; cursor: pointer; }
+  .month-cell:hover { background: #f9f9f7; }
+  .month-cell.outside { color: #c7c5bc; background: #fbfbfa; }
+  .month-cell.today { background: #f0ece2; }
+  .month-date { font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+  .month-cell.outside .month-date { color: #c7c5bc; font-weight: 400; }
+  .month-item {
+    font-size: 10.5px; padding: 3px 6px; border-radius: 5px; margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .month-item.st-draft { background: #fdf6e0; color: #6b5900; border: 1px dashed #d4b106; }
+  .month-item.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .month-item.st-published { background: #eaf3de; color: #27500a; }
+  .month-more { font-size: 10.5px; font-weight: 600; color: #0c447c; cursor: pointer; }
+  .month-cell-plus {
+    position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
+    background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .12s ease; cursor: pointer;
+  }
+  .month-cell:hover .month-cell-plus { opacity: 1; }
+
+  /* day popover */
+  .day-popover-backdrop { position: absolute; inset: 0; z-index: 15; display: none; }
+  .day-popover-backdrop.show { display: block; }
+  .day-popover {
+    position: absolute; width: 280px; background: #fff; border: 1px solid #d8d6cf; border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18); z-index: 16; padding: 14px; display: none;
+  }
+  .day-popover.show { display: block; }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .dp-head .dp-title { font-size: 13px; font-weight: 700; }
+  .dp-head .dp-close { width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 12px; }
+  .dp-head .dp-close:hover { background: #f4f4f2; }
+  .dp-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; cursor: pointer; }
+  .dp-item:hover { background: #f7f8fc; }
+  .dp-item .dp-thumb { width: 32px; height: 32px; border-radius: 6px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .dp-item .dp-text { flex: 1; min-width: 0; }
+  .dp-item .dp-time { font-size: 11px; font-weight: 600; }
+  .dp-item .dp-caption { font-size: 10.5px; color: #9a9a94; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dp-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; flex-shrink: 0; }
+  .dp-badge.st-draft { background: #fdf6e0; color: #6b5900; }
+  .dp-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .dp-badge.st-published { background: #eaf3de; color: #27500a; }
+
+  /* ================= CALENDAR: list view ================= */
+  .list-view { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .list-filters { display: flex; gap: 10px; margin-bottom: 18px; }
+  .lf-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 14px; font-size: 13px; color: #4a4a46; }
+  .list-row { border: 1px solid #e4e2da; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .lr-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+  .lr-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .lr-account { font-size: 13px; font-weight: 600; }
+  .lr-platform { font-size: 11px; color: #9a9a94; }
+  .lr-time { margin-left: auto; font-size: 12px; color: #6a6a66; display: flex; align-items: center; gap: 6px; }
+  .lr-icons { display: flex; gap: 6px; }
+  .lr-icon-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid #d8d6cf; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; color: #4a4a46; }
+  .lr-icon-btn:hover { background: #f4f4f2; }
+  .lr-body { display: flex; gap: 14px; padding: 0 14px 12px; }
+  .lr-thumb { width: 90px; height: 90px; border-radius: 8px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .lr-caption-label { font-size: 10.5px; font-weight: 700; color: #9a9a94; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+  .lr-caption-text { font-size: 13px; color: #1a1a1a; }
+  .lr-foot { padding: 0 14px 14px; }
+  .lr-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+  .lr-badge.st-draft { background: #fdf6e0; color: #6b5900; }
+  .lr-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .lr-badge.st-published { background: #eaf3de; color: #27500a; }
+
+  /* ================= EDIT POST MODAL ================= */
+  .ep-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 40; display: none; align-items: center; justify-content: center; }
+  .ep-backdrop.show { display: flex; }
+  .ep-modal { width: 1180px; max-width: 95%; max-height: 88%; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+  .ep-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 26px; border-bottom: 1px solid #e4e2da; flex-shrink: 0; }
+  .ep-head h2 { font-size: 20px; font-weight: 700; }
+  .ep-close { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 16px; }
+  .ep-close:hover { background: #f4f4f2; }
+  .ep-body { display: flex; flex: 1; overflow: hidden; }
+  .ep-col { padding: 20px 22px; overflow-y: auto; }
+  .ep-col-platforms { width: 300px; flex-shrink: 0; border-right: 1px solid #e4e2da; background: #fbfbfa; }
+  .ep-col-media { flex: 1; border-right: 1px solid #e4e2da; }
+  .ep-col-preview { width: 320px; flex-shrink: 0; background: #f9f9f7; }
+
+  .ep-section-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .ep-platform-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #ececea; }
+  .ep-platform-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .ep-platform-icon.ig { background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); color: #fff; }
+  .ep-platform-icon.fb { background: #1877f2; color: #fff; }
+  .ep-platform-icon.li { background: #0a66c2; color: #fff; }
+  .ep-platform-icon.wa { background: #25d366; color: #fff; }
+  .ep-platform-icon.x { background: #000; color: #fff; }
+  .ep-platform-text { flex: 1; }
+  .ep-platform-name { font-size: 13.5px; font-weight: 600; }
+  .ep-platform-sub { font-size: 11px; color: #9a9a94; }
+  .ep-toggle { width: 38px; height: 22px; border-radius: 999px; background: #d8d6cf; position: relative; cursor: pointer; flex-shrink: 0; transition: background .12s; }
+  .ep-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .12s; }
+  .ep-toggle.on { background: #1a1a1a; }
+  .ep-toggle.on::after { transform: translateX(16px); }
+  .ep-connect-btn { font-size: 11.5px; font-weight: 600; color: #0c447c; cursor: pointer; flex-shrink: 0; }
+  .ep-time-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 10px 44px; font-size: 12.5px; color: #4a4a46; }
+  .ep-time-row input { border: 1px solid #d8d6cf; border-radius: 6px; padding: 6px 9px; font-size: 12.5px; font-family: inherit; width: 100px; }
+  .ep-connect-section { margin-top: 22px; }
+  .ep-connect-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .ep-add-btn { width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; margin-left: auto; cursor: pointer; }
+
+  .ep-toprow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .ep-mini-toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #4a4a46; }
+  .ep-format-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .ep-platform-tab-icons { display: flex; gap: 8px; margin-bottom: 14px; }
+  .ep-format-radio { display: flex; gap: 20px; margin-bottom: 16px; }
+  .ep-format-radio label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .ep-platform-icon.active-tab { outline: 2px solid #1a1a1a; outline-offset: 2px; }
+  .ep-format-radio input { accent-color: #1a1a1a; }
+
+  .ep-music-notice {
+    display: flex; align-items: center; gap: 10px; background: #fdf6e0; border: 1px solid #eadd9c;
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #6b5900;
+  }
+  .ep-music-notice .emn-text { flex: 1; line-height: 1.4; }
+  .ep-music-add-btn { font-size: 11.5px; font-weight: 700; color: #6b5900; background: #fff; border: 1px solid #eadd9c; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+  .ep-music-add-btn.added { background: #eaf3de; color: #27500a; border-color: #cfe3b0; }
+  .ep-media-box { width: 260px; height: 260px; border-radius: 10px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; margin-bottom: 16px; }
+  .ep-media-box .ep-media-remove { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 5px; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+  .ep-media-empty { width: 260px; height: 140px; border: 1.5px dashed #d8d6cf; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b2ac; margin-bottom: 16px; }
+
+  /* media empty state v2 (matches "Create Single Post" reference) */
+  .ep-media-empty2 {
+    width: 100%; max-width: 420px; border: 1.5px dashed #d8d6cf; border-radius: 12px;
+    padding: 34px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    margin-bottom: 16px; background: #fbfbfa; position: relative;
+  }
+  .ep-media-empty2 .eme-arrow { font-size: 20px; color: #9a9a94; margin-bottom: 10px; }
+  .ep-media-empty2 .eme-text { font-size: 13px; color: #8a8a86; line-height: 1.5; margin-bottom: 16px; }
+  .ep-choose-btn {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0c447c;
+    background: #eaf1fb; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .ep-choose-menu {
+    position: absolute; top: 100%; margin-top: 6px; left: 50%; transform: translateX(-50%);
+    width: 200px; background: #fff; border: 1px solid #e4e2da; border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.14); z-index: 5; padding: 6px; display: none;
+  }
+  .ep-choose-menu.show { display: block; }
+  .ep-choose-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; font-size: 13px; cursor: pointer; }
+  .ep-choose-item:hover { background: #f4f4f2; }
+
+  /* preview column */
+  .ep-preview-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .ep-preview-tab {
+    width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: pointer; border: 2px solid transparent;
+  }
+  .ep-preview-tab.active { border-color: #1a1a1a; }
+  .ep-preview-empty {
+    background: #fff; border: 1px solid #e4e2da; border-radius: 12px; padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .ep-preview-empty .epe-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eceae4; margin-bottom: 14px; align-self: flex-start; }
+  .ep-preview-empty .epe-line { height: 8px; background: #eceae4; border-radius: 4px; width: 100%; margin-bottom: 14px; }
+  .ep-preview-empty .epe-block { width: 100%; aspect-ratio: 4/3; background: #eceae4; border-radius: 8px; margin-bottom: 14px; }
+  .ep-preview-empty .epe-line2 { height: 7px; background: #eceae4; border-radius: 4px; width: 100%; margin-bottom: 8px; }
+  .ep-preview-empty .epe-line3 { height: 7px; background: #eceae4; border-radius: 4px; width: 70%; margin-bottom: 16px; align-self: flex-start; }
+  .ep-preview-empty .epe-caption { font-size: 13px; color: #9a9a94; }
+
+  /* ---- Instagram post preview ---- */
+  .ig-post-card { background: #fff; border: 1px solid #dbdbdb; border-radius: 12px; overflow: hidden; }
+  .ig-post-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+  .ig-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .ig-post-name { font-size: 12.5px; font-weight: 700; }
+  .ig-post-media { width: 100%; aspect-ratio: 1/1; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .ig-post-actions { display: flex; gap: 12px; padding: 10px 12px 4px; font-size: 17px; color: #262626; }
+  .ig-post-likes { padding: 2px 12px; font-size: 12px; font-weight: 700; }
+  .ig-post-caption { padding: 4px 12px 12px; font-size: 12px; line-height: 1.5; }
+  .ig-post-caption b { margin-right: 5px; }
+
+  /* ---- Instagram story preview ---- */
+  .ig-story-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
+  .ig-story-bar { position: absolute; top: 8px; left: 8px; right: 8px; height: 2.5px; background: rgba(255,255,255,0.35); border-radius: 2px; }
+  .ig-story-bar::after { content:''; display:block; width: 60%; height: 100%; background: #fff; border-radius: 2px; }
+  .ig-story-head { position: absolute; top: 16px; left: 10px; display: flex; align-items: center; gap: 6px; }
+  .ig-story-avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); }
+  .ig-story-name { font-size: 11px; color: #fff; font-weight: 600; }
+  .ig-story-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
+  .ig-story-reply { position: absolute; bottom: 10px; left: 10px; right: 10px; border: 1px solid rgba(255,255,255,0.5); border-radius: 999px; padding: 7px 12px; font-size: 10.5px; color: rgba(255,255,255,0.75); }
+
+  /* ---- Instagram reel preview ---- */
+  .ig-reel-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
+  .ig-reel-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
+  .ig-reel-rail { position: absolute; right: 8px; bottom: 60px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #fff; font-size: 17px; }
+  .ig-reel-rail span { font-size: 9px; margin-top: -8px; }
+  .ig-reel-bottom { position: absolute; bottom: 12px; left: 10px; right: 44px; color: #fff; font-size: 10.5px; line-height: 1.5; }
+  .ig-reel-bottom b { display: block; margin-bottom: 3px; }
+  .ig-reel-music { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10px; opacity: 0.9; }
+  .ig-reel-music.no-music { color: #ffcf7a; }
+
+  /* ---- LinkedIn post preview ---- */
+  .li-post-card { background: #fff; border: 1px solid #e4e2da; border-radius: 10px; overflow: hidden; }
+  .li-post-head { display: flex; gap: 8px; padding: 12px 12px 8px; }
+  .li-avatar { width: 40px; height: 40px; border-radius: 50%; background: #0a66c2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .li-post-name { font-size: 13px; font-weight: 700; }
+  .li-post-sub { font-size: 11px; color: #6a6a66; line-height: 1.4; }
+  .li-post-time { font-size: 10.5px; color: #9a9a94; }
+  .li-post-caption { padding: 0 12px 10px; font-size: 12.5px; line-height: 1.5; }
+  .li-post-media { width: 100%; aspect-ratio: 16/9; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .li-post-reactions { display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-size: 11px; color: #6a6a66; border-bottom: 1px solid #ececea; }
+  .li-post-actions { display: flex; padding: 4px 4px; }
+  .li-post-actions span { flex: 1; text-align: center; padding: 8px 0; font-size: 11.5px; font-weight: 600; color: #6a6a66; }
+
+  /* split save button */
+  .ep-split-btn { position: relative; display: flex; }
+  .ep-split-main { font-size: 13.5px; font-weight: 600; padding: 11px 20px; border-radius: 8px 0 0 8px; cursor: pointer; background: #1a1a1a; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .ep-split-chevron { font-size: 13.5px; padding: 11px 12px; border-radius: 0 8px 8px 0; cursor: pointer; background: #1a1a1a; color: #fff; border-left: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; }
+  .ep-split-menu {
+    position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; width: 280px;
+    background: #fff; border: 1px solid #e4e2da; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+    z-index: 10; padding: 6px; display: none;
+  }
+  .ep-split-menu.show { display: block; }
+  .ep-split-option { padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+  .ep-split-option:hover { background: #f4f4f2; }
+  .ep-split-option.active { background: #eaf1fb; }
+  .ep-split-option-title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .ep-split-option-sub { font-size: 11.5px; color: #9a9a94; padding-left: 24px; }
+  .ep-caption-box { width: 100%; min-height: 100px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 12px; font-size: 13px; font-family: inherit; resize: vertical; margin-bottom: 6px; }
+  .ep-char-count { text-align: right; font-size: 11px; color: #b3b2ac; margin-bottom: 16px; }
+  .ep-pref-row { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #ececea; }
+  .ep-pref-row span { font-size: 13px; font-weight: 600; }
+
+  .ep-preview-card { background: #fff; border: 1px solid #e4e2da; border-radius: 12px; overflow: hidden; }
+  .ep-pv-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+  .ep-pv-avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .ep-pv-name { font-size: 12.5px; font-weight: 700; }
+  .ep-pv-time { font-size: 10.5px; color: #9a9a94; }
+  .ep-pv-media { width: 100%; aspect-ratio: 1/1; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+  .ep-pv-actions { display: flex; gap: 14px; padding: 10px 12px; font-size: 11.5px; color: #4a4a46; }
+  .ep-pv-caption { padding: 0 12px 12px; font-size: 12px; color: #4a4a46; line-height: 1.5; }
+
+  .ep-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 16px 26px; border-top: 1px solid #e4e2da; flex-shrink: 0; }
+  .ep-date-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4a4a46; margin-right: auto; }
+  .ep-btn { font-size: 13.5px; font-weight: 600; padding: 11px 22px; border-radius: 8px; cursor: pointer; }
+  .ep-btn.ghost { background: #fff; color: #1a1a1a; border: 1px solid #d8d6cf; }
+  .ep-btn.primary { background: #1a1a1a; color: #fff; }
 </style>
 </head>
 <body>
@@ -235,8 +501,12 @@
 <div class="frame">
   <div class="topbar">
     <div class="search">🔍 Search campaigns, posts, leads...</div>
-    <div class="pill">📅 Jul 5 – 11, 2026</div>
-    <div class="view-toggle"><span class="active">Week</span><span>Month</span></div>
+    <div class="pill" id="dateRangePill">📅 Jul 12 – 18, 2026</div>
+    <div class="view-toggle">
+      <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
+      <span id="viewTabMonth" onclick="switchView('month')">Month</span>
+      <span id="viewTabList" onclick="switchView('list')">List</span>
+    </div>
   </div>
 
   <div class="layout">
@@ -296,22 +566,13 @@
       </div>
     </div>
 
-    <div class="calendar">
-      <div class="cal-header">
-        <div></div>
-        <div>SUN<span>5</span></div><div class="today">MON<span>6</span></div><div>TUE<span>7</span></div>
-        <div>WED<span>8</span></div><div>THU<span>9</span></div><div>FRI<span>10</span></div><div>SAT<span>11</span></div>
-      </div>
-      <div class="cal-body">
-        <div class="time-col"><div class="time-slot">8 AM</div><div class="time-slot">9 AM</div><div class="time-slot">10 AM</div><div class="time-slot">11 AM</div><div class="time-slot">12 PM</div><div class="time-slot">1 PM</div><div class="time-slot">2 PM</div><div class="time-slot">3 PM</div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-        <div class="day-col"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-      </div>
+    <div class="calendar" id="calendarRoot">
+      <div id="weekView"></div>
+      <div id="monthView" style="display:none; flex:1; display:none; flex-direction:column;"></div>
+      <div id="listView" class="list-view" style="display:none;"></div>
+
+      <div class="day-popover-backdrop" id="dpBackdrop" onclick="closeDayPopover()"></div>
+      <div class="day-popover" id="dayPopover"></div>
     </div>
 
     <!-- ============= STATE B MODAL ============= -->
@@ -366,6 +627,84 @@
               <div class="fp-btn clear" onclick="clearFilters()">Clear filters</div>
               <div class="fp-btn apply" onclick="toggleFilterPanel()">Apply</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= EDIT POST MODAL ============= -->
+    <div class="ep-backdrop" id="epBackdrop" onclick="if(event.target===this) closeEditPost()">
+      <div class="ep-modal">
+        <div class="ep-head">
+          <h2 id="epTitle">Edit post</h2>
+          <span class="ep-close" onclick="closeEditPost()">✕</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-col ep-col-platforms">
+            <div class="ep-section-title">Select Platforms</div>
+            <div id="epPlatformRows"></div>
+            <div class="ep-connect-section">
+              <div class="ep-section-title">Connect platforms</div>
+              <div class="ep-connect-row">
+                <div class="ep-platform-icon wa">💬</div>
+                <div class="ep-platform-text"><div class="ep-platform-name">WhatsApp</div></div>
+                <div class="ep-add-btn">+</div>
+              </div>
+              <div class="ep-connect-row">
+                <div class="ep-platform-icon x">𝕏</div>
+                <div class="ep-platform-text"><div class="ep-platform-name">X</div></div>
+                <div class="ep-add-btn">+</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ep-col ep-col-media">
+            <div class="ep-toprow">
+              <div class="ep-section-title" style="margin-bottom:0">Add Media files</div>
+              <div class="ep-mini-toggle-row">
+                Customize for each socials
+                <div class="ep-toggle" id="epCustomizeToggle" onclick="toggleCustomize()"></div>
+              </div>
+            </div>
+            <div id="epFormatSection" style="display:none;">
+              <div class="ep-platform-tab-icons" id="epPlatformTabs"></div>
+              <div class="ep-format-radio">
+                <label><input type="radio" name="epFormat" checked onchange="setEpFormat('post')"> Post</label>
+                <label><input type="radio" name="epFormat" onchange="setEpFormat('story')"> Story</label>
+                <label><input type="radio" name="epFormat" onchange="setEpFormat('reel')"> Reel</label>
+              </div>
+              <div id="epMusicNotice"></div>
+            </div>
+            <div id="epMediaSlot"></div>
+            <textarea class="ep-caption-box" id="epCaption" placeholder="Add your caption to the post here, start writing..." oninput="onCaptionInput()"></textarea>
+            <div class="ep-char-count"><span id="epCharCount">0</span>/2200</div>
+            <div class="ep-pref-row">
+              <span>Preferred Captions</span>
+              <div class="ep-toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+
+          <div class="ep-col ep-col-preview">
+            <div class="ep-section-title" id="epPreviewTitle">Post Previews</div>
+            <div id="epPreviewCol"></div>
+          </div>
+        </div>
+
+        <div class="ep-foot">
+          <div class="ep-date-pill">📅 <span id="epDateLabel">Jul 12, 2026</span></div>
+          <div class="ep-split-btn">
+            <div class="ep-split-menu" id="epSplitMenu">
+              <div class="ep-split-option" id="epOptSchedule" onclick="selectSaveMode('scheduled')">
+                <div class="ep-split-option-title">🕐 Schedule Post</div>
+                <div class="ep-split-option-sub">Post will be published on the selected date and time.</div>
+              </div>
+              <div class="ep-split-option" id="epOptDraft" onclick="selectSaveMode('draft')">
+                <div class="ep-split-option-title">✎ Save as Draft</div>
+                <div class="ep-split-option-sub">Post won't be published.</div>
+              </div>
+            </div>
+            <div class="ep-split-main" id="epSplitMainBtn" onclick="saveEditPost(epSaveMode)">Schedule Post</div>
+            <div class="ep-split-chevron" onclick="toggleSplitMenu()">▾</div>
           </div>
         </div>
       </div>
@@ -612,8 +951,8 @@
   }
   function renderDrawerGrid() {
     document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
-    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map(c => `
-      <div class="sq-card">
+    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => `
+      <div class="sq-card" draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx})" ondragend="onCardDragEnd(event)">
         <div class="sq-thumb">${c.icon}</div>
         ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
         <div class="sq-title">${c.title}</div>
@@ -641,8 +980,8 @@
     document.getElementById('bmMainTitle').textContent = cat.label;
     document.getElementById('bmMainCount').textContent = cat.count + ' creatives';
     const cards = sampleCards[activeCat].concat(sampleCards[activeCat]);
-    document.getElementById('bmGrid').innerHTML = cards.map(c => `
-      <div class="sq-card">
+    document.getElementById('bmGrid').innerHTML = cards.map((c,idx) => `
+      <div class="sq-card" draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx % sampleCards[activeCat].length})" ondragend="onCardDragEnd(event)">
         <div class="sq-thumb">${c.icon}</div>
         ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
         <div class="sq-title">${c.title}</div>
@@ -709,6 +1048,587 @@
 
   renderDrawerPills(); renderDrawerGrid();
   renderGroups(); renderOptions(); renderDiscoveryChips();
+
+  /* ================================================================
+     CALENDAR: shared data model + three views + drag-drop + Edit Post
+     ================================================================ */
+
+  // connection state — mirrors what "Connect your channel" would set.
+  // Instagram intentionally NOT connected, to demonstrate the "always blank
+  // until connected" behaviour; Facebook + LinkedIn are already connected.
+  const CONNECTED = { instagram: false, facebook: true, linkedin: true };
+
+  const PLATFORM_META = {
+    instagram: { label: 'Instagram', icon: '📷', cls: 'ig' },
+    facebook:  { label: 'Facebook',  icon: 'f',  cls: 'fb' },
+    linkedin:  { label: 'LinkedIn',  icon: 'in', cls: 'li' },
+  };
+
+  let events = [
+    { id:'e1', date:'2026-07-12', hour:11, minute:20, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'🖼️' },
+    { id:'e2', date:'2026-07-12', hour:13, minute:23, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:null },
+    { id:'e3', date:'2026-07-13', hour:8,  minute:0,  title:'SIP vs Lumpsum — Reel', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'🎬' },
+    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'published', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈' },
+    { id:'e5', date:'2026-07-16', hour:10, minute:0,  title:'Client story — FIRE journey', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'✨' },
+    { id:'e6', date:'2026-07-18', hour:13, minute:0,  title:'Year-end portfolio CTA', caption:'', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'▦' },
+  ];
+  let eventSeq = 100;
+
+  const WEEK_START = new Date(2026, 6, 12); // Sun Jul 12, 2026 — matches "today"
+  const TODAY_STR = '2026-07-12';
+  const TIME_SLOTS = []; // hours 7..20
+  for (let h = 7; h <= 20; h++) TIME_SLOTS.push(h);
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function toDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+  function hourLabel(h) { const ampm = h < 12 ? 'AM' : 'PM'; let hh = h % 12; if (hh===0) hh = 12; return hh + ' ' + ampm; }
+  function fmtDateLong(dateStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+  function fmtTime12(hour, minute) {
+    const ampm = hour < 12 ? 'AM' : 'PM'; let hh = hour % 12; if (hh===0) hh = 12;
+    return hh + ':' + pad(minute) + ' ' + ampm;
+  }
+
+  let currentView = 'week';
+  function switchView(v) {
+    currentView = v;
+    ['Week','Month','List'].forEach(name => {
+      document.getElementById('viewTab'+name).classList.toggle('active', name.toLowerCase()===v);
+    });
+    document.getElementById('weekView').style.display = v==='week' ? 'block' : 'none';
+    document.getElementById('monthView').style.display = v==='month' ? 'flex' : 'none';
+    document.getElementById('listView').style.display = v==='list' ? 'block' : 'none';
+    closeDayPopover();
+    if (v==='week') renderWeekView();
+    if (v==='month') renderMonthView();
+    if (v==='list') renderListView();
+  }
+
+  /* ---------------- WEEK VIEW ---------------- */
+  function renderWeekView() {
+    const days = [];
+    for (let i=0;i<7;i++) days.push(addDays(WEEK_START, i));
+
+    let html = '<div class="cal-header"><div></div>';
+    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    days.forEach(d => {
+      const isToday = toDateStr(d) === TODAY_STR;
+      html += `<div class="${isToday?'today':''}">${dayNames[d.getDay()]}<span>${d.getDate()}</span></div>`;
+    });
+    html += '</div><div class="cal-body">';
+
+    html += '<div class="time-col">' + TIME_SLOTS.map(h => `<div class="time-slot" style="height:64px">${hourLabel(h)}</div>`).join('') + '</div>';
+
+    days.forEach(d => {
+      const dateStr = toDateStr(d);
+      html += '<div class="day-col">';
+      TIME_SLOTS.forEach(h => {
+        const ev = events.find(e => e.date===dateStr && e.hour===h);
+        if (ev) {
+          html += `<div class="wk-slot" style="padding:0">
+            <div class="wk-event st-${ev.status}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+              <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
+              <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
+            </div>
+          </div>`;
+        } else {
+          html += `<div class="wk-slot" data-date="${dateStr}" data-hour="${h}"
+            ondragover="onSlotDragOver(event)" ondragleave="onSlotDragLeave(event)" ondrop="onSlotDrop(event)"
+            onclick="openEditPost({mode:'create', date:'${dateStr}', hour:${h}})">
+            <div class="wk-slot-plus">+</div>
+          </div>`;
+        }
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('weekView').innerHTML = html;
+  }
+
+  /* ---------------- MONTH VIEW ---------------- */
+  function renderMonthView() {
+    const year = 2026, month = 6; // July 2026 (0-indexed)
+    const first = new Date(year, month, 1);
+    const startOffset = first.getDay();
+    const gridStart = addDays(first, -startOffset);
+    const cells = [];
+    for (let i=0;i<35;i++) cells.push(addDays(gridStart, i));
+
+    let html = '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
+    html += '<div class="month-grid">';
+    cells.forEach(d => {
+      const dateStr = toDateStr(d);
+      const outside = d.getMonth() !== month;
+      const isToday = dateStr === TODAY_STR;
+      const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+      let inner = `<div class="month-date">${d.getDate()}</div>`;
+      inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">+</div>`;
+      if (dayEvents.length) {
+        const first2 = dayEvents.slice(0,1);
+        first2.forEach(ev => {
+          inner += `<div class="month-item st-${ev.status}">${ev.title || ev.caption || 'Untitled'}</div>`;
+        });
+        if (dayEvents.length > 1) {
+          inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
+        }
+      }
+      html += `<div class="month-cell ${outside?'outside':''} ${isToday?'today':''}" data-date="${dateStr}" onclick="openDayPopover(event,'${dateStr}')">${inner}</div>`;
+    });
+    html += '</div>';
+    document.getElementById('monthView').innerHTML = html;
+  }
+
+  function openDayPopover(evt, dateStr) {
+    const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+    if (!dayEvents.length) {
+      openEditPost({mode:'create', date: dateStr, hour: 10});
+      return;
+    }
+    const pop = document.getElementById('dayPopover');
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const label = new Date(y,m-1,d).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    let html = `<div class="dp-head"><span class="dp-title">${label}</span><span class="dp-close" onclick="closeDayPopover()">✕</span></div>`;
+    dayEvents.forEach(ev => {
+      html += `<div class="dp-item" onclick="closeDayPopover(); openEditPost({mode:'edit', eventId:'${ev.id}'})">
+        <div class="dp-thumb">${ev.thumbnail || '📝'}</div>
+        <div class="dp-text">
+          <div class="dp-time">${fmtTime12(ev.hour,ev.minute)}</div>
+          <div class="dp-caption">${ev.title || ev.caption || 'Untitled'}</div>
+        </div>
+        <span class="dp-badge st-${ev.status}">${ev.status}</span>
+      </div>`;
+    });
+    pop.innerHTML = html;
+
+    const cellRect = evt.currentTarget.getBoundingClientRect();
+    const calRect = document.getElementById('calendarRoot').getBoundingClientRect();
+    pop.style.top = (cellRect.top - calRect.top + 20) + 'px';
+    let left = cellRect.left - calRect.left;
+    if (left + 280 > calRect.width) left = calRect.width - 290;
+    pop.style.left = Math.max(8,left) + 'px';
+
+    document.getElementById('dpBackdrop').classList.add('show');
+    pop.classList.add('show');
+  }
+  function closeDayPopover() {
+    document.getElementById('dpBackdrop').classList.remove('show');
+    document.getElementById('dayPopover').classList.remove('show');
+  }
+
+  /* ---------------- LIST VIEW ---------------- */
+  function renderListView() {
+    const sorted = [...events].sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
+    let html = `
+      <div class="list-filters">
+        <div class="lf-pill">📅 Jul 12, 2026 – Jul 18, 2026</div>
+        <div class="lf-pill">Status: All ▾</div>
+        <div class="lf-pill">Sort: New to Old ▾</div>
+      </div>`;
+    sorted.forEach(ev => {
+      const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
+      html += `
+        <div class="list-row">
+          <div class="lr-head">
+            <div class="lr-avatar">${pm.icon}</div>
+            <div>
+              <div class="lr-account">${ev.account || 'Unnamed account'}</div>
+              <div class="lr-platform">${pm.label}</div>
+            </div>
+            <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
+            <div class="lr-icons">
+              <div class="lr-icon-btn" title="Duplicate">⧉</div>
+              <div class="lr-icon-btn" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})" title="Edit">✎</div>
+            </div>
+          </div>
+          <div class="lr-body">
+            ${ev.thumbnail ? `<div class="lr-thumb">${ev.thumbnail}</div>` : ''}
+            <div>
+              <div class="lr-caption-label">Post caption</div>
+              <div class="lr-caption-text">${ev.caption || ev.title || '(no caption)'}</div>
+            </div>
+          </div>
+          <div class="lr-foot"><span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span></div>
+        </div>`;
+    });
+    document.getElementById('listView').innerHTML = html;
+  }
+
+  /* ---------------- DRAG AND DROP FROM CONTENT SOURCES ---------------- */
+  let draggedCard = null;
+  function onCardDragStart(evt, catKey, idx) {
+    draggedCard = sampleCards[catKey][idx];
+    evt.dataTransfer.setData('text/plain', catKey + ':' + idx);
+    evt.dataTransfer.effectAllowed = 'copy';
+    // the scrim sits above the calendar (to catch outside-clicks that close
+    // the drawer) and was silently swallowing drop events — disable it
+    // for the duration of the drag so drops reach the calendar cells.
+    document.getElementById('scrim').style.pointerEvents = 'none';
+  }
+  function onCardDragEnd(evt) {
+    document.getElementById('scrim').style.pointerEvents = '';
+  }
+  function onSlotDragOver(evt) { evt.preventDefault(); evt.currentTarget.classList.add('drag-over'); }
+  function onSlotDragLeave(evt) { evt.currentTarget.classList.remove('drag-over'); }
+  function onSlotDrop(evt) {
+    evt.preventDefault();
+    evt.currentTarget.classList.remove('drag-over');
+    document.getElementById('scrim').style.pointerEvents = '';
+    const date = evt.currentTarget.getAttribute('data-date');
+    const hour = parseInt(evt.currentTarget.getAttribute('data-hour'), 10);
+    closeBrowseModal();
+    closePanels();
+    openEditPost({ mode:'create', date, hour, prefillCard: draggedCard });
+    draggedCard = null;
+  }
+
+  /* ---------------- EDIT POST MODAL ---------------- */
+  let epState = null; // {mode, date, hour, minute, eventId, platforms:{key:{on,hour,minute}}, caption, thumbnail}
+
+  function cardKind(card) {
+    return card && /reel/i.test(card.meta || '') ? 'video' : 'image';
+  }
+
+  function openEditPost(opts) {
+    if (opts.mode === 'edit') {
+      const ev = events.find(e => e.id === opts.eventId);
+      if (!ev) return;
+      epState = {
+        mode: 'edit', eventId: ev.id, date: ev.date,
+        caption: ev.caption || '', thumbnail: ev.thumbnail || null,
+        mediaKind: ev.thumbnail === '🎬' ? 'video' : 'image',
+        platforms: {}
+      };
+      Object.keys(PLATFORM_META).forEach(k => {
+        epState.platforms[k] = { on: k === ev.platform, hour: ev.hour, minute: ev.minute };
+      });
+    } else {
+      epState = {
+        mode: 'create', date: opts.date,
+        caption: opts.prefillCard ? opts.prefillCard.title : '',
+        thumbnail: opts.prefillCard ? opts.prefillCard.icon : null,
+        mediaKind: opts.prefillCard ? cardKind(opts.prefillCard) : 'image',
+        platforms: {}
+      };
+      Object.keys(PLATFORM_META).forEach(k => {
+        epState.platforms[k] = { on: false, hour: opts.hour, minute: 0 };
+      });
+    }
+    epState.customize = false;
+    epState.format = 'post';
+    epState.musicAdded = false;
+
+    document.getElementById('epTitle').textContent = epState.mode === 'edit' ? 'Edit post' : 'Create post';
+    document.getElementById('epDateLabel').textContent = fmtDateLong(epState.date);
+    document.getElementById('epCaption').value = epState.caption;
+    epPreviewPlatform = 'instagram';
+    selectSaveMode(epState.mode === 'edit' ? 'scheduled' : 'scheduled');
+    document.getElementById('epSplitMenu').classList.remove('show');
+    document.getElementById('epCustomizeToggle').classList.remove('on');
+    document.getElementById('epFormatSection').style.display = 'none';
+    const formatRadios = document.querySelectorAll('input[name="epFormat"]');
+    if (formatRadios[0]) formatRadios[0].checked = true;
+    onCaptionInput();
+    renderEpPlatformRows();
+    renderEpMediaSlot();
+    renderEpPlatformTabs();
+    renderMusicNotice();
+    document.getElementById('epBackdrop').classList.add('show');
+  }
+  function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); }
+
+  function toggleCustomize() {
+    epState.customize = !epState.customize;
+    document.getElementById('epCustomizeToggle').classList.toggle('on', epState.customize);
+    document.getElementById('epFormatSection').style.display = epState.customize ? 'block' : 'none';
+    if (!epState.customize) {
+      // customization off ⇒ one universal post, no per-format variants
+      epState.format = 'post';
+      document.querySelectorAll('input[name="epFormat"]')[0].checked = true;
+    }
+    renderMusicNotice();
+    renderEpPreview();
+  }
+  function setEpFormat(fmt) {
+    epState.format = fmt;
+    renderMusicNotice();
+    renderEpPreview();
+  }
+  function renderMusicNotice() {
+    const el = document.getElementById('epMusicNotice');
+    const needsMusic = epState.customize && epState.format === 'reel' && epState.thumbnail && epState.mediaKind !== 'video';
+    if (!needsMusic) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="ep-music-notice">
+        <div class="emn-text">🎵 This is static content — a Reel needs music or motion to play properly.</div>
+        <div class="ep-music-add-btn ${epState.musicAdded?'added':''}" onclick="toggleMusicAdded()">${epState.musicAdded ? '✓ Music added' : '+ Add music'}</div>
+      </div>`;
+  }
+  function toggleMusicAdded() {
+    epState.musicAdded = !epState.musicAdded;
+    renderMusicNotice();
+    renderEpPreview();
+  }
+
+  function renderEpPlatformRows() {
+    let html = '';
+    Object.keys(PLATFORM_META).forEach(k => {
+      const meta = PLATFORM_META[k];
+      const connected = CONNECTED[k];
+      const st = epState.platforms[k];
+      html += `<div class="ep-platform-row">
+        <div class="ep-platform-icon ${meta.cls}">${meta.icon}</div>
+        <div class="ep-platform-text"><div class="ep-platform-name">${meta.label}</div><div class="ep-platform-sub">${connected ? 'Connected' : 'Not connected'}</div></div>
+        ${connected
+          ? `<div class="ep-toggle ${st.on?'on':''}" onclick="toggleEpPlatform('${k}')"></div>`
+          : `<div class="ep-connect-btn" onclick="alert('This would start the channel-connect flow.')">Connect</div>`}
+      </div>`;
+      if (connected && st.on) {
+        html += `<div class="ep-time-row">🕐 <input type="text" value="${fmtTime12(st.hour,st.minute)}" onchange="onEpTimeChange('${k}', this.value)"></div>`;
+      }
+    });
+    document.getElementById('epPlatformRows').innerHTML = html;
+  }
+  function toggleEpPlatform(k) {
+    epState.platforms[k].on = !epState.platforms[k].on;
+    renderEpPlatformRows();
+    renderEpPlatformTabs();
+  }
+  function onEpTimeChange(k, val) {
+    // lightweight parse, prototype-level only
+    const m = val.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (m) {
+      let hh = parseInt(m[1],10) % 12;
+      if (/pm/i.test(m[3])) hh += 12;
+      epState.platforms[k].hour = hh;
+      epState.platforms[k].minute = parseInt(m[2],10);
+    }
+  }
+  let epActiveMediaPlatform = 'instagram';
+  function renderEpPlatformTabs() {
+    const onKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
+    const keys = onKeys.length ? onKeys : ['instagram'];
+    if (!keys.includes(epActiveMediaPlatform)) epActiveMediaPlatform = keys[0];
+    document.getElementById('epPlatformTabs').innerHTML = keys.map(k =>
+      `<div class="ep-platform-icon ${PLATFORM_META[k].cls} ${k===epActiveMediaPlatform?'active-tab':''}" style="width:28px;height:28px;font-size:12px;cursor:pointer" onclick="setActiveMediaPlatform('${k}')">${PLATFORM_META[k].icon}</div>`
+    ).join('');
+  }
+  function setActiveMediaPlatform(k) {
+    epActiveMediaPlatform = k;
+    renderEpPlatformTabs();
+    renderEpPreview();
+  }
+  function renderEpMediaSlot() {
+    const slot = document.getElementById('epMediaSlot');
+    if (epState.thumbnail) {
+      slot.innerHTML = `<div class="ep-media-box">${epState.thumbnail}<div class="ep-media-remove" onclick="epState.thumbnail=null; renderEpMediaSlot(); renderEpPreview();">✕</div></div>`;
+    } else {
+      slot.innerHTML = `
+        <div class="ep-media-empty2">
+          <div class="eme-arrow">↑</div>
+          <div class="eme-text">Upload your own content or choose from thefinpedia</div>
+          <div class="ep-choose-btn" onclick="toggleChooseFrom(event)">Choose from ▾</div>
+          <div class="ep-choose-menu" id="epChooseMenu">
+            <div class="ep-choose-item" onclick="chooseFromOption('collection')">⊕ My Collection</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('library')">📣 Content Library</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('social')">📣 Social Media</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('manual')">📣 Upload manually</div>
+          </div>
+        </div>`;
+    }
+    renderEpPreview();
+  }
+  function toggleChooseFrom(evt) {
+    evt.stopPropagation();
+    document.getElementById('epChooseMenu').classList.toggle('show');
+  }
+  function chooseFromOption(type) {
+    document.getElementById('epChooseMenu').classList.remove('show');
+    if (type === 'library') {
+      // "Content Library" maps directly onto the browse experience we already built
+      closeEditPost();
+      openBrowseModal();
+    }
+    // other options (My Collection / Social Media / Upload manually) aren't
+    // wired to a real flow yet in this prototype — left as visual only.
+  }
+
+  function onCaptionInput() {
+    const val = document.getElementById('epCaption').value;
+    epState.caption = val;
+    document.getElementById('epCharCount').textContent = val.length;
+    renderEpPreview();
+  }
+
+  let epPreviewPlatform = 'instagram';
+  function setEpPreviewPlatform(k) { epPreviewPlatform = k; renderEpPreview(); }
+  function renderEpPreview() {
+    const col = document.getElementById('epPreviewCol');
+    const titleEl = document.getElementById('epPreviewTitle');
+    const activePlatform = epState.customize ? epActiveMediaPlatform : epPreviewPlatform;
+
+    let tabs = '';
+    if (epState.customize) {
+      // customizing per social ⇒ one focused preview for whichever platform
+      // is active in "Add Media files", no tab row underneath.
+      titleEl.innerHTML = `${PLATFORM_META[activePlatform].label} Preview <span style="font-weight:400;color:#b3b2ac;font-size:12px">ⓘ</span>`;
+    } else {
+      titleEl.textContent = 'Post Previews';
+      tabs = '<div class="ep-preview-tabs">';
+      Object.keys(PLATFORM_META).forEach(k => {
+        const meta = PLATFORM_META[k];
+        tabs += `<div class="ep-preview-tab ${meta.cls} ${activePlatform===k?'active':''}" style="background:${meta.cls==='ig'?'linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB)':meta.cls==='fb'?'#1877f2':'#0a66c2'};color:#fff" onclick="setEpPreviewPlatform('${k}')">${meta.icon}</div>`;
+      });
+      tabs += '</div>';
+    }
+
+    const hasContent = epState.thumbnail || epState.caption;
+    if (!hasContent) {
+      col.innerHTML = tabs + `
+        <div class="ep-preview-empty">
+          <div class="epe-avatar"></div>
+          <div class="epe-line"></div>
+          <div class="epe-block"></div>
+          <div class="epe-line2"></div>
+          <div class="epe-line3"></div>
+          <div class="epe-caption">See your post's preview here</div>
+        </div>`;
+      return;
+    }
+
+    const media = epState.thumbnail || '🖼️';
+    const caption = epState.caption || '';
+    // format variants only apply to Instagram, and only once "customize for
+    // each social" is on — every other platform always shows its standard
+    // post layout in this prototype.
+    const format = (activePlatform === 'instagram' && epState.customize) ? epState.format : 'post';
+
+    let body = '';
+    if (activePlatform === 'instagram' && format === 'story') {
+      body = `
+        <div class="ig-story-frame">
+          <div class="ig-story-bar"></div>
+          <div class="ig-story-head"><div class="ig-story-avatar"></div><div class="ig-story-name">thefinpedia</div></div>
+          <div class="ig-story-media">${media}</div>
+          <div class="ig-story-reply">Send message</div>
+        </div>`;
+    } else if (activePlatform === 'instagram' && format === 'reel') {
+      const musicLine = epState.mediaKind === 'video'
+        ? '♪ Original audio'
+        : (epState.musicAdded ? '♪ Music added' : '♪ No music selected — will not play as a Reel');
+      body = `
+        <div class="ig-reel-frame">
+          <div class="ig-reel-media">${media}</div>
+          <div class="ig-reel-rail">
+            <div>♥<span>1.2k</span></div>
+            <div>💬<span>42</span></div>
+            <div>↗<span>18</span></div>
+            <div>⋯</div>
+          </div>
+          <div class="ig-reel-bottom">
+            <b>thefinpedia</b>
+            ${caption || 'Your caption will appear here...'}
+            <div class="ig-reel-music ${epState.mediaKind!=='video' && !epState.musicAdded ? 'no-music':''}">${musicLine}</div>
+          </div>
+        </div>`;
+    } else if (activePlatform === 'instagram') {
+      body = `
+        <div class="ig-post-card">
+          <div class="ig-post-head"><div class="ig-avatar">TFP</div><div class="ig-post-name">thefinpedia</div></div>
+          <div class="ig-post-media">${media}</div>
+          <div class="ig-post-actions">♥ 💬 ↗</div>
+          <div class="ig-post-likes">1,204 likes</div>
+          <div class="ig-post-caption"><b>thefinpedia</b>${caption || 'Your caption will appear here...'}</div>
+        </div>`;
+    } else if (activePlatform === 'linkedin') {
+      body = `
+        <div class="li-post-card">
+          <div class="li-post-head">
+            <div class="li-avatar">TFP</div>
+            <div>
+              <div class="li-post-name">TFP Checker</div>
+              <div class="li-post-sub">Wealth Advisor · 1st</div>
+              <div class="li-post-time">Just now · 🌐</div>
+            </div>
+          </div>
+          <div class="li-post-caption">${caption || 'Your caption will appear here...'}</div>
+          <div class="li-post-media">${media}</div>
+          <div class="li-post-reactions">👍❤️👏 &nbsp; 24</div>
+          <div class="li-post-actions"><span>👍 Like</span><span>💬 Comment</span><span>↻ Repost</span><span>➤ Send</span></div>
+        </div>`;
+    } else {
+      // Facebook
+      body = `
+        <div class="ep-preview-card">
+          <div class="ep-pv-head">
+            <div class="ep-pv-avatar">TFP</div>
+            <div><div class="ep-pv-name">TFP Checker</div><div class="ep-pv-time">Just now · 🌐</div></div>
+          </div>
+          <div class="ep-pv-media">${media}</div>
+          <div class="ep-pv-actions">👍 Like &nbsp; 💬 Comment &nbsp; ↗ Share</div>
+          <div class="ep-pv-caption">${caption || 'Your caption will appear here...'}</div>
+        </div>`;
+    }
+    col.innerHTML = tabs + body;
+  }
+
+  let epSaveMode = 'scheduled';
+  function toggleSplitMenu() {
+    document.getElementById('epSplitMenu').classList.toggle('show');
+  }
+  function selectSaveMode(mode) {
+    epSaveMode = mode;
+    document.getElementById('epSplitMainBtn').textContent = mode === 'scheduled' ? 'Schedule Post' : 'Save as Draft';
+    document.getElementById('epOptSchedule').classList.toggle('active', mode==='scheduled');
+    document.getElementById('epOptDraft').classList.toggle('active', mode==='draft');
+    document.getElementById('epSplitMenu').classList.remove('show');
+  }
+
+  function saveEditPost(status) {
+    const activeKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
+    const platform = activeKeys[0] || 'linkedin';
+    const st = epState.platforms[platform] || { hour: 10, minute: 0 };
+
+    if (epState.mode === 'edit') {
+      const ev = events.find(e => e.id === epState.eventId);
+      if (ev) {
+        ev.caption = epState.caption;
+        ev.title = epState.caption;
+        ev.thumbnail = epState.thumbnail;
+        ev.status = status;
+        ev.platform = platform;
+        ev.hour = st.hour; ev.minute = st.minute;
+      }
+    } else {
+      events.push({
+        id: 'e' + (eventSeq++), date: epState.date, hour: st.hour, minute: st.minute,
+        title: epState.caption, caption: epState.caption, status, platform,
+        account: platform === 'linkedin' ? 'bhashwati-pyne-299058222' : 'thefinpedia',
+        thumbnail: epState.thumbnail
+      });
+    }
+    closeEditPost();
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    if (currentView === 'list') renderListView();
+  }
+
+  switchView('week');
+
+  document.addEventListener('click', function(evt) {
+    const chooseMenu = document.getElementById('epChooseMenu');
+    if (chooseMenu && chooseMenu.classList.contains('show') && !evt.target.closest('.ep-media-empty2')) {
+      chooseMenu.classList.remove('show');
+    }
+    const splitMenu = document.getElementById('epSplitMenu');
+    const splitBtn = document.querySelector('.ep-split-btn');
+    if (splitMenu && splitMenu.classList.contains('show') && splitBtn && !splitBtn.contains(evt.target)) {
+      splitMenu.classList.remove('show');
+    }
+  });
 </script>
 
 </body>
