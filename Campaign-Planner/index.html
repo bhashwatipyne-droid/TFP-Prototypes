@@ -573,7 +573,7 @@
   .ep-fail-btn.ghost { background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; }
   .ep-fail-link { font-size: 12px; color: #9c2b2b; text-decoration: underline; cursor: pointer; }
 
-  .campaign-modal { width: 1120px; max-width: 94vw; max-height: 760px; }
+  .campaign-modal { width: 1120px; max-width: 94vw; max-height: 760px; position: relative; }
   .campaign-modal .modal-head { padding: 16px 22px; }
   .campaign-progress { display:flex; gap:20px; padding:0 22px 14px; border-bottom:1px solid #e4e2da; }
   .campaign-progress-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#9a9a94; font-weight:600; }
@@ -710,6 +710,21 @@
         </div>
         <div class="modal-body" id="modalBody"></div>
         <div class="modal-foot" id="modalFoot"></div>
+
+        <div class="fp-backdrop2" id="cbFpBackdrop" onclick="if(event.target===this) toggleCbFilterPanel()">
+          <div class="filter-panel2" id="cbFpPanel">
+            <div class="fp-head"><span class="fp-title">Content filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
+            <div class="fp-search2">🔍 Search across filters...</div>
+            <div class="fp-body">
+              <div class="fp-groups" id="cbFpGroups"></div>
+              <div class="fp-options" id="cbFpOptions"></div>
+            </div>
+            <div class="fp-foot">
+              <div class="fp-btn clear" onclick="clearCbFilters()">Clear filters</div>
+              <div class="fp-btn apply" onclick="toggleCbFilterPanel()">Apply</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -926,6 +941,59 @@
     else campaignState.selectedCards.add(id);
     render();
   }
+  // "Select all" toggles every card in the current category at once instead
+  // of requiring one click per card; re-clicking deselects them all.
+  function allCatCardsSelected(cat) {
+    const cards = sampleCards[cat];
+    return cards.length > 0 && cards.every((c, idx) => campaignState.selectedCards.has(cat + ':' + idx));
+  }
+  function selectAllCampaignCards() {
+    const cat = campaignState.contentCat;
+    const cards = sampleCards[cat];
+    const allSelected = allCatCardsSelected(cat);
+    cards.forEach((c, idx) => {
+      const id = cat + ':' + idx;
+      if (allSelected) campaignState.selectedCards.delete(id);
+      else campaignState.selectedCards.add(id);
+    });
+    render();
+  }
+  // Content filters inside the campaign builder reuse the exact same filter
+  // groups + selection state as the Create Post browse modal (it's the same
+  // content library) — just rendered into their own slide-in panel here so
+  // it can open on top of the campaign modal instead of the browse modal.
+  function cbFilterCount() { return Object.values(selected).reduce((a, s) => a + s.size, 0); }
+  function toggleCbFilterPanel() {
+    document.getElementById('cbFpBackdrop').classList.toggle('show');
+    document.getElementById('cbFpPanel').classList.toggle('show');
+    renderCbFilterGroups(); renderCbFilterOptions();
+  }
+  function setCbActiveGroup(k) { activeGroup = k; renderCbFilterGroups(); renderCbFilterOptions(); }
+  function toggleCbOption(label) {
+    const s = selected[activeGroup];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    renderCbFilterGroups(); renderCbFilterOptions(); render();
+  }
+  function renderCbFilterGroups() {
+    document.getElementById('cbFpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
+      const g = discoveryFilterGroups[k]; const n = selected[k].size;
+      return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setCbActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
+    }).join('');
+  }
+  function renderCbFilterOptions() {
+    const g = discoveryFilterGroups[activeGroup];
+    let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
+    g.options.forEach(o => {
+      const checked = selected[activeGroup].has(o.label);
+      html += `<div class="fp-option" onclick="toggleCbOption('${o.label}')">
+        <div class="fp-check ${checked?'checked':''}"></div>
+        <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
+        <div class="fp-opt-count">${o.count}</div>
+      </div>`;
+    });
+    document.getElementById('cbFpOptions').innerHTML = html;
+  }
+  function clearCbFilters() { Object.keys(selected).forEach(k => selected[k].clear()); renderCbFilterGroups(); renderCbFilterOptions(); render(); }
 
   function renderObjectivePicker() {
     return `<div class="cb-step">
@@ -980,7 +1048,13 @@
           ${cats.map(c => `<div class="cb-category ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')"><span class="cb-category-icon">${c.icon}</span>${c.label}</div>`).join('')}
         </aside>
         <section class="cb-browser-main">
-          <div class="cb-match-notice">Matches ${cards.length * 8} items in this category · updates automatically as new content is tagged.</div>
+          <div class="cb-match-notice" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span>Matches ${cards.length * 8} items in this category · updates automatically as new content is tagged.</span>
+            <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <span class="view-all-link" onclick="selectAllCampaignCards()">${allCatCardsSelected(cat) ? 'Deselect all' : 'Select all'}</span>
+              <span class="bm-filters-btn ${cbFilterCount() ? 'active' : ''}" style="padding:6px 12px;font-size:11.5px;" onclick="toggleCbFilterPanel()">☰ Filters${cbFilterCount() ? ' ('+cbFilterCount()+')' : ''}</span>
+            </span>
+          </div>
           <div class="sq-grid modal-grid">
             ${cards.map((c, idx) => {
               const id = cat + ':' + idx;
