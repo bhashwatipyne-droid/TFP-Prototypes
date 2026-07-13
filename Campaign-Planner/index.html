@@ -713,7 +713,8 @@
 
         <div class="fp-backdrop2" id="cbFpBackdrop" onclick="if(event.target===this) toggleCbFilterPanel()">
           <div class="filter-panel2" id="cbFpPanel">
-            <div class="fp-head"><span class="fp-title">Content filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
+            <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
+            <div style="display:flex;border-bottom:0.5px solid #e4e2da;" id="cbFpTabs"></div>
             <div class="fp-search2">🔍 Search across filters...</div>
             <div class="fp-body">
               <div class="fp-groups" id="cbFpGroups"></div>
@@ -894,6 +895,20 @@
       audience:['High engagement, tenure 12mo+'], content:['Segment: Advocates'] },
   ];
   const CAMPAIGN_CATS = () => categories.filter(c => c.key !== 'templates');
+  // Audience filters live in the same slide-in panel as content filters now
+  // (Filters button -> Content / Audience tabs) instead of a separate
+  // always-visible column, so objective.audience strings must map onto a
+  // real group here for the pre-fill-on-objective-select to work.
+  const audienceFilterGroups = {
+    segment: { label: 'Lifecycle segment', note: 'Where this client sits in their investing journey.',
+      options: [ {label:'SIP active < 12 months',count:184}, {label:'No active SIP',count:220}, {label:'New investor',count:310}, {label:'Lapsed 6+ months',count:60}, {label:'Existing investor, single category',count:275}, {label:'High engagement, tenure 12mo+',count:150} ] },
+    risk: { label: 'Risk appetite', note: '',
+      options: [ {label:'Risk: moderate+',count:503}, {label:'Conservative',count:184}, {label:'Aggressive',count:339} ] },
+    kyc: { label: 'KYC / renewal', note: '',
+      options: [ {label:'KYC due in 30 days',count:120}, {label:'Renewed recently',count:400} ] },
+  };
+  let selectedAudience = {};
+  Object.keys(audienceFilterGroups).forEach(k => selectedAudience[k] = new Set());
 
   let modalStep = 'select';
   let campaignState = null;
@@ -929,10 +944,17 @@
     campaignState.targeted = !campaignState.targeted;
     campaignState.objective = null;
     campaignState.selectedCards = new Set();
+    Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear());
     render();
   }
   function selectObjective(key) {
     campaignState.objective = OBJECTIVES.find(o => o.key === key);
+    Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear());
+    campaignState.objective.audience.forEach(a => {
+      Object.keys(audienceFilterGroups).forEach(g => {
+        if (audienceFilterGroups[g].options.some(o => o.label === a)) selectedAudience[g].add(a);
+      });
+    });
     render();
   }
   function setCampaignCat(k) { campaignState.contentCat = k; render(); }
@@ -960,31 +982,60 @@
   }
   // Content filters inside the campaign builder reuse the exact same filter
   // groups + selection state as the Create Post browse modal (it's the same
-  // content library) — just rendered into their own slide-in panel here so
-  // it can open on top of the campaign modal instead of the browse modal.
-  function cbFilterCount() { return Object.values(selected).reduce((a, s) => a + s.size, 0); }
+  // content library). Audience filters are a second, separate group+state
+  // (audienceFilterGroups/selectedAudience) — both live under one Filters
+  // button as tabs, rather than two competing on-screen zones.
+  let cbFilterTab = 'content'; // remembers last tab across opens, per feedback
+  let cbAudienceActiveGroup = 'segment';
+  function cbFilterCount() {
+    return Object.values(selected).reduce((a, s) => a + s.size, 0)
+      + Object.values(selectedAudience).reduce((a, s) => a + s.size, 0);
+  }
   function toggleCbFilterPanel() {
+    if (!campaignState.targeted) cbFilterTab = 'content';
     document.getElementById('cbFpBackdrop').classList.toggle('show');
     document.getElementById('cbFpPanel').classList.toggle('show');
+    renderCbFilterTabs(); renderCbFilterGroups(); renderCbFilterOptions();
+  }
+  function setCbFilterTab(t) { cbFilterTab = t; renderCbFilterTabs(); renderCbFilterGroups(); renderCbFilterOptions(); }
+  function renderCbFilterTabs() {
+    if (!campaignState.targeted) {
+      cbFilterTab = 'content';
+      document.getElementById('cbFpTabs').innerHTML = '';
+      return;
+    }
+    document.getElementById('cbFpTabs').innerHTML = `
+      <div class="cb-tab ${cbFilterTab==='content'?'active':''}" style="flex:1;text-align:center;padding:10px;font-size:12.5px;cursor:pointer;border-radius:0;" onclick="setCbFilterTab('content')">Content filters</div>
+      <div class="cb-tab ${cbFilterTab==='audience'?'active':''}" style="flex:1;text-align:center;padding:10px;font-size:12.5px;cursor:pointer;border-radius:0;" onclick="setCbFilterTab('audience')">Audience</div>`;
+  }
+  function setCbActiveGroup(k) {
+    if (cbFilterTab === 'audience') cbAudienceActiveGroup = k; else activeGroup = k;
     renderCbFilterGroups(); renderCbFilterOptions();
   }
-  function setCbActiveGroup(k) { activeGroup = k; renderCbFilterGroups(); renderCbFilterOptions(); }
   function toggleCbOption(label) {
-    const s = selected[activeGroup];
+    const groups = cbFilterTab === 'audience' ? selectedAudience : selected;
+    const key = cbFilterTab === 'audience' ? cbAudienceActiveGroup : activeGroup;
+    const s = groups[key];
     if (s.has(label)) s.delete(label); else s.add(label);
     renderCbFilterGroups(); renderCbFilterOptions(); render();
   }
   function renderCbFilterGroups() {
-    document.getElementById('cbFpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
-      const g = discoveryFilterGroups[k]; const n = selected[k].size;
-      return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setCbActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
+    const groupDefs = cbFilterTab === 'audience' ? audienceFilterGroups : discoveryFilterGroups;
+    const state = cbFilterTab === 'audience' ? selectedAudience : selected;
+    const active = cbFilterTab === 'audience' ? cbAudienceActiveGroup : activeGroup;
+    document.getElementById('cbFpGroups').innerHTML = Object.keys(groupDefs).map(k => {
+      const g = groupDefs[k]; const n = state[k].size;
+      return `<div class="fp-group-item ${k===active?'active':''}" onclick="setCbActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
     }).join('');
   }
   function renderCbFilterOptions() {
-    const g = discoveryFilterGroups[activeGroup];
+    const groupDefs = cbFilterTab === 'audience' ? audienceFilterGroups : discoveryFilterGroups;
+    const state = cbFilterTab === 'audience' ? selectedAudience : selected;
+    const active = cbFilterTab === 'audience' ? cbAudienceActiveGroup : activeGroup;
+    const g = groupDefs[active];
     let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
     g.options.forEach(o => {
-      const checked = selected[activeGroup].has(o.label);
+      const checked = state[active].has(o.label);
       html += `<div class="fp-option" onclick="toggleCbOption('${o.label}')">
         <div class="fp-check ${checked?'checked':''}"></div>
         <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
@@ -993,7 +1044,11 @@
     });
     document.getElementById('cbFpOptions').innerHTML = html;
   }
-  function clearCbFilters() { Object.keys(selected).forEach(k => selected[k].clear()); renderCbFilterGroups(); renderCbFilterOptions(); render(); }
+  function clearCbFilters() {
+    if (cbFilterTab === 'audience') Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear());
+    else Object.keys(selected).forEach(k => selected[k].clear());
+    renderCbFilterGroups(); renderCbFilterOptions(); render();
+  }
 
   function renderObjectivePicker() {
     return `<div class="cb-step">
@@ -1017,24 +1072,25 @@
     const cats = CAMPAIGN_CATS();
     const selectedCount = campaignState.selectedCards.size;
 
+    // Chip row is a read-only summary of whatever's currently applied in
+    // either tab of the Filters panel (starts from the objective's pre-fill,
+    // stays live as the person edits). Clicking a chip's "×" removes it
+    // directly; "+ Add filter" opens the panel to the relevant tab.
+    let audienceChips = [], contentChips = [];
+    if (campaignState.targeted) {
+      Object.keys(selectedAudience).forEach(g => selectedAudience[g].forEach(label => audienceChips.push(label)));
+      Object.keys(selected).forEach(g => selected[g].forEach(label => contentChips.push(label)));
+    }
     const objectiveBar = campaignState.targeted ? `
       <div class="cb-objective-summary">
         <span><b>${campaignState.objective.title}</b> — ${campaignState.objective.desc}</span>
         <span class="view-all-link" onclick="campaignState.objective=null;render()">Change objective</span>
       </div>
       <div class="cb-filter-row">
-        ${campaignState.objective.audience.map(a=>`<span class="cb-chip active">👤 ${a}</span>`).join('')}
-        ${campaignState.objective.content.map(c=>`<span class="cb-chip active">🏷 ${c}</span>`).join('')}
-        <span class="cb-chip">+ Add filter</span>
+        ${audienceChips.map(a=>`<span class="cb-chip active">👤 ${a}</span>`).join('')}
+        ${contentChips.map(c=>`<span class="cb-chip active">🏷 ${c}</span>`).join('')}
+        <span class="cb-chip" onclick="toggleCbFilterPanel()">+ Add filter</span>
       </div>` : '';
-
-    const audienceAside = campaignState.targeted ? `
-      <aside class="cb-audience">
-        <div class="cb-audience-head" style="font-size:12px;font-weight:700;">Audience (from CRM)</div>
-        <div class="cb-audience-sub" style="font-size:10px;color:#8a8a86;margin:3px 0 11px;">Pre-filled from objective — editable</div>
-        ${campaignState.objective.audience.map(a=>`<div class="cb-audience-option selected" style="display:flex;justify-content:space-between;font-size:10px;padding:5px 4px;background:#ece5fb;border-radius:5px;color:#5735bb;font-weight:700;margin-bottom:4px;"><span>✓ ${a}</span></div>`).join('')}
-        <div class="cb-chip" style="display:inline-block;margin-top:8px">+ Add audience filter</div>
-      </aside>` : '';
 
     return `<div class="cb-step">
       <div class="cb-target-switch">
@@ -1042,7 +1098,7 @@
         <div class="switch ${campaignState.targeted?'on':''}" onclick="toggleTargeted()"></div>
       </div>
       ${objectiveBar}
-      <div class="cb-browser ${campaignState.targeted ? 'targeted' : ''}" style="${campaignState.targeted ? 'grid-template-columns:145px minmax(0,1fr) 220px;' : ''}">
+      <div class="cb-browser">
         <aside class="cb-category-rail">
           <div class="cb-category-label">CATEGORY</div>
           ${cats.map(c => `<div class="cb-category ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')"><span class="cb-category-icon">${c.icon}</span>${c.label}</div>`).join('')}
@@ -1069,7 +1125,6 @@
             }).join('')}
           </div>
         </section>
-        ${audienceAside}
       </div>
       <div style="margin-top:12px;font-size:12px;color:#6a6a66;">${selectedCount} item${selectedCount===1?'':'s'} selected</div>
     </div>`;
