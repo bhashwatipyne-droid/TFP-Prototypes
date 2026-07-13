@@ -68,6 +68,14 @@
   .drawer-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
 
   .sources-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 7px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #9a9a94; }
+  .sources-search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .sources-search-row .sources-search { flex: 1; margin-bottom: 0; }
+  .upload-btn {
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px; justify-content: center;
+    background: #fff; border: 1px solid #d8d6cf; border-radius: 8px; color: #4a4a46;
+    font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; padding: 9px 14px;
+  }
+  .upload-btn:hover { background: #f4f4f2; border-color: #b3b2ac; }
   .source-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
   .source-tabs span { font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
   .source-tabs span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
@@ -550,7 +558,10 @@
     <!-- CONTENT SOURCES DRAWER (minimized, lifecycle-based) -->
     <div class="drawer" id="postDrawer">
       <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
-      <div class="sources-search">🔍 Search content...</div>
+      <div class="sources-search-row">
+        <div class="sources-search">🔍 Search content...</div>
+        <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('drawer')">📤 Upload</div>
+      </div>
       <div class="cat-pills" id="drawerPills"></div>
       <div class="drawer-section-head">
         <span class="drawer-section-title" id="drawerSectionTitle">Investor Education</span>
@@ -628,6 +639,7 @@
         <div class="bm-topbar">
           <div class="bm-title">Browse content</div>
           <div class="bm-search">🔍 Search 4,200+ creatives...</div>
+          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('modal')">📤 Upload</div>
           <div class="bm-filters-btn" id="bmFiltersBtn" onclick="toggleFilterPanel()">☰ Filters <span id="filterCountBadge"></span></div>
           <div class="bm-close" onclick="closeBrowseModal()">✕</div>
         </div>
@@ -1337,6 +1349,31 @@
 
   /* ---------------- DRAG AND DROP FROM CONTENT SOURCES ---------------- */
   let draggedCard = null;
+  /* ---------------- MANUAL UPLOAD ---------------- */
+  let uploadSource = 'drawer'; // 'drawer' | 'modal' — which grid to drop the new card into
+  function triggerUpload(source) {
+    uploadSource = source;
+    document.getElementById('uploadInput').click();
+  }
+  function handleFileUpload(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const isVideo = file.type.startsWith('video/');
+    const newCard = {
+      icon: isVideo ? '🎬' : '🖼️',
+      title: file.name,
+      meta: (isVideo ? 'Video' : 'Image') + ' · Just uploaded',
+    };
+    // dropped into whichever category is currently active, so it shows up
+    // immediately in the grid the person was just looking at
+    sampleCards[activeCat].unshift(newCard);
+    renderDrawerGrid();
+    if (document.getElementById('browseBackdrop').classList.contains('show')) {
+      renderBmGrid();
+    }
+    evt.target.value = ''; // allow re-selecting the same file later
+  }
+
   function onCardDragStart(evt, catKey, idx) {
     draggedCard = sampleCards[catKey][idx];
     evt.dataTransfer.setData('text/plain', catKey + ':' + idx);
@@ -1734,5 +1771,6 @@
   });
 </script>
 
+<input type="file" id="uploadInput" style="display:none" onchange="handleFileUpload(event)" accept="image/*,video/*">
 </body>
 </html>
