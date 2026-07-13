@@ -20,12 +20,37 @@
     width: 1440px; max-width: 100%; margin: 0 auto;
     background: #ffffff; border: 1px solid #d8d6cf; border-radius: 10px; overflow: hidden;
   }
-  .topbar { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #e4e2da; }
-  .search { flex: 1; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border: 1px solid #e4e2da; border-radius: 8px; padding: 10px 14px; color: #9a9a94; font-size: 14px; }
+  .topbar { display: flex; flex-direction: column; border-bottom: 1px solid #e4e2da; }
+  .topbar-row { display: flex; align-items: center; gap: 20px; padding: 12px 24px; }
+  .topbar-row-top { justify-content: flex-end; padding-bottom: 8px; }
+  .topbar-row-bottom { padding-top: 8px; }
+  .topbar-sidebar-spacer { width: 220px; flex-shrink: 0; }
   .pill { display: flex; align-items: center; gap: 6px; border: 1px solid #e4e2da; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #4a4a46; white-space: nowrap; }
-  .view-toggle { display: flex; background: #f4f4f2; border-radius: 8px; padding: 3px; }
-  .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; }
-  .view-toggle span.active { background: #fff; color: #1a1a1a; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .view-toggle { display: flex; background: #f4f4f2; border-radius: 8px; padding: 3px; margin-left: auto; }
+  .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; cursor: pointer; }
+  .view-toggle span.active { background: #ece5fb; color: #6a3fd1; font-weight: 600; }
+
+  /* date navigation: Today / prev / next / range text */
+  .date-nav { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .today-link { font-size: 14px; font-weight: 600; color: #6a3fd1; cursor: pointer; }
+  .today-link:hover { text-decoration: underline; }
+  .nav-arrow { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #6a6a66; cursor: pointer; font-size: 14px; }
+  .nav-arrow:hover { background: #f4f4f2; }
+  .date-range-text { font-size: 15px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
+
+  /* connected-profile avatar row — sits on its own top row, right-aligned
+     above Week/Month/List, "Select Profiles" pill removed per feedback */
+  .profile-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; width: 44px; }
+  .profile-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; position: relative; background: #1a1a1a; color: #fff; border: 2px solid transparent; }
+  .profile-avatar.connected.ig { border-color: #e1306c; background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+  .profile-avatar.connected.fb { border-color: #1877f2; background: #1877f2; }
+  .profile-avatar.connected.li { border-color: #d4b106; background: #0a66c2; }
+  .profile-avatar.connected.pin { border-color: #e60023; background: #e60023; }
+  .profile-avatar.inactive { background: #eceae4; color: #b3b2ac; opacity: 0.85; }
+  .profile-badge { position: absolute; bottom: -2px; right: -2px; width: 15px; height: 15px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 8.5px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; }
+  .profile-avatar.inactive .profile-badge { background: #fff; color: #6a6a66; border: 1.5px solid #d8d6cf; font-weight: 700; }
+  .profile-name { font-size: 9.5px; color: #8a8a86; max-width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .layout { display: flex; height: 780px; position: relative; }
 
@@ -336,8 +361,37 @@
 
   /* ================= CALENDAR: list view ================= */
   .list-view { padding: 20px 24px; overflow-y: auto; flex: 1; }
-  .list-filters { display: flex; gap: 10px; margin-bottom: 18px; }
+  .list-filters { display: flex; gap: 10px; margin-bottom: 18px; position: relative; }
   .lf-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 14px; font-size: 13px; color: #4a4a46; }
+  .lf-pill.clickable { cursor: pointer; }
+  .lf-pill.clickable:hover { border-color: #b3b2ac; }
+  .lf-pill.clickable.open { border-color: #6a3fd1; color: #6a3fd1; }
+
+  .drp-popover {
+    position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 15;
+    background: #fff; border: 1px solid #d8d6cf; border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.16); display: none; overflow: hidden;
+  }
+  .drp-popover.show { display: flex; }
+  .drp-presets { width: 150px; border-right: 1px solid #e4e2da; padding: 12px 0; flex-shrink: 0; }
+  .drp-preset-item { padding: 9px 16px; font-size: 12.5px; color: #4a4a46; cursor: pointer; }
+  .drp-preset-item:hover { background: #f4f4f2; }
+  .drp-preset-divider { height: 1px; background: #e4e2da; margin: 8px 0; }
+  .drp-calendars { display: flex; padding: 14px 18px; gap: 24px; }
+  .drp-month { width: 220px; }
+  .drp-month-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .drp-month-title { font-size: 13px; font-weight: 700; }
+  .drp-month-nav { font-size: 13px; color: #6a6a66; cursor: pointer; padding: 2px 6px; }
+  .drp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .drp-grid .drp-dow { font-size: 10.5px; color: #9a9a94; text-align: center; padding: 3px 0; }
+  .drp-day { font-size: 12px; text-align: center; padding: 6px 0; cursor: pointer; border-radius: 4px; color: #1a1a1a; }
+  .drp-day:hover { background: #f4f4f2; }
+  .drp-day.outside { color: #d8d6cf; cursor: default; }
+  .drp-day.outside:hover { background: none; }
+  .drp-day.in-range { background: #ece5fb; border-radius: 0; }
+  .drp-day.range-start { background: #6a3fd1; color: #fff; border-radius: 4px 0 0 4px; }
+  .drp-day.range-end { background: #6a3fd1; color: #fff; border-radius: 0 4px 4px 0; }
+  .drp-day.range-start.range-end { border-radius: 4px; }
   .list-row { border: 1px solid #e4e2da; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
   .lr-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
   .lr-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
@@ -388,6 +442,7 @@
   .ep-toggle.on { background: #1a1a1a; }
   .ep-toggle.on::after { transform: translateX(16px); }
   .ep-connect-btn { font-size: 11.5px; font-weight: 600; color: #0c447c; cursor: pointer; flex-shrink: 0; }
+  .ep-platform-failed-status { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #9c2b2b; background: #fbe4e4; border: 1px solid #f0b8b8; padding: 5px 10px; border-radius: 999px; flex-shrink: 0; cursor: default; }
   .ep-time-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 10px 44px; font-size: 12.5px; color: #4a4a46; }
   .ep-time-row input { border: 1px solid #d8d6cf; border-radius: 6px; padding: 6px 9px; font-size: 12.5px; font-family: inherit; width: 100px; }
   .ep-connect-section { margin-top: 22px; }
@@ -549,12 +604,22 @@
 
 <div class="frame">
   <div class="topbar">
-    <div class="search">🔍 Search campaigns, posts, leads...</div>
-    <div class="pill" id="dateRangePill">📅 Jul 12 – 18, 2026</div>
-    <div class="view-toggle">
-      <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
-      <span id="viewTabMonth" onclick="switchView('month')">Month</span>
-      <span id="viewTabList" onclick="switchView('list')">List</span>
+    <div class="topbar-row topbar-row-top">
+      <div class="profile-row" id="profileRow"></div>
+    </div>
+    <div class="topbar-row topbar-row-bottom">
+      <div class="topbar-sidebar-spacer"></div>
+      <div class="date-nav">
+        <span class="today-link" onclick="goToday()">Today</span>
+        <span class="nav-arrow" onclick="navDate(-1)">‹</span>
+        <span class="nav-arrow" onclick="navDate(1)">›</span>
+        <span class="date-range-text" id="dateRangePill">Jul 12 – 18, 2026</span>
+      </div>
+      <div class="view-toggle">
+        <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
+        <span id="viewTabMonth" onclick="switchView('month')">Month</span>
+        <span id="viewTabList" onclick="switchView('list')">List</span>
+      </div>
     </div>
   </div>
 
@@ -744,9 +809,17 @@
         </div>
 
         <div class="ep-foot">
-          <div class="ep-date-pill">📅 <span id="epDateLabel">Jul 12, 2026</span></div>
+          <div class="ep-date-pill" id="epDatePill">📅 <span id="epDateLabel">Jul 12, 2026</span></div>
           <div class="ep-split-btn">
             <div class="ep-split-menu" id="epSplitMenu">
+              <div class="ep-split-option" id="epOptRetry" onclick="selectSaveMode('retry')" style="display:none;">
+                <div class="ep-split-option-title">🔁 Retry</div>
+                <div class="ep-split-option-sub">Attempt to publish this post to the failed platform(s) again.</div>
+              </div>
+              <div class="ep-split-option" id="epOptDuplicate" onclick="selectSaveMode('duplicate')" style="display:none;">
+                <div class="ep-split-option-title">⧉ Duplicate Post</div>
+                <div class="ep-split-option-sub">Create a copy of this post to edit and schedule separately.</div>
+              </div>
               <div class="ep-split-option" id="epOptSchedule" onclick="selectSaveMode('scheduled')">
                 <div class="ep-split-option-title">🕐 Schedule Post</div>
                 <div class="ep-split-option-sub">Post will be published on the selected date and time.</div>
@@ -756,7 +829,7 @@
                 <div class="ep-split-option-sub">Post won't be published.</div>
               </div>
             </div>
-            <div class="ep-split-main" id="epSplitMainBtn" onclick="saveEditPost(epSaveMode)">Schedule Post</div>
+            <div class="ep-split-main" id="epSplitMainBtn" onclick="handleEpMainCta()">Schedule Post</div>
             <div class="ep-split-chevron" onclick="toggleSplitMenu()">▾</div>
           </div>
         </div>
@@ -1048,9 +1121,11 @@
     const source = sampleCards[activeCat];
     const cards = activeCat==='templates' ? source : source.concat(source);
     document.getElementById('bmGrid').innerHTML = cards.map((c,idx) => {
-      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx % source.length})" ondragend="onCardDragEnd(event)"`;
+      const srcIdx = idx % source.length;
+      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${srcIdx})" ondragend="onCardDragEnd(event)"`;
+      const clickAttr = activeCat==='templates' ? '' : `onclick="openCardFromBrowseModal('${activeCat}',${srcIdx})"`;
       return `
-      <div class="sq-card" ${dragAttrs}>
+      <div class="sq-card" ${dragAttrs} ${clickAttr}>
         <div class="sq-thumb">${c.icon}</div>
         ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
         <div class="sq-title">${c.title}</div>
@@ -1058,11 +1133,22 @@
       </div>`;
     }).join('');
   }
+  // A click (as opposed to a drag) on a card in the expanded modal opens the
+  // Edit Post modal prefilled with that content, defaulting to today at 10am
+  // since no specific calendar slot was targeted.
+  function openCardFromBrowseModal(catKey, idx) {
+    const card = sampleCards[catKey][idx];
+    closeBrowseModal();
+    closePanels();
+    openEditPost({ mode:'create', date: TODAY_STR, hour: 10, prefillCard: card });
+  }
 
   /* ---- discovery filter panel ---- */
   const discoveryFilterGroups = {
     trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
       options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
+    sentiment: { label: 'Market sentiment', note: 'Content matched to the current market mood — useful for reassuring or re-engaging investors depending on how markets are behaving.',
+      options: [ {label:'Bearish / market correction',count:64}, {label:'Bullish / rally',count:88}, {label:'Volatile / uncertain',count:52}, {label:'Stay invested messaging',count:70}, {label:'Neutral / educational',count:210} ] },
     concept: { label: 'Concept', note: 'The specific term or mechanism this content explains — cuts across every lifecycle category above.',
       options: [ {label:'SIP',count:420}, {label:'STP',count:110}, {label:'SWP',count:95}, {label:'NAV',count:180}, {label:'Lumpsum',count:150}, {label:'XIRR',count:60}, {label:'Expense Ratio',count:75}, {label:'Exit Load',count:40}, {label:'CAGR',count:55}, {label:'Asset Allocation',count:130}, {label:'Compounding',count:140}, {label:'Tax Harvesting',count:35} ] },
     segment: { label: 'Client segment', note: 'Which client this content suits best — independent of category.',
@@ -1167,9 +1253,30 @@
     return hh + ':' + pad(minute) + ' ' + ampm;
   }
 
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function updateTopbarDateLabel(v) {
+    const el = document.getElementById('dateRangePill');
+    if (v === 'month') {
+      el.textContent = MONTH_NAMES[6] + ' 2026'; // July 2026 — matches renderMonthView's hardcoded month
+    } else {
+      // week + list share the same "Jul 12 – 18, 2026" range style
+      const start = WEEK_START, end = addDays(WEEK_START, 6);
+      const sameMonth = start.getMonth() === end.getMonth();
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', sameMonth ? { day: 'numeric' } : { month: 'short', day: 'numeric' });
+      el.textContent = `${startStr} – ${endStr}, ${end.getFullYear()}`;
+    }
+  }
+
   let currentView = 'week';
+  // This prototype's calendar data is seeded around a fixed week (Jul 12–18,
+  // 2026); real date navigation isn't wired up yet, same fidelity as other
+  // prototype-only actions (e.g. "Raise a ticket").
+  function goToday() { alert('This would jump the calendar back to today\'s date.'); }
+  function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
   function switchView(v) {
     currentView = v;
+    updateTopbarDateLabel(v);
     ['Week','Month','List'].forEach(name => {
       document.getElementById('viewTab'+name).classList.toggle('active', name.toLowerCase()===v);
     });
@@ -1317,18 +1424,32 @@
   }
 
   /* ---------------- LIST VIEW ---------------- */
+  let listDateRange = { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
+  let drpPendingStart = null;
+  let drpMonthCursor = new Date(2026, 6, 1); // month shown as the left calendar
+
+  function fmtDateShort(dateStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return new Date(y,m-1,d).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+  function rangeLabel() {
+    return fmtDateShort(listDateRange.start) + ' – ' + fmtDateShort(listDateRange.end) + ', ' + listDateRange.start.slice(0,4);
+  }
+
   function renderListView() {
     const sorted = [...events]
       .filter(e => statusFilter.has(e.status))
+      .filter(e => e.date >= listDateRange.start && e.date <= listDateRange.end)
       .sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
     let html = `
       <div class="list-filters">
-        <div class="lf-pill">📅 Jul 12, 2026 – Jul 18, 2026</div>
+        <div class="lf-pill clickable" id="lfDatePill" onclick="toggleDateRangePicker(event)">📅 ${rangeLabel()} <span style="font-size:10px">▾</span></div>
         <div class="lf-pill">Sort: New to Old ▾</div>
+        <div class="drp-popover" id="drpPopover"></div>
       </div>`;
     html += legendHTML();
     if (!sorted.length) {
-      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts match the selected statuses.</div>`;
+      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected statuses.</div>`;
     }
     sorted.forEach(ev => {
       const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
@@ -1336,27 +1457,117 @@
         <div class="list-row">
           <div class="lr-head">
             <div class="lr-avatar">${pm.icon}</div>
-            <div>
-              <div class="lr-account">${ev.account || 'Unnamed account'}</div>
-              <div class="lr-platform">${pm.label}</div>
-            </div>
-            <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
-            <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
-            <div class="lr-icons">
-              <div class="lr-icon-btn" title="Duplicate">⧉</div>
-              <div class="lr-icon-btn" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})" title="Edit">✎</div>
-            </div>
-          </div>
-          <div class="lr-body">
-            ${ev.thumbnail ? `<div class="lr-thumb">${ev.thumbnail}</div>` : ''}
-            <div>
-              <div class="lr-caption-label">Post caption</div>
-              <div class="lr-caption-text">${ev.caption || ev.title || '(no caption)'}</div>
-            </div>
-          </div>
-        </div>`;
+        <div><div class="lr-account">${ev.account}</div><div class="lr-platform">${pm.label}</div></div>
+        <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
+        <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
+        <div class="lr-icons">
+          <div class="lr-icon-btn" title="Duplicate">⧉</div>
+          <div class="lr-icon-btn" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})" title="Edit">✎</div>
+        </div>
+      </div>
+      <div class="lr-body">
+        ${ev.thumbnail ? `<div class="lr-thumb">${ev.thumbnail}</div>` : ''}
+        <div>
+          <div class="lr-caption-label">Post caption</div>
+          <div class="lr-caption-text">${ev.caption || ev.title || '(no caption)'}</div>
+        </div>
+      </div>
+    </div>`;
     });
     document.getElementById('listView').innerHTML = html;
+  }
+
+  function toggleDateRangePicker(evt) {
+    evt.stopPropagation();
+    const pop = document.getElementById('drpPopover');
+    const pill = document.getElementById('lfDatePill');
+    const showing = pop.classList.contains('show');
+    if (showing) {
+      pop.classList.remove('show');
+      pill.classList.remove('open');
+      return;
+    }
+    drpPendingStart = null;
+    drpMonthCursor = new Date(2026, 6, 1);
+    renderDrp();
+    pop.classList.add('show');
+    pill.classList.add('open');
+  }
+  function closeDateRangePicker() {
+    const pop = document.getElementById('drpPopover');
+    const pill = document.getElementById('lfDatePill');
+    if (pop) pop.classList.remove('show');
+    if (pill) pill.classList.remove('open');
+  }
+
+  const PRESETS = [
+    { label: '7 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),6)) }) },
+    { label: '14 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),13)) }) },
+    { label: '30 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),29)) }) },
+    { label: 'Next week', fn: () => ({ start: toDateStr(new Date(2026,6,19)), end: toDateStr(new Date(2026,6,25)) }) },
+    { label: 'Next 2 weeks', fn: () => ({ start: toDateStr(new Date(2026,6,19)), end: toDateStr(new Date(2026,7,1)) }) },
+    { label: 'Next month', fn: () => ({ start: toDateStr(new Date(2026,7,1)), end: toDateStr(new Date(2026,7,31)) }) },
+  ];
+  function applyPreset(idx) {
+    listDateRange = PRESETS[idx].fn();
+    closeDateRangePicker();
+    renderListView();
+  }
+
+  const MONTH_SHORT = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function renderDrp() {
+    const pop = document.getElementById('drpPopover');
+    let html = '<div class="drp-presets">';
+    PRESETS.forEach((p, idx) => { html += `<div class="drp-preset-item" onclick="applyPreset(${idx})">${p.label}</div>`; });
+    html += '</div><div class="drp-calendars">';
+    html += drpMonthHTML(drpMonthCursor);
+    html += drpMonthHTML(new Date(drpMonthCursor.getFullYear(), drpMonthCursor.getMonth()+1, 1));
+    html += '</div>';
+    pop.innerHTML = html;
+  }
+  function drpMonthHTML(monthDate) {
+    const year = monthDate.getFullYear(), month = monthDate.getMonth();
+    const first = new Date(year, month, 1);
+    const startOffset = first.getDay();
+    const gridStart = addDays(first, -startOffset);
+    let cells = '';
+    for (let i=0;i<42;i++) {
+      const d = addDays(gridStart, i);
+      if (d.getMonth() !== month && i >= 35) continue; // trim trailing extra row when unnecessary
+      const dateStr = toDateStr(d);
+      const outside = d.getMonth() !== month;
+      const inRange = !outside && dateStr >= listDateRange.start && dateStr <= listDateRange.end;
+      const isStart = dateStr === listDateRange.start;
+      const isEnd = dateStr === listDateRange.end;
+      const cls = ['drp-day'];
+      if (outside) cls.push('outside');
+      if (inRange) cls.push('in-range');
+      if (isStart) cls.push('range-start');
+      if (isEnd) cls.push('range-end');
+      cells += `<div class="${cls.join(' ')}" onclick="${outside ? '' : `pickDrpDay('${dateStr}')`}">${d.getDate()}</div>`;
+    }
+    return `<div class="drp-month">
+      <div class="drp-month-head"><span class="drp-month-title">${MONTH_SHORT[month]} ${year}</span></div>
+      <div class="drp-grid">
+        <div class="drp-dow">Su</div><div class="drp-dow">Mo</div><div class="drp-dow">Tu</div><div class="drp-dow">We</div><div class="drp-dow">Th</div><div class="drp-dow">Fr</div><div class="drp-dow">Sa</div>
+        ${cells}
+      </div>
+    </div>`;
+  }
+  function pickDrpDay(dateStr) {
+    if (!drpPendingStart) {
+      drpPendingStart = dateStr;
+      listDateRange = { start: dateStr, end: dateStr };
+    } else {
+      const start = drpPendingStart < dateStr ? drpPendingStart : dateStr;
+      const end = drpPendingStart < dateStr ? dateStr : drpPendingStart;
+      listDateRange = { start, end };
+      drpPendingStart = null;
+      closeDateRangePicker();
+      renderListView();
+      return;
+    }
+    renderDrp();
   }
 
   /* ---------------- DRAG AND DROP FROM CONTENT SOURCES ---------------- */
@@ -1386,6 +1597,20 @@
     evt.target.value = ''; // allow re-selecting the same file later
   }
 
+  // Closes every panel/modal that could be sitting on top of the calendar
+  // (drawer, browse modal + its filter panel, edit-post modal) so the user
+  // has full visibility of the grid the instant they start dragging.
+  function closeAllOverlaysForDrag() {
+    closePanels();
+    closeBrowseModal();
+    const filterPanel = document.getElementById('filterPanel2');
+    const fpBackdrop = document.getElementById('fpBackdrop2');
+    if (filterPanel) filterPanel.classList.remove('show');
+    if (fpBackdrop) fpBackdrop.classList.remove('show');
+    const epBackdrop = document.getElementById('epBackdrop');
+    if (epBackdrop && epBackdrop.classList.contains('show')) closeEditPost();
+  }
+
   function onCardDragStart(evt, catKey, idx) {
     draggedCard = sampleCards[catKey][idx];
     evt.dataTransfer.setData('text/plain', catKey + ':' + idx);
@@ -1394,6 +1619,11 @@
     // the drawer) and was silently swallowing drop events — disable it
     // for the duration of the drag so drops reach the calendar cells.
     document.getElementById('scrim').style.pointerEvents = 'none';
+    // give the user full visibility of the calendar underneath while dragging;
+    // deferred one tick so the browser finishes capturing the drag image first
+    // (the browse modal uses display:none, which can cancel an in-progress
+    // native drag if applied synchronously inside dragstart).
+    setTimeout(closeAllOverlaysForDrag, 0);
   }
   function onCardDragEnd(evt) {
     document.getElementById('scrim').style.pointerEvents = '';
@@ -1449,12 +1679,15 @@
     epState.customize = false;
     epState.format = 'post';
     epState.musicAdded = false;
+    epState.retrying = false;
 
     document.getElementById('epTitle').textContent = epState.mode === 'edit' ? 'Edit post' : 'Create post';
-    document.getElementById('epDateLabel').textContent = fmtDateLong(epState.date);
+    renderEpDatePill();
     document.getElementById('epCaption').value = epState.caption;
     epPreviewPlatform = 'instagram';
-    selectSaveMode(epState.mode === 'edit' ? 'scheduled' : 'scheduled');
+    document.getElementById('epOptRetry').style.display = epState.failInfo ? 'block' : 'none';
+    document.getElementById('epOptDuplicate').style.display = epState.failInfo ? 'block' : 'none';
+    initEpCta();
     document.getElementById('epSplitMenu').classList.remove('show');
     document.getElementById('epCustomizeToggle').classList.remove('on');
     document.getElementById('epFormatSection').style.display = 'none';
@@ -1473,6 +1706,14 @@
   function renderEpFailBanner() {
     const el = document.getElementById('epFailBanner');
     if (!epState.failInfo) { el.innerHTML = ''; return; }
+    if (epState.retrying) {
+      el.innerHTML = `
+      <div class="ep-fail-banner retry-mode">
+        <div class="ep-fail-title" style="color:#0c447c;">🔁 Retrying this post</div>
+        <div class="ep-fail-reason">Adjust the date, time, and platforms below, then confirm to retry. The original failed post stays on the calendar untouched.</div>
+      </div>`;
+      return;
+    }
     const chips = epState.failInfo.platforms.map(p => {
       const meta = PLATFORM_META[p];
       return `<span class="ep-fail-platform-chip">${meta ? meta.label : p}</span>`;
@@ -1488,6 +1729,21 @@
           <span class="ep-fail-link" onclick="alert('This would open: Why do posts fail to publish? — a short help doc.')">Why do posts fail? →</span>
         </div>
       </div>`;
+  }
+
+  // The date pill is static text normally; once a retry is in progress it
+  // becomes an actual date input so the user can pick when to retry.
+  function renderEpDatePill() {
+    const pill = document.getElementById('epDatePill');
+    if (epState.retrying) {
+      pill.innerHTML = `📅 <input type="date" id="epDateInput" value="${epState.date}" onchange="onEpDateChange(this.value)">`;
+    } else {
+      pill.innerHTML = `📅 <span id="epDateLabel">${fmtDateLong(epState.date)}</span>`;
+    }
+  }
+  function onEpDateChange(val) {
+    if (!val) return;
+    epState.date = val;
   }
 
 
@@ -1530,14 +1786,17 @@
       const meta = PLATFORM_META[k];
       const connected = CONNECTED[k];
       const st = epState.platforms[k];
+      const failed = !!(epState.failInfo && epState.failInfo.platforms.includes(k) && !epState.retrying);
       html += `<div class="ep-platform-row">
         <div class="ep-platform-icon ${meta.cls}">${meta.icon}</div>
         <div class="ep-platform-text"><div class="ep-platform-name">${meta.label}</div><div class="ep-platform-sub">${connected ? 'Connected' : 'Not connected'}</div></div>
-        ${connected
-          ? `<div class="ep-toggle ${st.on?'on':''}" onclick="toggleEpPlatform('${k}')"></div>`
-          : `<div class="ep-connect-btn" onclick="alert('This would start the channel-connect flow.')">Connect</div>`}
+        ${failed
+          ? `<div class="ep-platform-failed-status">⚠ Failed</div>`
+          : connected
+            ? `<div class="ep-toggle ${st.on?'on':''}" onclick="toggleEpPlatform('${k}')"></div>`
+            : `<div class="ep-connect-btn" onclick="alert('This would start the channel-connect flow.')">Connect</div>`}
       </div>`;
-      if (connected && st.on) {
+      if (connected && st.on && !failed) {
         html += `<div class="ep-time-row">🕐 <input type="text" value="${fmtTime12(st.hour,st.minute)}" onchange="onEpTimeChange('${k}', this.value)"></div>`;
       }
     });
@@ -1730,18 +1989,78 @@
   function toggleSplitMenu() {
     document.getElementById('epSplitMenu').classList.toggle('show');
   }
+  const EP_SAVE_MODE_LABEL = { scheduled: 'Schedule Post', draft: 'Save as Draft', retry: 'Retry', duplicate: 'Duplicate Post' };
+
+  // Entering "retry" from a failed post doesn't save right away — it first
+  // unlocks the platform toggles (pre-checked with the platforms that
+  // failed) and the date/time so the user can adjust what they want, then a
+  // second click on the (now "Confirm Retry") main button actually saves it.
+  function enterRetryMode() {
+    epState.retrying = true;
+    if (epState.failInfo) {
+      epState.failInfo.platforms.forEach(k => { if (epState.platforms[k]) epState.platforms[k].on = true; });
+    }
+    document.getElementById('epSplitMainBtn').textContent = 'Confirm Retry';
+    renderEpPlatformRows();
+    renderEpPlatformTabs();
+    renderEpFailBanner();
+    renderEpDatePill();
+  }
+
   function selectSaveMode(mode) {
     epSaveMode = mode;
-    document.getElementById('epSplitMainBtn').textContent = mode === 'scheduled' ? 'Schedule Post' : 'Save as Draft';
     document.getElementById('epOptSchedule').classList.toggle('active', mode==='scheduled');
     document.getElementById('epOptDraft').classList.toggle('active', mode==='draft');
+    document.getElementById('epOptRetry').classList.toggle('active', mode==='retry');
+    document.getElementById('epOptDuplicate').classList.toggle('active', mode==='duplicate');
     document.getElementById('epSplitMenu').classList.remove('show');
+    if (mode === 'retry' && epState.failInfo && !epState.retrying) {
+      enterRetryMode();
+    } else {
+      document.getElementById('epSplitMainBtn').textContent = EP_SAVE_MODE_LABEL[mode] || 'Schedule Post';
+    }
+  }
+
+  // Sets the initial CTA state when a post is opened, without unlocking
+  // anything — a failed post opens showing "Retry" as the suggested action,
+  // but stays in its locked/failed view until the user actually interacts.
+  function initEpCta() {
+    epSaveMode = epState.failInfo ? 'retry' : 'scheduled';
+    document.getElementById('epSplitMainBtn').textContent = epState.failInfo ? 'Retry' : 'Schedule Post';
+    document.getElementById('epOptSchedule').classList.remove('active');
+    document.getElementById('epOptDraft').classList.remove('active');
+    document.getElementById('epOptRetry').classList.toggle('active', !!epState.failInfo);
+    document.getElementById('epOptDuplicate').classList.remove('active');
+  }
+
+  function handleEpMainCta() {
+    if (epSaveMode === 'retry' && epState.failInfo && !epState.retrying) {
+      enterRetryMode();
+      return;
+    }
+    saveEditPost(epSaveMode);
   }
 
   function saveEditPost(status) {
     const activeKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
     const platform = activeKeys[0] || 'linkedin';
     const st = epState.platforms[platform] || { hour: 10, minute: 0 };
+
+    if (status === 'duplicate' || status === 'retry') {
+      // both leave the original post exactly as-is and create a fresh event:
+      // duplicate → draft copy, retry → a new scheduled attempt
+      events.push({
+        id: 'e' + (eventSeq++), date: epState.date, hour: st.hour, minute: st.minute,
+        title: epState.caption, caption: epState.caption, status: status === 'retry' ? 'scheduled' : 'draft', platform,
+        account: platform === 'linkedin' ? 'bhashwati-pyne-299058222' : 'thefinpedia',
+        thumbnail: epState.thumbnail
+      });
+      closeEditPost();
+      if (currentView === 'week') renderWeekView();
+      if (currentView === 'month') renderMonthView();
+      if (currentView === 'list') renderListView();
+      return;
+    }
 
     if (epState.mode === 'edit') {
       const ev = events.find(e => e.id === epState.eventId);
@@ -1768,7 +2087,39 @@
     if (currentView === 'list') renderListView();
   }
 
+  // Decorative-only platforms (not part of the app's connect/post model yet)
+  // shown purely so the avatar row matches the reference — clicking them
+  // just starts the same "connect channel" flow as everywhere else.
+  const EXTRA_INACTIVE_PLATFORMS = {
+    pinterest: { label: 'Pinterest', icon: 'P' },
+    tiktok:    { label: 'TikTok',    icon: '♪' },
+    youtube:   { label: 'YouTube',   icon: '▶' },
+  };
+  function renderProfileRow() {
+    const connectedKeys = Object.keys(PLATFORM_META).filter(k => CONNECTED[k]);
+    const ACCOUNT_NAME = { linkedin: 'bhashwati-pyne', facebook: 'thefinpedia', instagram: 'thefinpedia' };
+    let html = '';
+    connectedKeys.forEach(k => {
+      const meta = PLATFORM_META[k];
+      const name = ACCOUNT_NAME[k] || meta.label;
+      html += `<div class="profile-avatar-wrap" title="${meta.label} — ${name}" onclick="alert('This would open ${meta.label} account settings.')">
+        <div class="profile-avatar connected ${meta.cls}">${meta.icon}</div>
+        <div class="profile-name">${name}</div>
+      </div>`;
+    });
+    const inactive = Object.keys(PLATFORM_META).filter(k => !CONNECTED[k])
+      .map(k => ({ label: PLATFORM_META[k].label, icon: PLATFORM_META[k].icon }))
+      .concat(Object.values(EXTRA_INACTIVE_PLATFORMS));
+    inactive.forEach(p => {
+      html += `<div class="profile-avatar-wrap" title="Connect ${p.label}" onclick="alert('This would start the channel-connect flow for ${p.label}.')">
+        <div class="profile-avatar inactive">${p.icon}<span class="profile-badge">+</span></div>
+      </div>`;
+    });
+    document.getElementById('profileRow').innerHTML = html;
+  }
+
   switchView('week');
+  renderProfileRow();
 
   document.addEventListener('click', function(evt) {
     const chooseMenu = document.getElementById('epChooseMenu');
@@ -1779,6 +2130,12 @@
     const splitBtn = document.querySelector('.ep-split-btn');
     if (splitMenu && splitMenu.classList.contains('show') && splitBtn && !splitBtn.contains(evt.target)) {
       splitMenu.classList.remove('show');
+    }
+    const drpPop = document.getElementById('drpPopover');
+    const drpPill = document.getElementById('lfDatePill');
+    if (drpPop && drpPop.classList.contains('show') && !evt.target.closest('.list-filters')) {
+      drpPop.classList.remove('show');
+      if (drpPill) drpPill.classList.remove('open');
     }
   });
 </script>
