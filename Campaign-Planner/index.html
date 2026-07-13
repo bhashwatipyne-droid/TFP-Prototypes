@@ -30,7 +30,6 @@
   .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; cursor: pointer; }
   .view-toggle span.active { background: #ece5fb; color: #6a3fd1; font-weight: 600; }
 
-  /* date navigation: Today / prev / next / range text */
   .date-nav { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
   .today-link { font-size: 14px; font-weight: 600; color: #6a3fd1; cursor: pointer; }
   .today-link:hover { text-decoration: underline; }
@@ -38,8 +37,6 @@
   .nav-arrow:hover { background: #f4f4f2; }
   .date-range-text { font-size: 15px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
 
-  /* connected-profile avatar row — sits on its own top row, right-aligned
-     above Week/Month/List, "Select Profiles" pill removed per feedback */
   .profile-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; width: 44px; }
   .profile-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; position: relative; background: #1a1a1a; color: #fff; border: 2px solid transparent; }
@@ -78,7 +75,6 @@
   .scrim { position: absolute; top:0; left:220px; right:0; bottom:0; background: rgba(20,20,18,0.03); z-index: 4; opacity:0; pointer-events:none; transition: opacity .15s; }
   .scrim.show { opacity: 1; pointer-events: auto; }
 
-  /* DRAWER */
   .drawer {
     position: absolute; top:0; left:220px; bottom:0; width: 360px;
     background: #fff; border-right: 1px solid #d8d6cf; box-shadow: 10px 0 28px rgba(0,0,0,0.10);
@@ -105,7 +101,6 @@
   .source-tabs span { font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
   .source-tabs span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
 
-  /* ---- unified square content cards ---- */
   .sq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .sq-grid.modal-grid { grid-template-columns: repeat(3, 1fr); }
   .sq-card { border: 1px solid #e4e2da; border-radius: 10px; padding: 9px; background: #fbfbfa; cursor: pointer; position: relative; }
@@ -127,7 +122,6 @@
   .view-all-link { font-size: 12px; font-weight: 600; color: #0c447c; cursor: pointer; }
   .divider { border-top: 1px solid #e4e2da; margin: 14px 0 14px; }
 
-  /* ================= MODAL (State B) ================= */
   .modal-backdrop {
     position: absolute; inset: 0; background: rgba(20,20,18,0.45);
     z-index: 20; display: none; align-items: center; justify-content: center;
@@ -154,7 +148,6 @@
   .m-btn.primary.disabled { background: #d8d6cf; color: #fff; cursor: not-allowed; }
   .m-btn.ghost { background: #fff; color: #4a4a46; border: 1px solid #d8d6cf; }
 
-  /* list step */
   .modal-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; font-size: 13px; color: #9a9a94; }
   .filter-chips { display: flex; gap: 6px; margin-bottom: 14px; }
   .filter-chips span { font-size: 12px; padding: 6px 14px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
@@ -168,7 +161,6 @@
   .cc-text .cctitle { font-size: 13px; font-weight: 700; }
   .cc-text .ccdesc { font-size: 11.5px; color: #9a9a94; }
 
-  /* type select step */
   .type-grid { display: flex; gap: 14px; }
   .type-card { flex: 1; border: 1.5px solid #e4e2da; border-radius: 12px; padding: 20px 16px; cursor: pointer; text-align: center; }
   .type-card:hover { border-color: #c7c5bc; }
@@ -177,7 +169,6 @@
   .type-card .ttitle { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
   .type-card .tdesc { font-size: 12px; color: #8a8a86; line-height: 1.5; }
 
-  /* form fields */
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 12px; font-weight: 600; color: #4a4a46; margin-bottom: 6px; }
   .field select, .field input {
@@ -190,7 +181,6 @@
   .summary-box { background: #f9f9f7; border: 1px solid #e4e2da; border-radius: 10px; padding: 14px; margin-top: 4px; font-size: 12px; color: #6a6a66; line-height: 1.7; }
   .summary-box b { color: #1a1a1a; }
 
-  /* ---- lifecycle pills (minimized Content Sources drawer) ---- */
   .cat-pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
   .cat-pills::-webkit-scrollbar { display: none; }
   .cat-pill { flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; white-space: nowrap; }
@@ -203,7 +193,6 @@
   .sq-badge.seg { background: #e6f1fb; color: #0c447c; }
   .sq-badge.concept { background: #ede4fb; color: #5a2ea6; }
 
-  /* ============ FLOATING BROWSE MODAL ============ */
   .browse-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 30; display: none; align-items: center; justify-content: center; }
   .browse-backdrop.show { display: flex; }
   .browse-modal { width: 1240px; max-width: 94%; height: 760px; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; position: relative; }
@@ -234,7 +223,6 @@
   .bm-main-count { font-size: 12px; color: #9a9a94; }
   .bm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
-  /* filter panel inside browse modal */
   .fp-backdrop2 { position: absolute; inset: 0; background: rgba(20,20,18,0.25); z-index: 32; display: none; }
   .fp-backdrop2.show { display: block; }
   .filter-panel2 { position: absolute; top: 0; right: 0; bottom: 0; width: 480px; background: #fff; box-shadow: -12px 0 32px rgba(0,0,0,0.15); z-index: 33; display: flex; flex-direction: column; transform: translateX(16px); opacity: 0; transition: transform .16s, opacity .16s; pointer-events: none; }
@@ -262,7 +250,6 @@
   .fp-btn.clear { border: 1px solid #d8d6cf; color: #4a4a46; background: #fff; }
   .fp-btn.apply { background: #1a1a1a; color: #fff; }
 
-  /* ================= CALENDAR: week hover-plus ================= */
   .wk-slot { height: 64px; border-bottom: 1px solid #ececea; position: relative; cursor: pointer; }
   .wk-slot:hover { background: #f7f8fc; }
   .wk-slot-plus {
@@ -285,7 +272,6 @@
   .wk-event.st-failed { background: #fbe4e4; color: #9c2b2b; }
   .wk-event.dimmed { opacity: 0.35; }
 
-  /* status legend — shared toggle strip for Week/Month/List */
   .cal-legend { display: flex; align-items: center; gap: 8px; padding: 8px 24px; border-bottom: 1px solid #e4e2da; background: #fbfbfa; }
   .legend-item {
     display: flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 600; color: #4a4a46;
@@ -308,7 +294,6 @@
   }
   .legend-item.off { color: #b3b2ac; }
 
-  /* ================= CALENDAR: month view ================= */
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; }
   .month-head-row { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
   .month-head-row div { text-align: center; font-size: 12px; color: #9a9a94; padding: 10px 0; font-weight: 600; }
@@ -335,7 +320,6 @@
   }
   .month-cell:hover .month-cell-plus { opacity: 1; }
 
-  /* day popover */
   .day-popover-backdrop { position: absolute; inset: 0; z-index: 15; display: none; }
   .day-popover-backdrop.show { display: block; }
   .day-popover {
@@ -359,7 +343,6 @@
   .dp-badge.st-posted { background: #eaf3de; color: #27500a; }
   .dp-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
 
-  /* ================= CALENDAR: list view ================= */
   .list-view { padding: 20px 24px; overflow-y: auto; flex: 1; }
   .list-filters { display: flex; gap: 10px; margin-bottom: 18px; position: relative; }
   .lf-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 14px; font-size: 13px; color: #4a4a46; }
@@ -412,7 +395,6 @@
   .lr-badge.st-posted { background: #eaf3de; color: #27500a; }
   .lr-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
 
-  /* ================= EDIT POST MODAL ================= */
   .ep-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 40; display: none; align-items: center; justify-content: center; }
   .ep-backdrop.show { display: flex; }
   .ep-modal { width: 1180px; max-width: 95%; max-height: 88%; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
@@ -469,7 +451,6 @@
   .ep-media-box .ep-media-remove { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 5px; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
   .ep-media-empty { width: 260px; height: 140px; border: 1.5px dashed #d8d6cf; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b2ac; margin-bottom: 16px; }
 
-  /* media empty state v2 (matches "Create Single Post" reference) */
   .ep-media-empty2 {
     width: 100%; max-width: 420px; border: 1.5px dashed #d8d6cf; border-radius: 12px;
     padding: 34px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -490,7 +471,6 @@
   .ep-choose-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; font-size: 13px; cursor: pointer; }
   .ep-choose-item:hover { background: #f4f4f2; }
 
-  /* preview column */
   .ep-preview-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
   .ep-preview-tab {
     width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
@@ -508,7 +488,6 @@
   .ep-preview-empty .epe-line3 { height: 7px; background: #eceae4; border-radius: 4px; width: 70%; margin-bottom: 16px; align-self: flex-start; }
   .ep-preview-empty .epe-caption { font-size: 13px; color: #9a9a94; }
 
-  /* ---- Instagram post preview ---- */
   .ig-post-card { background: #fff; border: 1px solid #dbdbdb; border-radius: 12px; overflow: hidden; }
   .ig-post-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
   .ig-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
@@ -519,7 +498,6 @@
   .ig-post-caption { padding: 4px 12px 12px; font-size: 12px; line-height: 1.5; }
   .ig-post-caption b { margin-right: 5px; }
 
-  /* ---- Instagram story preview ---- */
   .ig-story-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
   .ig-story-bar { position: absolute; top: 8px; left: 8px; right: 8px; height: 2.5px; background: rgba(255,255,255,0.35); border-radius: 2px; }
   .ig-story-bar::after { content:''; display:block; width: 60%; height: 100%; background: #fff; border-radius: 2px; }
@@ -529,7 +507,6 @@
   .ig-story-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
   .ig-story-reply { position: absolute; bottom: 10px; left: 10px; right: 10px; border: 1px solid rgba(255,255,255,0.5); border-radius: 999px; padding: 7px 12px; font-size: 10.5px; color: rgba(255,255,255,0.75); }
 
-  /* ---- Instagram reel preview ---- */
   .ig-reel-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
   .ig-reel-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
   .ig-reel-rail { position: absolute; right: 8px; bottom: 60px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #fff; font-size: 17px; }
@@ -539,7 +516,6 @@
   .ig-reel-music { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10px; opacity: 0.9; }
   .ig-reel-music.no-music { color: #ffcf7a; }
 
-  /* ---- LinkedIn post preview ---- */
   .li-post-card { background: #fff; border: 1px solid #e4e2da; border-radius: 10px; overflow: hidden; }
   .li-post-head { display: flex; gap: 8px; padding: 12px 12px 8px; }
   .li-avatar { width: 40px; height: 40px; border-radius: 50%; background: #0a66c2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
@@ -552,7 +528,6 @@
   .li-post-actions { display: flex; padding: 4px 4px; }
   .li-post-actions span { flex: 1; text-align: center; padding: 8px 0; font-size: 11.5px; font-weight: 600; color: #6a6a66; }
 
-  /* split save button */
   .ep-split-btn { position: relative; display: flex; }
   .ep-split-main { font-size: 13.5px; font-weight: 600; padding: 11px 20px; border-radius: 8px 0 0 8px; cursor: pointer; background: #1a1a1a; color: #fff; display: flex; align-items: center; gap: 8px; }
   .ep-split-chevron { font-size: 13.5px; padding: 11px 12px; border-radius: 0 8px 8px 0; cursor: pointer; background: #1a1a1a; color: #fff; border-left: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; }
@@ -598,7 +573,6 @@
   .ep-fail-btn.ghost { background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; }
   .ep-fail-link { font-size: 12px; color: #9c2b2b; text-decoration: underline; cursor: pointer; }
 
-  /* ============ CAMPAIGN BUILDER ============ */
   .campaign-modal { width: 1120px; max-width: 94vw; max-height: 760px; }
   .campaign-modal .modal-head { padding: 16px 22px; }
   .campaign-progress { display:flex; gap:20px; padding:0 22px 14px; border-bottom:1px solid #e4e2da; }
@@ -617,16 +591,16 @@
   .cb-mode.selected { border-color:#6a3fd1; background:#faf8ff; }
   .cb-mode-title { font-weight:700; font-size:13px; margin-bottom:5px; }
   .cb-mode-desc { color:#6a6a66; font-size:11.5px; line-height:1.45; }
-  .cb-target-switch { display:flex; align-items:center; justify-content:space-between; border:1px solid #d8d6cf; border-radius:9px; padding:11px 13px; margin:0 0 14px; max-width:630px; }
+  .cb-target-switch { display:flex; align-items:center; justify-content:space-between; border:1px solid #d8d6cf; border-radius:9px; padding:11px 13px; margin:0 0 14px; }
   .cb-target-title { font-size:13px; font-weight:700; }.cb-target-desc { font-size:11px; color:#8a8a86; margin-top:3px; }
-  .switch { width:34px; height:20px; border-radius:20px; background:#d8d6cf; cursor:pointer; padding:2px; transition:.15s; }.switch:after { content:''; display:block; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; }.switch.on { background:#6a3fd1; }.switch.on:after { transform:translateX(14px); }
+  .switch { width:34px; height:20px; border-radius:20px; background:#d8d6cf; cursor:pointer; padding:2px; transition:.15s; flex-shrink:0; }.switch:after { content:''; display:block; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; }.switch.on { background:#6a3fd1; }.switch.on:after { transform:translateX(14px); }
   .cb-filter-title { font-size:12px; color:#6a6a66; font-weight:700; margin-bottom:8px; }.cb-filter-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:15px; }
   .cb-chip { border:1px solid #d8d6cf; background:#fff; color:#4a4a46; border-radius:999px; padding:7px 11px; font-size:12px; cursor:pointer; }.cb-chip.active { background:#ede5ff; border-color:#a88df0; color:#5735bb; font-weight:700; }
   .cb-results { border:1px solid #e4e2da; border-radius:10px; padding:14px; }.cb-results-head { display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:11px; }.cb-card-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }.cb-card { position:relative; border:1px solid #e4e2da; border-radius:8px; padding:7px; cursor:pointer; }.cb-card.selected { border-color:#6a3fd1; box-shadow:0 0 0 2px #ede5ff; }.cb-art { height:72px; background:#eaf1fb; border-radius:6px; display:grid; place-items:center; font-size:22px; margin-bottom:7px; }.cb-card:nth-child(2) .cb-art{background:#fbe6cf}.cb-card:nth-child(3) .cb-art{background:#e6f3e9}.cb-card:nth-child(4) .cb-art{background:#f2eafa}.cb-card-title { font-size:11px; font-weight:700; line-height:1.35; }.cb-card-meta { font-size:10px; color:#8a8a86; margin-top:3px; }.cb-check { position:absolute; top:11px; right:11px; width:16px; height:16px; border:1px solid #b3b2ac; border-radius:4px; background:#fff; text-align:center; font-size:11px; }.cb-card.selected .cb-check { background:#6a3fd1; color:#fff; border-color:#6a3fd1; }
-  .cb-fixed { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }.cb-playlist { border:1px solid #d8d6cf; border-radius:9px; padding:14px; cursor:pointer; }.cb-playlist.selected { border-color:#6a3fd1; background:#faf8ff; }.cb-playlist-icon { font-size:24px; margin-bottom:10px; }.cb-playlist-title{font-size:13px;font-weight:700;margin-bottom:4px}.cb-playlist-meta{font-size:11px;color:#8a8a86;line-height:1.4}
   .cb-browser { display:grid; grid-template-columns:145px minmax(0,1fr); min-height:390px; border:1px solid #e4e2da; border-radius:10px; overflow:hidden; }
-  .cb-browser.targeted { grid-template-columns:145px minmax(0,1fr) 230px; }.cb-category-rail { padding:14px 9px; border-right:1px solid #e4e2da; }.cb-category-label { font-size:10px; font-weight:700; color:#8a8a86; margin:0 7px 8px; }.cb-category { display:flex; align-items:center; gap:7px; padding:9px 7px; border-radius:7px; font-size:11px; margin-bottom:3px; cursor:pointer; }.cb-category.active { background:#ece5fb; color:#5735bb; font-weight:700; }.cb-category-icon { width:24px; height:24px; border-radius:50%; background:#f0efeb; display:grid; place-items:center; font-size:13px; }.cb-category.active .cb-category-icon { background:#6a3fd1; color:#fff; }
-  .cb-browser-main { padding:14px; min-width:0; }.cb-target-banner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 10px; background:#f6f3ff; border-radius:7px; font-size:11px; margin-bottom:12px; }.cb-target-banner b { font-size:12px; }.cb-target-banner-copy { color:#6a6a66; margin-top:2px; }.cb-match-notice { padding:9px 10px; background:#ece5fb; color:#5735bb; border-radius:7px; font-size:12px; line-height:1.35; margin:10px 0; }.cb-content-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }.cb-content-card { border:1px solid #e4e2da; border-radius:7px; padding:6px; min-width:0; }.cb-content-art { height:86px; background:#eaf1fb; border-radius:5px; display:grid; place-items:center; font-size:22px; margin-bottom:6px; }.cb-content-card:nth-child(2) .cb-content-art { background:#fbe6cf; }.cb-content-card:nth-child(3) .cb-content-art { background:#e6f3e9; }.cb-content-card:nth-child(4) .cb-content-art { background:#f2eafa; }.cb-content-title { font-size:10.5px; font-weight:700; line-height:1.3; }.cb-content-meta { font-size:10px; color:#8a8a86; margin-top:3px; }.cb-audience { padding:14px 11px; border-left:1px solid #e4e2da; }.cb-audience-head { font-size:12px; font-weight:700; }.cb-audience-sub { font-size:10px; color:#8a8a86; margin:3px 0 11px; }.cb-audience-group { border-top:1px solid #eceae4; padding:9px 0; }.cb-audience-group b { font-size:11px; }.cb-audience-option { display:flex; justify-content:space-between; gap:6px; font-size:10px; padding:5px 4px; margin-top:4px; }.cb-audience-option.selected { background:#ece5fb; border-radius:5px; color:#5735bb; font-weight:700; }.cb-audience-option span:last-child { color:#8a8a86; font-weight:400; }
+  .cb-category-rail { padding:14px 9px; border-right:1px solid #e4e2da; }.cb-category-label { font-size:10px; font-weight:700; color:#8a8a86; margin:0 7px 8px; }.cb-category { display:flex; align-items:center; gap:7px; padding:9px 7px; border-radius:7px; font-size:11px; margin-bottom:3px; cursor:pointer; }.cb-category.active { background:#ece5fb; color:#5735bb; font-weight:700; }.cb-category-icon { width:24px; height:24px; border-radius:50%; background:#f0efeb; display:grid; place-items:center; font-size:13px; }.cb-category.active .cb-category-icon { background:#6a3fd1; color:#fff; }
+  .cb-browser-main { padding:14px; min-width:0; }.cb-match-notice { padding:9px 10px; background:#ece5fb; color:#5735bb; border-radius:7px; font-size:12px; line-height:1.35; margin:0 0 12px; }
+  .cb-objective-summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:#f6f3ff; border-radius:8px; font-size:12.5px; margin-bottom:10px; }
   .schedule-layout { display:grid; grid-template-columns:300px 1fr; gap:20px; }.cb-panel { border:1px solid #e4e2da; border-radius:10px; padding:15px; }.cb-panel h4 { font-size:13px; margin-bottom:13px; }.cb-select-row { display:flex; gap:10px; }.cb-select-row .field { flex:1; }.cb-mini-calendar { display:grid; grid-template-columns:50px repeat(7,1fr); border-top:1px solid #d8d6cf; border-left:1px solid #d8d6cf; }.cb-mini-calendar div { min-height:52px; border-right:1px solid #d8d6cf; border-bottom:1px solid #d8d6cf; padding:5px; font-size:10px; color:#6a6a66; }.cb-mini-calendar .head { min-height:30px; text-align:center; font-weight:700; }.cb-post { display:block; background:#ece5fb; color:#5735bb; border-radius:4px; padding:4px; font-size:10px; margin-top:8px; }.cb-summary-line { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eceae4; font-size:12px; }.cb-summary-line:last-child { border:0; }
   .platform-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; }.cb-platform-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #e4e2da; }.cb-platform-icon { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d8d6cf; border-radius:7px; font-weight:700; }.cb-platform-name { font-size:13px; font-weight:700; }.cb-platform-sub { font-size:11px; color:#8a8a86; margin-top:2px; }.cb-connected { font-size:11px; color:#27813d; margin-left:auto; }.cb-notconnected { font-size:11px; color:#b45a3c; margin-left:auto; }
 </style>
@@ -664,7 +638,6 @@
 
     <div class="scrim" id="scrim" onclick="closePanels()"></div>
 
-    <!-- CONTENT SOURCES DRAWER (minimized, lifecycle-based) -->
     <div class="drawer" id="postDrawer">
       <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
       <div class="sources-search-row">
@@ -681,7 +654,6 @@
       </div>
     </div>
 
-    <!-- CAMPAIGN DRAWER (State A lives here) -->
     <div class="drawer" id="campaignDrawer">
       <div class="drawer-header"><span class="title">Build a campaign</span><span class="close" onclick="closePanels()">✕</span></div>
       <div class="drawer-scroll">
@@ -724,7 +696,6 @@
       <div class="day-popover" id="dayPopover"></div>
     </div>
 
-    <!-- ============= STATE B MODAL ============= -->
     <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
       <div class="modal campaign-modal">
         <div class="modal-head">
@@ -742,7 +713,6 @@
       </div>
     </div>
 
-    <!-- ============= FLOATING BROWSE MODAL (Content Sources → View all) ============= -->
     <div class="browse-backdrop" id="browseBackdrop" onclick="if(event.target===this) closeBrowseModal()">
       <div class="browse-modal">
         <div class="bm-topbar">
@@ -781,7 +751,6 @@
       </div>
     </div>
 
-    <!-- ============= EDIT POST MODAL ============= -->
     <div class="ep-backdrop" id="epBackdrop" onclick="if(event.target===this) closeEditPost()">
       <div class="ep-modal">
         <div class="ep-head">
@@ -893,23 +862,38 @@
   }
 
   /* ---------- campaign builder ---------- */
-  const allCampaigns = [
-    {name:'Brand awareness starter pack', meta:'6 posts · reach-focused', targeted:false},
-    {name:'Tax season push', meta:'5 posts · seasonal', targeted:false},
-    {name:'Product launch — new SIP plan', meta:'8 posts · announcement', targeted:false},
-    {name:'Trust builders — client stories', meta:'4 posts · social proof', targeted:false},
-    {name:'Pre-retirees, age 45–60', meta:'5 posts · retirement planning', targeted:true},
-    {name:'New investors, first SIP', meta:'6 posts · beginner education', targeted:true},
-    {name:'High net-worth, FIRE seekers', meta:'4 posts · advanced strategy', targeted:true},
+  // Six lifecycle objectives for Targeted campaigns — the "why" that anchors
+  // audience + content together. Exclusive to Targeted per latest feedback.
+  const OBJECTIVES = [
+    { key:'stepup',    title:'Step up SIP',      desc:'Encourage existing SIP holders to increase their amount',
+      audience:['SIP active < 12 months','Risk: moderate+'], content:['Concept: SIP','Sentiment: growth'] },
+    { key:'firstsip',  title:'Start first SIP',  desc:'Convert non-SIP clients into starting one',
+      audience:['No active SIP','New investor'], content:['Concept: SIP','Segment: New investors'] },
+    { key:'reengage',  title:'Re-engage lapsed', desc:'Win back clients inactive 6+ months',
+      audience:['Lapsed 6+ months'], content:['Segment: Lapsed clients'] },
+    { key:'crosssell', title:'Cross-sell',       desc:'Introduce a new fund category to existing clients',
+      audience:['Existing investor, single category'], content:['Fund type: varies'] },
+    { key:'renewal',   title:'Renewal or KYC',   desc:'Prompt upcoming re-verification or renewal',
+      audience:['KYC due in 30 days'], content:['Segment: Renewal'] },
+    { key:'referral',  title:'Referral ask',     desc:'Ask satisfied clients to refer others',
+      audience:['High engagement, tenure 12mo+'], content:['Segment: Advocates'] },
   ];
+  const CAMPAIGN_CATS = () => categories.filter(c => c.key !== 'templates');
 
   let modalStep = 'select';
-  let campaignState = { targeted:false, platforms:{instagram:true,facebook:true,linkedin:true,x:false,pinterest:false} };
+  let campaignState = null;
   const campaignSteps = ['select','schedule','platforms'];
+
+  function freshCampaignState() {
+    return {
+      targeted:false, objective:null, contentCat:'market', selectedCards:new Set(),
+      platforms:{instagram:true,facebook:true,linkedin:true,x:false,pinterest:false}
+    };
+  }
 
   function openModal() {
     modalStep = 'select';
-    campaignState = { targeted:false, platforms:{instagram:true,facebook:true,linkedin:true,x:false,pinterest:false} };
+    campaignState = freshCampaignState();
     document.getElementById('modalBackdrop').classList.add('show'); render();
   }
   function closeModal() {
@@ -922,6 +906,99 @@
   function goNext() {
     const idx = campaignSteps.indexOf(modalStep);
     if (idx < campaignSteps.length - 1) { modalStep = campaignSteps[idx + 1]; render(); }
+  }
+
+  // Flipping Targeted is a full view-change: it resets objective + selection
+  // and, when turned on, jumps straight into the objective picker.
+  function toggleTargeted() {
+    campaignState.targeted = !campaignState.targeted;
+    campaignState.objective = null;
+    campaignState.selectedCards = new Set();
+    render();
+  }
+  function selectObjective(key) {
+    campaignState.objective = OBJECTIVES.find(o => o.key === key);
+    render();
+  }
+  function setCampaignCat(k) { campaignState.contentCat = k; render(); }
+  function toggleCardSelect(id) {
+    if (campaignState.selectedCards.has(id)) campaignState.selectedCards.delete(id);
+    else campaignState.selectedCards.add(id);
+    render();
+  }
+
+  function renderObjectivePicker() {
+    return `<div class="cb-step">
+      <div class="cb-target-switch">
+        <div><div class="cb-target-title">Targeted campaign</div><div class="cb-target-desc">Uses a lifecycle objective + CRM attributes to define who this is for.</div></div>
+        <div class="switch on" onclick="toggleTargeted()"></div>
+      </div>
+      <div class="cb-intro">What's this campaign trying to do? Audience and content will pre-fill from your choice — you can still adjust both after.</div>
+      <div class="cb-mode-grid" style="grid-template-columns:repeat(3,1fr); max-width:none;">
+        ${OBJECTIVES.map(o => `<div class="cb-mode" onclick="selectObjective('${o.key}')">
+          <div class="cb-mode-title">${o.title}</div>
+          <div class="cb-mode-desc">${o.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  function renderContentStep() {
+    const cat = campaignState.contentCat;
+    const cards = sampleCards[cat];
+    const cats = CAMPAIGN_CATS();
+    const selectedCount = campaignState.selectedCards.size;
+
+    const objectiveBar = campaignState.targeted ? `
+      <div class="cb-objective-summary">
+        <span><b>${campaignState.objective.title}</b> — ${campaignState.objective.desc}</span>
+        <span class="view-all-link" onclick="campaignState.objective=null;render()">Change objective</span>
+      </div>
+      <div class="cb-filter-row">
+        ${campaignState.objective.audience.map(a=>`<span class="cb-chip active">👤 ${a}</span>`).join('')}
+        ${campaignState.objective.content.map(c=>`<span class="cb-chip active">🏷 ${c}</span>`).join('')}
+        <span class="cb-chip">+ Add filter</span>
+      </div>` : '';
+
+    const audienceAside = campaignState.targeted ? `
+      <aside class="cb-audience">
+        <div class="cb-audience-head" style="font-size:12px;font-weight:700;">Audience (from CRM)</div>
+        <div class="cb-audience-sub" style="font-size:10px;color:#8a8a86;margin:3px 0 11px;">Pre-filled from objective — editable</div>
+        ${campaignState.objective.audience.map(a=>`<div class="cb-audience-option selected" style="display:flex;justify-content:space-between;font-size:10px;padding:5px 4px;background:#ece5fb;border-radius:5px;color:#5735bb;font-weight:700;margin-bottom:4px;"><span>✓ ${a}</span></div>`).join('')}
+        <div class="cb-chip" style="display:inline-block;margin-top:8px">+ Add audience filter</div>
+      </aside>` : '';
+
+    return `<div class="cb-step">
+      <div class="cb-target-switch">
+        <div><div class="cb-target-title">Targeted campaign</div><div class="cb-target-desc">Use a lifecycle objective and CRM attributes to define who this is for.</div></div>
+        <div class="switch ${campaignState.targeted?'on':''}" onclick="toggleTargeted()"></div>
+      </div>
+      ${objectiveBar}
+      <div class="cb-browser ${campaignState.targeted ? 'targeted' : ''}" style="${campaignState.targeted ? 'grid-template-columns:145px minmax(0,1fr) 220px;' : ''}">
+        <aside class="cb-category-rail">
+          <div class="cb-category-label">CATEGORY</div>
+          ${cats.map(c => `<div class="cb-category ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')"><span class="cb-category-icon">${c.icon}</span>${c.label}</div>`).join('')}
+        </aside>
+        <section class="cb-browser-main">
+          <div class="cb-match-notice">Matches ${cards.length * 8} items in this category · updates automatically as new content is tagged.</div>
+          <div class="sq-grid modal-grid">
+            ${cards.map((c, idx) => {
+              const id = cat + ':' + idx;
+              const checked = campaignState.selectedCards.has(id);
+              return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
+                <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
+                <div class="sq-thumb">${c.icon}</div>
+                ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+                <div class="sq-title">${c.title}</div>
+                <div class="sq-meta">${c.meta}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </section>
+        ${audienceAside}
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#6a6a66;">${selectedCount} item${selectedCount===1?'':'s'} selected</div>
+    </div>`;
   }
 
   function render() {
@@ -937,22 +1014,28 @@
 
     if (modalStep === 'select') {
       title.textContent = 'Create campaign';
-      const cards = [['🎬','Why the dip is not a reason to exit','Reel'],['📝','Stay invested meme','Meme'],['📊','Market volatility explainer','Carousel'],['🖼️','SIP myth vs fact','Image']];
-      const audience = `<aside class="cb-audience"><div class="cb-audience-head">Audience filters</div><div class="cb-audience-sub">From your imported CRM list</div><div class="cb-audience-group"><b>Marital status</b><div class="cb-audience-option selected"><span>✓ Married</span><span>642</span></div><div class="cb-audience-option"><span>Single</span><span>384</span></div></div><div class="cb-audience-group"><b>Risk appetite</b><div class="cb-audience-option selected"><span>✓ Conservative</span><span>184</span></div><div class="cb-audience-option"><span>Moderate</span><span>503</span></div><div class="cb-audience-option"><span>Aggressive</span><span>339</span></div></div><div class="cb-chip" style="display:inline-block;margin-top:5px">+ Add audience filter</div></aside>`;
-      body.innerHTML = `<div class="cb-step"><div class="cb-browser ${campaignState.targeted?'targeted':''}"><aside class="cb-category-rail"><div class="cb-category-label">CATEGORY</div>${[['🌱','Investor Education'],['📘','Financial Concepts'],['📉','Market Updates'],['🔥','Trending'],['🎯','Risk Profiling']].map((c,i)=>`<div class="cb-category ${i===2?'active':''}"><span class="cb-category-icon">${c[0]}</span>${c[1]}</div>`).join('')}</aside><section class="cb-browser-main"><div class="cb-target-banner"><div><b>Targeted campaign</b><div class="cb-target-banner-copy">Use CRM attributes to define who this campaign is for.</div></div><div class="switch ${campaignState.targeted?'on':''}" onclick="toggleTargeted()"></div></div><div class="cb-filter-title">CONTENT FILTERS</div><div class="cb-filter-row">${['Bearish sentiment','Reel','Meme','+ Add filter'].map((x,i)=>`<span class="cb-chip ${i<3?'active':''}">${x}</span>`).join('')}</div><div class="cb-match-notice">${campaignState.targeted?'34 matching items will be available to the 184 clients in this audience.':'This campaign currently matches 34 items and updates automatically as new content is tagged.'}</div><div class="cb-results-head"><span>Market updates</span><span>34 creatives</span></div><div class="cb-content-cards">${cards.map(c=>`<div class="cb-content-card"><div class="cb-content-art">${c[0]}</div><div class="cb-content-title">${c[1]}</div><div class="cb-content-meta">${c[2]} · English</div></div>`).join('')}</div></section>${campaignState.targeted?audience:''}</div></div>`;
-      foot.innerHTML = `<span class="m-btn ghost" onclick="closeModal()">Cancel</span><span class="m-btn primary" onclick="goNext()">Next: schedule →</span>`;
+      if (campaignState.targeted && !campaignState.objective) {
+        body.innerHTML = renderObjectivePicker();
+        foot.innerHTML = `<span class="m-btn ghost" onclick="closeModal()">Cancel</span>`;
+      } else {
+        body.innerHTML = renderContentStep();
+        const backAction = campaignState.targeted ? `campaignState.objective=null;render()` : `closeModal()`;
+        const backLabel = campaignState.targeted ? '← Change objective' : 'Cancel';
+        foot.innerHTML = `<span class="m-btn ghost" onclick="${backAction}">${backLabel}</span><span class="m-btn primary" onclick="goNext()">Next: schedule →</span>`;
+      }
     } else if (modalStep === 'schedule') {
       title.textContent = 'Schedule & preview';
-      body.innerHTML = `<div class="cb-step schedule-layout"><div class="cb-panel"><h4>Campaign settings</h4><div class="field"><label>Campaign name</label><input value="${campaignState.targeted?'Conservative investor market update':'Bearish-market content series'}"></div><div class="cb-select-row"><div class="field"><label>Duration</label><select><option>30 days</option><option>14 days</option><option>7 days</option></select></div><div class="field"><label>Frequency</label><select><option>Daily</option><option>3× weekly</option><option>Weekly</option></select></div></div><div class="summary-box"><b>Content set</b><br>${campaignState.targeted?'CRM audience filters applied':'Market updates · Bearish · Reel, Meme'}<br>30 posts will be distributed automatically.</div></div><div class="cb-panel"><h4>Calendar preview <span style="font-weight:400;color:#8a8a86">· Jul 14 – 20</span></h4><div class="cb-mini-calendar">${['','Mon','Tue','Wed','Thu','Fri','Sat','Sun','9 AM','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▣ Meme</span>','', '12 PM','<span class="cb-post">▣ Meme</span>','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','', '3 PM','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','',''].map((x,i)=>`<div class="${i<8?'head':''}">${x}</div>`).join('')}</div></div></div>`;
+      const setName = campaignState.targeted ? campaignState.objective.title + ' — targeted' : 'Market updates content series';
+      body.innerHTML = `<div class="cb-step schedule-layout"><div class="cb-panel"><h4>Campaign settings</h4><div class="field"><label>Campaign name</label><input value="${setName}"></div><div class="cb-select-row"><div class="field"><label>Duration</label><select><option>30 days</option><option>14 days</option><option>7 days</option></select></div><div class="field"><label>Frequency</label><select><option>Daily</option><option>3× weekly</option><option>Weekly</option></select></div></div><div class="summary-box"><b>Content set</b><br>${campaignState.targeted ? campaignState.objective.content.join(', ') + ' · CRM audience applied' : 'Market updates · ' + campaignState.selectedCards.size + ' items selected'}<br>30 posts will be distributed automatically.</div></div><div class="cb-panel"><h4>Calendar preview <span style="font-weight:400;color:#8a8a86">· Jul 14 – 20</span></h4><div class="cb-mini-calendar">${['','Mon','Tue','Wed','Thu','Fri','Sat','Sun','9 AM','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▣ Meme</span>','', '12 PM','<span class="cb-post">▣ Meme</span>','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','', '3 PM','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','',''].map((x,i)=>`<div class="${i<8?'head':''}">${x}</div>`).join('')}</div></div></div>`;
       foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">← Back</span><span class="m-btn primary" onclick="goNext()">Next: platforms →</span>`;
     } else {
       title.textContent = 'Select platforms & run';
       const ps = [['instagram','◎','Instagram','@your_handle'],['facebook','f','Facebook Page','Your Page'],['linkedin','in','LinkedIn','Your Company'],['x','𝕏','X (Twitter)','Not connected'],['pinterest','P','Pinterest','Not connected']];
-      body.innerHTML = `<div class="cb-step platform-layout"><div class="cb-panel"><h4>Select platforms</h4>${ps.map(p=>`<div class="cb-platform-row"><div class="cb-platform-icon">${p[1]}</div><div><div class="cb-platform-name">${p[2]}</div><div class="cb-platform-sub">${p[3]}</div></div><span class="${campaignState.platforms[p[0]]?'cb-connected':'cb-notconnected'}">${campaignState.platforms[p[0]]?'Connected':'Not connected'}</span><div class="switch ${campaignState.platforms[p[0]]?'on':''}" onclick="togglePlatform('${p[0]}')"></div></div>`).join('')}</div><div class="cb-panel"><h4>Campaign summary</h4><div class="cb-summary-line"><span>Content set</span><b>Bearish (Reel, Meme)</b></div><div class="cb-summary-line"><span>Duration</span><b>30 days</b></div><div class="cb-summary-line"><span>Frequency</span><b>Daily</b></div><div class="cb-summary-line"><span>Total posts</span><b>30</b></div><div class="cb-summary-line"><span>Platforms</span><b>${Object.values(campaignState.platforms).filter(Boolean).length}</b></div></div></div>`;
+      body.innerHTML = `<div class="cb-step platform-layout"><div class="cb-panel"><h4>Select platforms</h4>${ps.map(p=>`<div class="cb-platform-row"><div class="cb-platform-icon">${p[1]}</div><div><div class="cb-platform-name">${p[2]}</div><div class="cb-platform-sub">${p[3]}</div></div><span class="${campaignState.platforms[p[0]]?'cb-connected':'cb-notconnected'}">${campaignState.platforms[p[0]]?'Connected':'Not connected'}</span><div class="switch ${campaignState.platforms[p[0]]?'on':''}" onclick="togglePlatform('${p[0]}')"></div></div>`).join('')}</div><div class="cb-panel"><h4>Campaign summary</h4><div class="cb-summary-line"><span>Objective</span><b>${campaignState.targeted ? campaignState.objective.title : 'Standard'}</b></div><div class="cb-summary-line"><span>Duration</span><b>30 days</b></div><div class="cb-summary-line"><span>Frequency</span><b>Daily</b></div><div class="cb-summary-line"><span>Total posts</span><b>30</b></div><div class="cb-summary-line"><span>Platforms</span><b>${Object.values(campaignState.platforms).filter(Boolean).length}</b></div></div></div>`;
       foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">← Back</span><span class="m-btn ghost" onclick="closeModal()">Save as draft</span><span class="m-btn primary" onclick="runCampaign()">▷ Run campaign</span>`;
     }
   }
-  function toggleTargeted(){campaignState.targeted=!campaignState.targeted;render()} function togglePlatform(p){campaignState.platforms[p]=!campaignState.platforms[p];render()} function runCampaign(){closeModal(); alert('Campaign is ready to run across your selected platforms.');}
+  function togglePlatform(p){campaignState.platforms[p]=!campaignState.platforms[p];render()} function runCampaign(){closeModal(); alert('Campaign is ready to run across your selected platforms.');}
 
   /* ============= CONTENT DISCOVERY (Create Post) ============= */
   const categories = [
@@ -1061,9 +1144,6 @@
       </div>`;
     }).join('');
   }
-  // A click (as opposed to a drag) on a card in the expanded modal opens the
-  // Edit Post modal prefilled with that content, defaulting to today at 10am
-  // since no specific calendar slot was targeted.
   function openCardFromBrowseModal(catKey, idx) {
     const card = sampleCards[catKey][idx];
     closeBrowseModal();
@@ -1071,7 +1151,6 @@
     openEditPost({ mode:'create', date: TODAY_STR, hour: 10, prefillCard: card });
   }
 
-  /* ---- discovery filter panel ---- */
   const discoveryFilterGroups = {
     trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
       options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
@@ -1139,9 +1218,6 @@
      CALENDAR: shared data model + three views + drag-drop + Edit Post
      ================================================================ */
 
-  // connection state — mirrors what "Connect your channel" would set.
-  // Instagram intentionally NOT connected, to demonstrate the "always blank
-  // until connected" behaviour; Facebook + LinkedIn are already connected.
   const CONNECTED = { instagram: false, facebook: true, linkedin: true };
 
   const PLATFORM_META = {
@@ -1162,9 +1238,9 @@
   ];
   let eventSeq = 100;
 
-  const WEEK_START = new Date(2026, 6, 12); // Sun Jul 12, 2026 — matches "today"
+  const WEEK_START = new Date(2026, 6, 12);
   const TODAY_STR = '2026-07-12';
-  const TIME_SLOTS = []; // hours 7..20
+  const TIME_SLOTS = [];
   for (let h = 7; h <= 20; h++) TIME_SLOTS.push(h);
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1185,9 +1261,8 @@
   function updateTopbarDateLabel(v) {
     const el = document.getElementById('dateRangePill');
     if (v === 'month') {
-      el.textContent = MONTH_NAMES[6] + ' 2026'; // July 2026 — matches renderMonthView's hardcoded month
+      el.textContent = MONTH_NAMES[6] + ' 2026';
     } else {
-      // week + list share the same "Jul 12 – 18, 2026" range style
       const start = WEEK_START, end = addDays(WEEK_START, 6);
       const sameMonth = start.getMonth() === end.getMonth();
       const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1197,9 +1272,6 @@
   }
 
   let currentView = 'week';
-  // This prototype's calendar data is seeded around a fixed week (Jul 12–18,
-  // 2026); real date navigation isn't wired up yet, same fidelity as other
-  // prototype-only actions (e.g. "Raise a ticket").
   function goToday() { alert('This would jump the calendar back to today\'s date.'); }
   function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
   function switchView(v) {
@@ -1217,8 +1289,6 @@
     if (v==='list') renderListView();
   }
 
-  /* ---------------- WEEK VIEW ---------------- */
-  /* ---------------- STATUS LEGEND (shared across all 3 views) ---------------- */
   const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
   const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
   let statusFilter = new Set(STATUS_LIST);
@@ -1279,9 +1349,8 @@
     document.getElementById('weekView').innerHTML = html;
   }
 
-  /* ---------------- MONTH VIEW ---------------- */
   function renderMonthView() {
-    const year = 2026, month = 6; // July 2026 (0-indexed)
+    const year = 2026, month = 6;
     const first = new Date(year, month, 1);
     const startOffset = first.getDay();
     const gridStart = addDays(first, -startOffset);
@@ -1351,10 +1420,9 @@
     document.getElementById('dayPopover').classList.remove('show');
   }
 
-  /* ---------------- LIST VIEW ---------------- */
   let listDateRange = { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
   let drpPendingStart = null;
-  let drpMonthCursor = new Date(2026, 6, 1); // month shown as the left calendar
+  let drpMonthCursor = new Date(2026, 6, 1);
 
   function fmtDateShort(dateStr) {
     const [y,m,d] = dateStr.split('-').map(Number);
@@ -1461,7 +1529,7 @@
     let cells = '';
     for (let i=0;i<42;i++) {
       const d = addDays(gridStart, i);
-      if (d.getMonth() !== month && i >= 35) continue; // trim trailing extra row when unnecessary
+      if (d.getMonth() !== month && i >= 35) continue;
       const dateStr = toDateStr(d);
       const outside = d.getMonth() !== month;
       const inRange = !outside && dateStr >= listDateRange.start && dateStr <= listDateRange.end;
@@ -1498,10 +1566,8 @@
     renderDrp();
   }
 
-  /* ---------------- DRAG AND DROP FROM CONTENT SOURCES ---------------- */
   let draggedCard = null;
-  /* ---------------- MANUAL UPLOAD ---------------- */
-  let uploadSource = 'drawer'; // 'drawer' | 'modal' — which grid to drop the new card into
+  let uploadSource = 'drawer';
   function triggerUpload(source) {
     uploadSource = source;
     document.getElementById('uploadInput').click();
@@ -1515,19 +1581,14 @@
       title: file.name,
       meta: (isVideo ? 'Video' : 'Image') + ' · Just uploaded',
     };
-    // dropped into whichever category is currently active, so it shows up
-    // immediately in the grid the person was just looking at
     sampleCards[activeCat].unshift(newCard);
     renderDrawerGrid();
     if (document.getElementById('browseBackdrop').classList.contains('show')) {
       renderBmGrid();
     }
-    evt.target.value = ''; // allow re-selecting the same file later
+    evt.target.value = '';
   }
 
-  // Closes every panel/modal that could be sitting on top of the calendar
-  // (drawer, browse modal + its filter panel, edit-post modal) so the user
-  // has full visibility of the grid the instant they start dragging.
   function closeAllOverlaysForDrag() {
     closePanels();
     closeBrowseModal();
@@ -1543,14 +1604,7 @@
     draggedCard = sampleCards[catKey][idx];
     evt.dataTransfer.setData('text/plain', catKey + ':' + idx);
     evt.dataTransfer.effectAllowed = 'copy';
-    // the scrim sits above the calendar (to catch outside-clicks that close
-    // the drawer) and was silently swallowing drop events — disable it
-    // for the duration of the drag so drops reach the calendar cells.
     document.getElementById('scrim').style.pointerEvents = 'none';
-    // give the user full visibility of the calendar underneath while dragging;
-    // deferred one tick so the browser finishes capturing the drag image first
-    // (the browse modal uses display:none, which can cancel an in-progress
-    // native drag if applied synchronously inside dragstart).
     setTimeout(closeAllOverlaysForDrag, 0);
   }
   function onCardDragEnd(evt) {
@@ -1570,8 +1624,7 @@
     draggedCard = null;
   }
 
-  /* ---------------- EDIT POST MODAL ---------------- */
-  let epState = null; // {mode, date, hour, minute, eventId, platforms:{key:{on,hour,minute}}, caption, thumbnail}
+  let epState = null;
 
   function cardKind(card) {
     return card && /reel/i.test(card.meta || '') ? 'video' : 'image';
@@ -1659,8 +1712,6 @@
       </div>`;
   }
 
-  // The date pill is static text normally; once a retry is in progress it
-  // becomes an actual date input so the user can pick when to retry.
   function renderEpDatePill() {
     const pill = document.getElementById('epDatePill');
     if (epState.retrying) {
@@ -1680,7 +1731,6 @@
     document.getElementById('epCustomizeToggle').classList.toggle('on', epState.customize);
     document.getElementById('epFormatSection').style.display = epState.customize ? 'block' : 'none';
     if (!epState.customize) {
-      // customization off ⇒ one universal post, no per-format variants
       epState.format = 'post';
       document.querySelectorAll('input[name="epFormat"]')[0].checked = true;
     }
@@ -1736,7 +1786,6 @@
     renderEpPlatformTabs();
   }
   function onEpTimeChange(k, val) {
-    // lightweight parse, prototype-level only
     const m = val.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
     if (m) {
       let hh = parseInt(m[1],10) % 12;
@@ -1786,12 +1835,9 @@
   function chooseFromOption(type) {
     document.getElementById('epChooseMenu').classList.remove('show');
     if (type === 'library') {
-      // "Content Library" maps directly onto the browse experience we already built
       closeEditPost();
       openBrowseModal();
     }
-    // other options (My Collection / Social Media / Upload manually) aren't
-    // wired to a real flow yet in this prototype — left as visual only.
   }
 
   function onCaptionInput() {
@@ -1810,8 +1856,6 @@
 
     let tabs = '';
     if (epState.customize) {
-      // customizing per social ⇒ one focused preview for whichever platform
-      // is active in "Add Media files", no tab row underneath.
       titleEl.innerHTML = `${PLATFORM_META[activePlatform].label} Preview <span style="font-weight:400;color:#b3b2ac;font-size:12px">ⓘ</span>`;
     } else {
       titleEl.textContent = 'Post Previews';
@@ -1839,9 +1883,6 @@
 
     const media = epState.thumbnail || '🖼️';
     const caption = epState.caption || '';
-    // format variants only apply to Instagram, and only once "customize for
-    // each social" is on — every other platform always shows its standard
-    // post layout in this prototype.
     const format = (activePlatform === 'instagram' && epState.customize) ? epState.format : 'post';
 
     let body = '';
@@ -1898,7 +1939,6 @@
           <div class="li-post-actions"><span>👍 Like</span><span>💬 Comment</span><span>↻ Repost</span><span>➤ Send</span></div>
         </div>`;
     } else {
-      // Facebook
       body = `
         <div class="ep-preview-card">
           <div class="ep-pv-head">
@@ -1919,10 +1959,6 @@
   }
   const EP_SAVE_MODE_LABEL = { scheduled: 'Schedule Post', draft: 'Save as Draft', retry: 'Retry', duplicate: 'Duplicate Post' };
 
-  // Entering "retry" from a failed post doesn't save right away — it first
-  // unlocks the platform toggles (pre-checked with the platforms that
-  // failed) and the date/time so the user can adjust what they want, then a
-  // second click on the (now "Confirm Retry") main button actually saves it.
   function enterRetryMode() {
     epState.retrying = true;
     if (epState.failInfo) {
@@ -1949,9 +1985,6 @@
     }
   }
 
-  // Sets the initial CTA state when a post is opened, without unlocking
-  // anything — a failed post opens showing "Retry" as the suggested action,
-  // but stays in its locked/failed view until the user actually interacts.
   function initEpCta() {
     epSaveMode = epState.failInfo ? 'retry' : 'scheduled';
     document.getElementById('epSplitMainBtn').textContent = epState.failInfo ? 'Retry' : 'Schedule Post';
@@ -1975,8 +2008,6 @@
     const st = epState.platforms[platform] || { hour: 10, minute: 0 };
 
     if (status === 'duplicate' || status === 'retry') {
-      // both leave the original post exactly as-is and create a fresh event:
-      // duplicate → draft copy, retry → a new scheduled attempt
       events.push({
         id: 'e' + (eventSeq++), date: epState.date, hour: st.hour, minute: st.minute,
         title: epState.caption, caption: epState.caption, status: status === 'retry' ? 'scheduled' : 'draft', platform,
@@ -2015,9 +2046,6 @@
     if (currentView === 'list') renderListView();
   }
 
-  // Decorative-only platforms (not part of the app's connect/post model yet)
-  // shown purely so the avatar row matches the reference — clicking them
-  // just starts the same "connect channel" flow as everywhere else.
   const EXTRA_INACTIVE_PLATFORMS = {
     pinterest: { label: 'Pinterest', icon: 'P' },
     tiktok:    { label: 'TikTok',    icon: '♪' },
