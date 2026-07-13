@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Campaign scheduler — full prototype (State A + B)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f4f4f2;
+    color: #1a1a1a;
+    padding: 40px;
+  }
+  .label-tag {
+    display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: #8a8a86; background: #eceae4;
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 16px;
+  }
+  .frame {
+    width: 1440px; max-width: 100%; margin: 0 auto;
+    background: #ffffff; border: 1px solid #d8d6cf; border-radius: 10px; overflow: hidden;
+  }
+  .topbar { display: flex; flex-direction: column; border-bottom: 1px solid #e4e2da; }
+  .topbar-row { display: flex; align-items: center; gap: 20px; padding: 12px 24px; }
+  .topbar-row-top { justify-content: flex-end; padding-bottom: 8px; }
+  .topbar-row-bottom { padding-top: 8px; }
+  .topbar-sidebar-spacer { width: 220px; flex-shrink: 0; }
+  .pill { display: flex; align-items: center; gap: 6px; border: 1px solid #e4e2da; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #4a4a46; white-space: nowrap; }
+  .view-toggle { display: flex; background: #f4f4f2; border-radius: 8px; padding: 3px; margin-left: auto; }
+  .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; cursor: pointer; }
+  .view-toggle span.active { background: #ece5fb; color: #6a3fd1; font-weight: 600; }
+
+  /* date navigation: Today / prev / next / range text */
+  .date-nav { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .today-link { font-size: 14px; font-weight: 600; color: #6a3fd1; cursor: pointer; }
+  .today-link:hover { text-decoration: underline; }
+  .nav-arrow { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #6a6a66; cursor: pointer; font-size: 14px; }
+  .nav-arrow:hover { background: #f4f4f2; }
+  .date-range-text { font-size: 15px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
+
+  /* connected-profile avatar row — sits on its own top row, right-aligned
+     above Week/Month/List, "Select Profiles" pill removed per feedback */
+  .profile-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; cursor: pointer; width: 44px; }
+  .profile-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; position: relative; background: #1a1a1a; color: #fff; border: 2px solid transparent; }
+  .profile-avatar.connected.ig { border-color: #e1306c; background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+  .profile-avatar.connected.fb { border-color: #1877f2; background: #1877f2; }
+  .profile-avatar.connected.li { border-color: #d4b106; background: #0a66c2; }
+  .profile-avatar.connected.pin { border-color: #e60023; background: #e60023; }
+  .profile-avatar.inactive { background: #eceae4; color: #b3b2ac; opacity: 0.85; }
+  .profile-badge { position: absolute; bottom: -2px; right: -2px; width: 15px; height: 15px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 8.5px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; }
+  .profile-avatar.inactive .profile-badge { background: #fff; color: #6a6a66; border: 1.5px solid #d8d6cf; font-weight: 700; }
+  .profile-name { font-size: 9.5px; color: #8a8a86; max-width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .layout { display: flex; height: 780px; position: relative; }
+
+  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; }
+  .btn { width: 100%; padding: 13px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: opacity .12s, transform .08s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: #1a1a1a; color: #fff; }
+  .btn-secondary { background: #fff; color: #1a1a1a; border: 1px solid #d8d6cf; }
+  .btn-secondary.on { background: #1a1a1a; color: #fff; }
+  .btn-tertiary { background: #fff; color: #4a4a46; border: 1px dashed #d8d6cf; font-weight: 500; }
+  .btn-tertiary:hover { border-color: #b3b2ac; color: #1a1a1a; background: #f9f9f7; }
+  .sidebar-note { margin-top: 16px; font-size: 12px; color: #b3b2ac; line-height: 1.5; }
+
+  .calendar { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .cal-header { display: grid; grid-template-columns: 60px repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
+  .cal-header div { text-align: center; font-size: 12px; color: #9a9a94; padding: 12px 0; font-weight: 600; }
+  .cal-header div.today { color: #1a1a1a; }
+  .cal-header div.today span { display: block; font-size: 15px; margin-top: 2px; }
+  .cal-body { flex: 1; display: grid; grid-template-columns: 60px repeat(7, 1fr); overflow: hidden; }
+  .time-col { display: flex; flex-direction: column; }
+  .time-slot { height: 90px; font-size: 11px; color: #b3b2ac; padding: 4px 8px; border-bottom: 1px solid #ececea; }
+  .day-col { border-left: 1px solid #ececea; }
+  .slot { height: 90px; border-bottom: 1px solid #ececea; }
+
+  .scrim { position: absolute; top:0; left:220px; right:0; bottom:0; background: rgba(20,20,18,0.03); z-index: 4; opacity:0; pointer-events:none; transition: opacity .15s; }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+
+  /* DRAWER */
+  .drawer {
+    position: absolute; top:0; left:220px; bottom:0; width: 360px;
+    background: #fff; border-right: 1px solid #d8d6cf; box-shadow: 10px 0 28px rgba(0,0,0,0.10);
+    padding: 18px 20px; display: flex; flex-direction: column; z-index: 5;
+    transform: translateX(-16px); opacity: 0; pointer-events: none; transition: transform .16s, opacity .16s;
+  }
+  .drawer.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .drawer-header .title { font-size: 15px; font-weight: 700; }
+  .drawer-header .close { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #8a8a86; font-size: 14px; cursor: pointer; }
+  .drawer-header .close:hover { background: #f4f4f2; }
+  .drawer-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+
+  .sources-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 7px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #9a9a94; }
+  .sources-search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .sources-search-row .sources-search { flex: 1; margin-bottom: 0; }
+  .upload-btn {
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px; justify-content: center;
+    background: #fff; border: 1px solid #d8d6cf; border-radius: 8px; color: #4a4a46;
+    font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; padding: 9px 14px;
+  }
+  .upload-btn:hover { background: #f4f4f2; border-color: #b3b2ac; }
+  .source-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .source-tabs span { font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
+  .source-tabs span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
+
+  /* ---- unified square content cards ---- */
+  .sq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sq-grid.modal-grid { grid-template-columns: repeat(3, 1fr); }
+  .sq-card { border: 1px solid #e4e2da; border-radius: 10px; padding: 9px; background: #fbfbfa; cursor: pointer; position: relative; }
+  .sq-card:hover { border-color: #c7c5bc; }
+  .sq-thumb { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; background: #dcebfa; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .sq-thumb.targeted { background: #fbe6cf; }
+  .sq-title { font-size: 12px; font-weight: 600; line-height: 1.35; margin-bottom: 2px; }
+  .sq-meta { font-size: 10.5px; color: #9a9a94; }
+  .sq-tag { position: absolute; top: 8px; right: 8px; font-size: 9px; font-weight: 700; color: #b6560a; background: #fff; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .tip-card { display: flex; gap: 10px; align-items: flex-start; background: #eaf1fb; border-radius: 10px; padding: 12px; margin-bottom: 14px; position: relative; }
+  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 12px; color: #0c447c; line-height: 1.55; padding-right: 16px; }
+  .tip-dismiss { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #5a86ad; font-size: 11px; cursor: pointer; }
+  .tip-dismiss:hover { background: rgba(255,255,255,0.5); }
+
+  .view-all-row { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 10px; }
+  .section-label { font-size: 12px; font-weight: 700; color: #6a6a66; text-transform: uppercase; letter-spacing: 0.03em; }
+  .view-all-link { font-size: 12px; font-weight: 600; color: #0c447c; cursor: pointer; }
+  .divider { border-top: 1px solid #e4e2da; margin: 14px 0 14px; }
+
+  /* ================= MODAL (State B) ================= */
+  .modal-backdrop {
+    position: absolute; inset: 0; background: rgba(20,20,18,0.45);
+    z-index: 20; display: none; align-items: center; justify-content: center;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    width: 640px; max-height: 660px; background: #fff; border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-head { display: flex; align-items: center; gap: 10px; padding: 18px 22px; border-bottom: 1px solid #e4e2da; }
+  .modal-back { width: 28px; height: 28px; border-radius: 7px; display: none; align-items: center; justify-content: center; color: #6a6a66; cursor: pointer; font-size: 15px; }
+  .modal-back.show { display: flex; }
+  .modal-back:hover { background: #f4f4f2; }
+  .modal-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .modal-close { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 15px; }
+  .modal-close:hover { background: #f4f4f2; }
+  .modal-steps { display: flex; gap: 6px; padding: 0 22px; margin-top: -1px; }
+  .step-dot { height: 3px; flex: 1; background: #eceae4; border-radius: 2px; }
+  .step-dot.active { background: #1a1a1a; }
+  .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+  .modal-foot { padding: 16px 22px; border-top: 1px solid #e4e2da; display: flex; justify-content: flex-end; gap: 10px; }
+  .m-btn { font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+  .m-btn.primary { background: #1a1a1a; color: #fff; }
+  .m-btn.primary.disabled { background: #d8d6cf; color: #fff; cursor: not-allowed; }
+  .m-btn.ghost { background: #fff; color: #4a4a46; border: 1px solid #d8d6cf; }
+
+  /* list step */
+  .modal-search { display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; font-size: 13px; color: #9a9a94; }
+  .filter-chips { display: flex; gap: 6px; margin-bottom: 14px; }
+  .filter-chips span { font-size: 12px; padding: 6px 14px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; }
+  .filter-chips span.active { background: #1a1a1a; color: #fff; font-weight: 600; }
+  .create-custom-card {
+    display: flex; align-items: center; gap: 12px; border: 1.5px dashed #c7c5bc;
+    border-radius: 10px; padding: 14px; cursor: pointer; background: #fbfbfa;
+  }
+  .create-custom-card:hover { border-color: #1a1a1a; background: #f4f4f2; }
+  .cc-icon { width: 34px; height: 34px; border-radius: 8px; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .cc-text .cctitle { font-size: 13px; font-weight: 700; }
+  .cc-text .ccdesc { font-size: 11.5px; color: #9a9a94; }
+
+  /* type select step */
+  .type-grid { display: flex; gap: 14px; }
+  .type-card { flex: 1; border: 1.5px solid #e4e2da; border-radius: 12px; padding: 20px 16px; cursor: pointer; text-align: center; }
+  .type-card:hover { border-color: #c7c5bc; }
+  .type-card.selected { border-color: #1a1a1a; background: #f9f9f7; }
+  .type-card .ticon { font-size: 26px; margin-bottom: 10px; }
+  .type-card .ttitle { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .type-card .tdesc { font-size: 12px; color: #8a8a86; line-height: 1.5; }
+
+  /* form fields */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: #4a4a46; margin-bottom: 6px; }
+  .field select, .field input {
+    width: 100%; padding: 10px 12px; border: 1px solid #d8d6cf; border-radius: 8px; font-size: 13px; color: #1a1a1a; font-family: inherit;
+  }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1; }
+  .field-hint { font-size: 11px; color: #b3b2ac; margin-top: 5px; }
+
+  .summary-box { background: #f9f9f7; border: 1px solid #e4e2da; border-radius: 10px; padding: 14px; margin-top: 4px; font-size: 12px; color: #6a6a66; line-height: 1.7; }
+  .summary-box b { color: #1a1a1a; }
+
+  /* ---- lifecycle pills (minimized Content Sources drawer) ---- */
+  .cat-pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
+  .cat-pills::-webkit-scrollbar { display: none; }
+  .cat-pill { flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; white-space: nowrap; }
+  .cat-pill.active { background: #1a1a1a; color: #fff; }
+  .cat-pill.trend-pill.active { background: #b6560a; }
+  .drawer-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .drawer-section-title { font-size: 12px; font-weight: 700; color: #6a6a66; }
+  .sq-badge { position: absolute; top: 8px; right: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .sq-badge.trend { background: #fdeee0; color: #b6560a; }
+  .sq-badge.seg { background: #e6f1fb; color: #0c447c; }
+  .sq-badge.concept { background: #ede4fb; color: #5a2ea6; }
+
+  /* ============ FLOATING BROWSE MODAL ============ */
+  .browse-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 30; display: none; align-items: center; justify-content: center; }
+  .browse-backdrop.show { display: flex; }
+  .browse-modal { width: 1240px; max-width: 94%; height: 760px; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .bm-topbar { display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-bottom: 1px solid #e4e2da; }
+  .bm-title { font-size: 16px; font-weight: 700; margin-right: 8px; white-space: nowrap; }
+  .bm-search { flex: 1; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border: 1px solid #e4e2da; border-radius: 8px; padding: 10px 14px; color: #9a9a94; font-size: 14px; max-width: 420px; }
+  .bm-filters-btn { display: flex; align-items: center; gap: 6px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .bm-filters-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .bm-close { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; margin-left: auto; }
+  .bm-close:hover { background: #f4f4f2; }
+  .bm-chips { display: flex; gap: 8px; padding: 12px 22px 0; flex-wrap: wrap; }
+  .achip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 10px 6px 12px; border-radius: 999px; background: #fdeee0; color: #b6560a; }
+  .achip .x { font-size: 11px; cursor: pointer; opacity: 0.7; }
+  .achip.seg { background: #e6f1fb; color: #0c447c; }
+  .achip.concept { background: #ede4fb; color: #5a2ea6; }
+  .bm-layout { flex: 1; display: flex; overflow: hidden; }
+  .bm-cat-rail { width: 170px; flex-shrink: 0; padding: 18px 10px; border-right: 1px solid #e4e2da; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+  .bm-cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px; border-radius: 10px; cursor: pointer; text-align: center; }
+  .bm-cat-item:hover { background: #f9f9f7; }
+  .bm-cat-item.active { background: #f0ece2; }
+  .bm-cat-icon { width: 48px; height: 48px; border-radius: 50%; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .bm-cat-item.active .bm-cat-icon { background: #1a1a1a; }
+  .bm-cat-label { font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+  .bm-cat-count { font-size: 10px; color: #b3b2ac; }
+  .bm-main { flex: 1; padding: 18px 22px; overflow-y: auto; }
+  .bm-main-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .bm-main-title { font-size: 14px; font-weight: 700; }
+  .bm-main-count { font-size: 12px; color: #9a9a94; }
+  .bm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* filter panel inside browse modal */
+  .fp-backdrop2 { position: absolute; inset: 0; background: rgba(20,20,18,0.25); z-index: 32; display: none; }
+  .fp-backdrop2.show { display: block; }
+  .filter-panel2 { position: absolute; top: 0; right: 0; bottom: 0; width: 480px; background: #fff; box-shadow: -12px 0 32px rgba(0,0,0,0.15); z-index: 33; display: flex; flex-direction: column; transform: translateX(16px); opacity: 0; transition: transform .16s, opacity .16s; pointer-events: none; }
+  .filter-panel2.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .fp-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #e4e2da; }
+  .fp-title { font-size: 15px; font-weight: 700; }
+  .fp-close { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; }
+  .fp-close:hover { background: #f4f4f2; }
+  .fp-search2 { margin: 14px 20px 0; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #9a9a94; }
+  .fp-body { flex: 1; display: flex; overflow: hidden; margin-top: 14px; }
+  .fp-groups { width: 160px; flex-shrink: 0; border-right: 1px solid #e4e2da; overflow-y: auto; padding: 4px 0; }
+  .fp-group-item { padding: 11px 16px; font-size: 12.5px; color: #6a6a66; cursor: pointer; border-left: 3px solid transparent; }
+  .fp-group-item.active { color: #1a1a1a; font-weight: 700; background: #f9f9f7; border-left-color: #1a1a1a; }
+  .fp-options { flex: 1; overflow-y: auto; padding: 8px 18px; }
+  .fp-option-note { font-size: 11px; color: #b3b2ac; line-height: 1.5; margin-bottom: 10px; padding: 9px 11px; background: #f9f9f7; border-radius: 8px; }
+  .fp-option { display: flex; align-items: center; gap: 10px; padding: 9px 2px; cursor: pointer; }
+  .fp-check { width: 17px; height: 17px; border: 1.5px solid #c7c5bc; border-radius: 5px; flex-shrink: 0; position: relative; }
+  .fp-check.checked { background: #1a1a1a; border-color: #1a1a1a; }
+  .fp-check.checked::after { content: '✓'; color: #fff; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .fp-opt-label { flex: 1; font-size: 13px; }
+  .fp-opt-count { font-size: 11.5px; color: #b3b2ac; }
+  .fp-trend-flag { font-size: 9px; font-weight: 700; color: #b6560a; background: #fdeee0; padding: 2px 6px; border-radius: 999px; margin-left: 6px; }
+  .fp-foot { padding: 14px 20px; border-top: 1px solid #e4e2da; display: flex; gap: 10px; }
+  .fp-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .fp-btn.clear { border: 1px solid #d8d6cf; color: #4a4a46; background: #fff; }
+  .fp-btn.apply { background: #1a1a1a; color: #fff; }
+
+  /* ================= CALENDAR: week hover-plus ================= */
+  .wk-slot { height: 64px; border-bottom: 1px solid #ececea; position: relative; cursor: pointer; }
+  .wk-slot:hover { background: #f7f8fc; }
+  .wk-slot-plus {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.7);
+    width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity .12s ease, transform .12s ease; pointer-events: none; z-index: 2;
+  }
+  .wk-slot:hover .wk-slot-plus { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  .wk-slot.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
+  .wk-event {
+    position: absolute; inset: 3px; border-radius: 6px; padding: 5px 7px; font-size: 10.5px;
+    cursor: pointer; overflow: hidden; z-index: 1;
+  }
+  .wk-event .we-title { font-weight: 600; margin-bottom: 2px; line-height: 1.25; }
+  .wk-event .we-status { opacity: 0.75; font-size: 9.5px; }
+  .wk-event.st-draft { background: #fdf6e0; border: 1px dashed #d4b106; color: #6b5900; }
+  .wk-event.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .wk-event.st-posted { background: #eaf3de; color: #27500a; }
+  .wk-event.st-failed { background: #fbe4e4; color: #9c2b2b; }
+  .wk-event.dimmed { opacity: 0.35; }
+
+  /* status legend — shared toggle strip for Week/Month/List */
+  .cal-legend { display: flex; align-items: center; gap: 8px; padding: 8px 24px; border-bottom: 1px solid #e4e2da; background: #fbfbfa; }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 600; color: #4a4a46;
+    cursor: pointer; user-select: none; padding: 5px 11px 5px 8px; border-radius: 999px;
+    border: 1px solid #e4e2da; background: #fff; transition: background .1s, border-color .1s;
+  }
+  .legend-item:hover { border-color: #b3b2ac; }
+  .legend-check { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid #c7c5bc; flex-shrink: 0; position: relative; background: #fff; }
+  .legend-item.scheduled:not(.off) { background: #e6f1fb; border-color: #b8d7f2; }
+  .legend-item.scheduled:not(.off) .legend-check { background: #378add; border-color: #378add; }
+  .legend-item.posted:not(.off) { background: #eaf3de; border-color: #cfe3b0; }
+  .legend-item.posted:not(.off) .legend-check { background: #639922; border-color: #639922; }
+  .legend-item.draft:not(.off) { background: #fdf6e0; border-color: #eadd9c; }
+  .legend-item.draft:not(.off) .legend-check { background: #d4b106; border-color: #d4b106; }
+  .legend-item.failed:not(.off) { background: #fbe4e4; border-color: #f0b8b8; }
+  .legend-item.failed:not(.off) .legend-check { background: #d84c4c; border-color: #d84c4c; }
+  .legend-item:not(.off) .legend-check::after {
+    content: '✓'; color: #fff; font-size: 9px; font-weight: 700; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+  }
+  .legend-item.off { color: #b3b2ac; }
+
+  /* ================= CALENDAR: month view ================= */
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; }
+  .month-head-row { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
+  .month-head-row div { text-align: center; font-size: 12px; color: #9a9a94; padding: 10px 0; font-weight: 600; }
+  .month-cell { border-right: 1px solid #ececea; border-bottom: 1px solid #ececea; padding: 8px; min-height: 108px; position: relative; cursor: pointer; }
+  .month-cell:hover { background: #f9f9f7; }
+  .month-cell.outside { color: #c7c5bc; background: #fbfbfa; }
+  .month-cell.today { background: #f0ece2; }
+  .month-date { font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+  .month-cell.outside .month-date { color: #c7c5bc; font-weight: 400; }
+  .month-item {
+    font-size: 10.5px; padding: 3px 6px; border-radius: 5px; margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .month-item.st-draft { background: #fdf6e0; color: #6b5900; border: 1px dashed #d4b106; }
+  .month-item.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .month-item.st-posted { background: #eaf3de; color: #27500a; }
+  .month-item.st-failed { background: #fbe4e4; color: #9c2b2b; }
+  .month-item.dimmed { opacity: 0.35; }
+  .month-more { font-size: 10.5px; font-weight: 600; color: #0c447c; cursor: pointer; }
+  .month-cell-plus {
+    position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
+    background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .12s ease; cursor: pointer;
+  }
+  .month-cell:hover .month-cell-plus { opacity: 1; }
+
+  /* day popover */
+  .day-popover-backdrop { position: absolute; inset: 0; z-index: 15; display: none; }
+  .day-popover-backdrop.show { display: block; }
+  .day-popover {
+    position: absolute; width: 280px; background: #fff; border: 1px solid #d8d6cf; border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18); z-index: 16; padding: 14px; display: none;
+  }
+  .day-popover.show { display: block; }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .dp-head .dp-title { font-size: 13px; font-weight: 700; }
+  .dp-head .dp-close { width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 12px; }
+  .dp-head .dp-close:hover { background: #f4f4f2; }
+  .dp-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; cursor: pointer; }
+  .dp-item:hover { background: #f7f8fc; }
+  .dp-item .dp-thumb { width: 32px; height: 32px; border-radius: 6px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .dp-item .dp-text { flex: 1; min-width: 0; }
+  .dp-item .dp-time { font-size: 11px; font-weight: 600; }
+  .dp-item .dp-caption { font-size: 10.5px; color: #9a9a94; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dp-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; flex-shrink: 0; }
+  .dp-badge.st-draft { background: #fdf6e0; color: #6b5900; }
+  .dp-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .dp-badge.st-posted { background: #eaf3de; color: #27500a; }
+  .dp-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
+
+  /* ================= CALENDAR: list view ================= */
+  .list-view { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .list-filters { display: flex; gap: 10px; margin-bottom: 18px; position: relative; }
+  .lf-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 9px 14px; font-size: 13px; color: #4a4a46; }
+  .lf-pill.clickable { cursor: pointer; }
+  .lf-pill.clickable:hover { border-color: #b3b2ac; }
+  .lf-pill.clickable.open { border-color: #6a3fd1; color: #6a3fd1; }
+
+  .drp-popover {
+    position: absolute; top: 100%; left: 0; margin-top: 6px; z-index: 15;
+    background: #fff; border: 1px solid #d8d6cf; border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.16); display: none; overflow: hidden;
+  }
+  .drp-popover.show { display: flex; }
+  .drp-presets { width: 150px; border-right: 1px solid #e4e2da; padding: 12px 0; flex-shrink: 0; }
+  .drp-preset-item { padding: 9px 16px; font-size: 12.5px; color: #4a4a46; cursor: pointer; }
+  .drp-preset-item:hover { background: #f4f4f2; }
+  .drp-preset-divider { height: 1px; background: #e4e2da; margin: 8px 0; }
+  .drp-calendars { display: flex; padding: 14px 18px; gap: 24px; }
+  .drp-month { width: 220px; }
+  .drp-month-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .drp-month-title { font-size: 13px; font-weight: 700; }
+  .drp-month-nav { font-size: 13px; color: #6a6a66; cursor: pointer; padding: 2px 6px; }
+  .drp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .drp-grid .drp-dow { font-size: 10.5px; color: #9a9a94; text-align: center; padding: 3px 0; }
+  .drp-day { font-size: 12px; text-align: center; padding: 6px 0; cursor: pointer; border-radius: 4px; color: #1a1a1a; }
+  .drp-day:hover { background: #f4f4f2; }
+  .drp-day.outside { color: #d8d6cf; cursor: default; }
+  .drp-day.outside:hover { background: none; }
+  .drp-day.in-range { background: #ece5fb; border-radius: 0; }
+  .drp-day.range-start { background: #6a3fd1; color: #fff; border-radius: 4px 0 0 4px; }
+  .drp-day.range-end { background: #6a3fd1; color: #fff; border-radius: 0 4px 4px 0; }
+  .drp-day.range-start.range-end { border-radius: 4px; }
+  .list-row { border: 1px solid #e4e2da; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .lr-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+  .lr-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .lr-account { font-size: 13px; font-weight: 600; }
+  .lr-platform { font-size: 11px; color: #9a9a94; }
+  .lr-time { margin-left: auto; font-size: 12px; color: #6a6a66; display: flex; align-items: center; gap: 6px; }
+  .lr-icons { display: flex; gap: 6px; }
+  .lr-icon-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid #d8d6cf; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; color: #4a4a46; }
+  .lr-icon-btn:hover { background: #f4f4f2; }
+  .lr-body { display: flex; gap: 14px; padding: 0 14px 12px; }
+  .lr-thumb { width: 90px; height: 90px; border-radius: 8px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .lr-caption-label { font-size: 10.5px; font-weight: 700; color: #9a9a94; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+  .lr-caption-text { font-size: 13px; color: #1a1a1a; }
+  .lr-foot { padding: 0 14px 14px; }
+  .lr-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+  .lr-badge.st-draft { background: #fdf6e0; color: #6b5900; }
+  .lr-badge.st-scheduled { background: #e6f1fb; color: #0c447c; }
+  .lr-badge.st-posted { background: #eaf3de; color: #27500a; }
+  .lr-badge.st-failed { background: #fbe4e4; color: #9c2b2b; }
+
+  /* ================= EDIT POST MODAL ================= */
+  .ep-backdrop { position: absolute; inset: 0; background: rgba(20,20,18,0.5); z-index: 40; display: none; align-items: center; justify-content: center; }
+  .ep-backdrop.show { display: flex; }
+  .ep-modal { width: 1180px; max-width: 95%; max-height: 88%; background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+  .ep-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 26px; border-bottom: 1px solid #e4e2da; flex-shrink: 0; }
+  .ep-head h2 { font-size: 20px; font-weight: 700; }
+  .ep-close { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; font-size: 16px; }
+  .ep-close:hover { background: #f4f4f2; }
+  .ep-body { display: flex; flex: 1; overflow: hidden; }
+  .ep-col { padding: 20px 22px; overflow-y: auto; }
+  .ep-col-platforms { width: 300px; flex-shrink: 0; border-right: 1px solid #e4e2da; background: #fbfbfa; }
+  .ep-col-media { flex: 1; border-right: 1px solid #e4e2da; }
+  .ep-col-preview { width: 320px; flex-shrink: 0; background: #f9f9f7; }
+
+  .ep-section-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+  .ep-platform-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #ececea; }
+  .ep-platform-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .ep-platform-icon.ig { background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); color: #fff; }
+  .ep-platform-icon.fb { background: #1877f2; color: #fff; }
+  .ep-platform-icon.li { background: #0a66c2; color: #fff; }
+  .ep-platform-icon.wa { background: #25d366; color: #fff; }
+  .ep-platform-icon.x { background: #000; color: #fff; }
+  .ep-platform-text { flex: 1; }
+  .ep-platform-name { font-size: 13.5px; font-weight: 600; }
+  .ep-platform-sub { font-size: 11px; color: #9a9a94; }
+  .ep-toggle { width: 38px; height: 22px; border-radius: 999px; background: #d8d6cf; position: relative; cursor: pointer; flex-shrink: 0; transition: background .12s; }
+  .ep-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .12s; }
+  .ep-toggle.on { background: #1a1a1a; }
+  .ep-toggle.on::after { transform: translateX(16px); }
+  .ep-connect-btn { font-size: 11.5px; font-weight: 600; color: #0c447c; cursor: pointer; flex-shrink: 0; }
+  .ep-platform-failed-status { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #9c2b2b; background: #fbe4e4; border: 1px solid #f0b8b8; padding: 5px 10px; border-radius: 999px; flex-shrink: 0; cursor: default; }
+  .ep-time-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 10px 44px; font-size: 12.5px; color: #4a4a46; }
+  .ep-time-row input { border: 1px solid #d8d6cf; border-radius: 6px; padding: 6px 9px; font-size: 12.5px; font-family: inherit; width: 100px; }
+  .ep-connect-section { margin-top: 22px; }
+  .ep-connect-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .ep-add-btn { width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; margin-left: auto; cursor: pointer; }
+
+  .ep-toprow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .ep-mini-toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #4a4a46; }
+  .ep-format-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .ep-platform-tab-icons { display: flex; gap: 8px; margin-bottom: 14px; }
+  .ep-format-radio { display: flex; gap: 20px; margin-bottom: 16px; }
+  .ep-format-radio label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .ep-platform-icon.active-tab { outline: 2px solid #1a1a1a; outline-offset: 2px; }
+  .ep-format-radio input { accent-color: #1a1a1a; }
+
+  .ep-music-notice {
+    display: flex; align-items: center; gap: 10px; background: #fdf6e0; border: 1px solid #eadd9c;
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #6b5900;
+  }
+  .ep-music-notice .emn-text { flex: 1; line-height: 1.4; }
+  .ep-music-add-btn { font-size: 11.5px; font-weight: 700; color: #6b5900; background: #fff; border: 1px solid #eadd9c; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+  .ep-music-add-btn.added { background: #eaf3de; color: #27500a; border-color: #cfe3b0; }
+  .ep-media-box { width: 260px; height: 260px; border-radius: 10px; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; margin-bottom: 16px; }
+  .ep-media-box .ep-media-remove { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 5px; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+  .ep-media-empty { width: 260px; height: 140px; border: 1.5px dashed #d8d6cf; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b2ac; margin-bottom: 16px; }
+
+  /* media empty state v2 (matches "Create Single Post" reference) */
+  .ep-media-empty2 {
+    width: 100%; max-width: 420px; border: 1.5px dashed #d8d6cf; border-radius: 12px;
+    padding: 34px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    margin-bottom: 16px; background: #fbfbfa; position: relative;
+  }
+  .ep-media-empty2 .eme-arrow { font-size: 20px; color: #9a9a94; margin-bottom: 10px; }
+  .ep-media-empty2 .eme-text { font-size: 13px; color: #8a8a86; line-height: 1.5; margin-bottom: 16px; }
+  .ep-choose-btn {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0c447c;
+    background: #eaf1fb; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  }
+  .ep-choose-menu {
+    position: absolute; top: 100%; margin-top: 6px; left: 50%; transform: translateX(-50%);
+    width: 200px; background: #fff; border: 1px solid #e4e2da; border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.14); z-index: 5; padding: 6px; display: none;
+  }
+  .ep-choose-menu.show { display: block; }
+  .ep-choose-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; font-size: 13px; cursor: pointer; }
+  .ep-choose-item:hover { background: #f4f4f2; }
+
+  /* preview column */
+  .ep-preview-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .ep-preview-tab {
+    width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: pointer; border: 2px solid transparent;
+  }
+  .ep-preview-tab.active { border-color: #1a1a1a; }
+  .ep-preview-empty {
+    background: #fff; border: 1px solid #e4e2da; border-radius: 12px; padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .ep-preview-empty .epe-avatar { width: 32px; height: 32px; border-radius: 50%; background: #eceae4; margin-bottom: 14px; align-self: flex-start; }
+  .ep-preview-empty .epe-line { height: 8px; background: #eceae4; border-radius: 4px; width: 100%; margin-bottom: 14px; }
+  .ep-preview-empty .epe-block { width: 100%; aspect-ratio: 4/3; background: #eceae4; border-radius: 8px; margin-bottom: 14px; }
+  .ep-preview-empty .epe-line2 { height: 7px; background: #eceae4; border-radius: 4px; width: 100%; margin-bottom: 8px; }
+  .ep-preview-empty .epe-line3 { height: 7px; background: #eceae4; border-radius: 4px; width: 70%; margin-bottom: 16px; align-self: flex-start; }
+  .ep-preview-empty .epe-caption { font-size: 13px; color: #9a9a94; }
+
+  /* ---- Instagram post preview ---- */
+  .ig-post-card { background: #fff; border: 1px solid #dbdbdb; border-radius: 12px; overflow: hidden; }
+  .ig-post-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+  .ig-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  .ig-post-name { font-size: 12.5px; font-weight: 700; }
+  .ig-post-media { width: 100%; aspect-ratio: 1/1; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .ig-post-actions { display: flex; gap: 12px; padding: 10px 12px 4px; font-size: 17px; color: #262626; }
+  .ig-post-likes { padding: 2px 12px; font-size: 12px; font-weight: 700; }
+  .ig-post-caption { padding: 4px 12px 12px; font-size: 12px; line-height: 1.5; }
+  .ig-post-caption b { margin-right: 5px; }
+
+  /* ---- Instagram story preview ---- */
+  .ig-story-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
+  .ig-story-bar { position: absolute; top: 8px; left: 8px; right: 8px; height: 2.5px; background: rgba(255,255,255,0.35); border-radius: 2px; }
+  .ig-story-bar::after { content:''; display:block; width: 60%; height: 100%; background: #fff; border-radius: 2px; }
+  .ig-story-head { position: absolute; top: 16px; left: 10px; display: flex; align-items: center; gap: 6px; }
+  .ig-story-avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB); }
+  .ig-story-name { font-size: 11px; color: #fff; font-weight: 600; }
+  .ig-story-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
+  .ig-story-reply { position: absolute; bottom: 10px; left: 10px; right: 10px; border: 1px solid rgba(255,255,255,0.5); border-radius: 999px; padding: 7px 12px; font-size: 10.5px; color: rgba(255,255,255,0.75); }
+
+  /* ---- Instagram reel preview ---- */
+  .ig-reel-frame { width: 220px; aspect-ratio: 9/16; margin: 0 auto; background: #111; border-radius: 16px; position: relative; overflow: hidden; }
+  .ig-reel-media { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #2a2a2a; }
+  .ig-reel-rail { position: absolute; right: 8px; bottom: 60px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: #fff; font-size: 17px; }
+  .ig-reel-rail span { font-size: 9px; margin-top: -8px; }
+  .ig-reel-bottom { position: absolute; bottom: 12px; left: 10px; right: 44px; color: #fff; font-size: 10.5px; line-height: 1.5; }
+  .ig-reel-bottom b { display: block; margin-bottom: 3px; }
+  .ig-reel-music { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10px; opacity: 0.9; }
+  .ig-reel-music.no-music { color: #ffcf7a; }
+
+  /* ---- LinkedIn post preview ---- */
+  .li-post-card { background: #fff; border: 1px solid #e4e2da; border-radius: 10px; overflow: hidden; }
+  .li-post-head { display: flex; gap: 8px; padding: 12px 12px 8px; }
+  .li-avatar { width: 40px; height: 40px; border-radius: 50%; background: #0a66c2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .li-post-name { font-size: 13px; font-weight: 700; }
+  .li-post-sub { font-size: 11px; color: #6a6a66; line-height: 1.4; }
+  .li-post-time { font-size: 10.5px; color: #9a9a94; }
+  .li-post-caption { padding: 0 12px 10px; font-size: 12.5px; line-height: 1.5; }
+  .li-post-media { width: 100%; aspect-ratio: 16/9; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .li-post-reactions { display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-size: 11px; color: #6a6a66; border-bottom: 1px solid #ececea; }
+  .li-post-actions { display: flex; padding: 4px 4px; }
+  .li-post-actions span { flex: 1; text-align: center; padding: 8px 0; font-size: 11.5px; font-weight: 600; color: #6a6a66; }
+
+  /* split save button */
+  .ep-split-btn { position: relative; display: flex; }
+  .ep-split-main { font-size: 13.5px; font-weight: 600; padding: 11px 20px; border-radius: 8px 0 0 8px; cursor: pointer; background: #1a1a1a; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .ep-split-chevron { font-size: 13.5px; padding: 11px 12px; border-radius: 0 8px 8px 0; cursor: pointer; background: #1a1a1a; color: #fff; border-left: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; }
+  .ep-split-menu {
+    position: absolute; bottom: 100%; right: 0; margin-bottom: 8px; width: 280px;
+    background: #fff; border: 1px solid #e4e2da; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+    z-index: 10; padding: 6px; display: none;
+  }
+  .ep-split-menu.show { display: block; }
+  .ep-split-option { padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+  .ep-split-option:hover { background: #f4f4f2; }
+  .ep-split-option.active { background: #eaf1fb; }
+  .ep-split-option-title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .ep-split-option-sub { font-size: 11.5px; color: #9a9a94; padding-left: 24px; }
+  .ep-caption-box { width: 100%; min-height: 100px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 12px; font-size: 13px; font-family: inherit; resize: vertical; margin-bottom: 6px; }
+  .ep-char-count { text-align: right; font-size: 11px; color: #b3b2ac; margin-bottom: 16px; }
+  .ep-pref-row { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid #ececea; }
+  .ep-pref-row span { font-size: 13px; font-weight: 600; }
+
+  .ep-preview-card { background: #fff; border: 1px solid #e4e2da; border-radius: 12px; overflow: hidden; }
+  .ep-pv-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+  .ep-pv-avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .ep-pv-name { font-size: 12.5px; font-weight: 700; }
+  .ep-pv-time { font-size: 10.5px; color: #9a9a94; }
+  .ep-pv-media { width: 100%; aspect-ratio: 1/1; background: #eceae4; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+  .ep-pv-actions { display: flex; gap: 14px; padding: 10px 12px; font-size: 11.5px; color: #4a4a46; }
+  .ep-pv-caption { padding: 0 12px 12px; font-size: 12px; color: #4a4a46; line-height: 1.5; }
+
+  .ep-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 16px 26px; border-top: 1px solid #e4e2da; flex-shrink: 0; }
+  .ep-date-pill { display: flex; align-items: center; gap: 8px; border: 1px solid #d8d6cf; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4a4a46; margin-right: auto; }
+  .ep-btn { font-size: 13.5px; font-weight: 600; padding: 11px 22px; border-radius: 8px; cursor: pointer; }
+  .ep-btn.ghost { background: #fff; color: #1a1a1a; border: 1px solid #d8d6cf; }
+  .ep-btn.primary { background: #1a1a1a; color: #fff; }
+
+  .ep-fail-banner { background: #fbe4e4; border-bottom: 1px solid #f0b8b8; padding: 14px 26px; }
+  .ep-fail-title { color: #9c2b2b; font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .ep-fail-platforms { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .ep-fail-platform-chip { font-size: 11px; font-weight: 600; background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; padding: 3px 10px; border-radius: 999px; }
+  .ep-fail-reason { font-size: 12.5px; color: #7a2020; margin-bottom: 12px; line-height: 1.55; max-width: 720px; }
+  .ep-fail-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .ep-fail-btn { font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 7px; cursor: pointer; }
+  .ep-fail-btn.primary { background: #9c2b2b; color: #fff; }
+  .ep-fail-btn.ghost { background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; }
+  .ep-fail-link { font-size: 12px; color: #9c2b2b; text-decoration: underline; cursor: pointer; }
+
+  /* ============ CAMPAIGN BUILDER ============ */
+  .campaign-modal { width: 1120px; max-width: 94vw; max-height: 760px; }
+  .campaign-modal .modal-head { padding: 16px 22px; }
+  .campaign-progress { display:flex; gap:20px; padding:0 22px 14px; border-bottom:1px solid #e4e2da; }
+  .campaign-progress-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#9a9a94; font-weight:600; }
+  .campaign-progress-item.active { color:#1a1a1a; }
+  .campaign-progress-num { width:22px; height:22px; border-radius:50%; background:#eceae4; display:grid; place-items:center; font-size:11px; }
+  .campaign-progress-item.active .campaign-progress-num { background:#1a1a1a; color:#fff; }
+  .campaign-modal .modal-body { padding:0; }
+  .cb-step { padding:20px 22px; }
+  .cb-tabs { display:flex; border:1px solid #d8d6cf; border-radius:8px; overflow:hidden; width:360px; margin-bottom:18px; }
+  .cb-tab { flex:1; text-align:center; padding:9px; font-size:13px; cursor:pointer; background:#fff; }
+  .cb-tab.active { background:#ece5fb; color:#5735bb; font-weight:700; }
+  .cb-intro { font-size:13px; color:#6a6a66; line-height:1.45; margin:-9px 0 16px; }
+  .cb-mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:630px; margin-bottom:18px; }
+  .cb-mode { border:1px solid #d8d6cf; border-radius:9px; padding:13px; cursor:pointer; }
+  .cb-mode.selected { border-color:#6a3fd1; background:#faf8ff; }
+  .cb-mode-title { font-weight:700; font-size:13px; margin-bottom:5px; }
+  .cb-mode-desc { color:#6a6a66; font-size:11.5px; line-height:1.45; }
+  .cb-target-switch { display:flex; align-items:center; justify-content:space-between; border:1px solid #d8d6cf; border-radius:9px; padding:11px 13px; margin:0 0 14px; max-width:630px; }
+  .cb-target-title { font-size:13px; font-weight:700; }.cb-target-desc { font-size:11px; color:#8a8a86; margin-top:3px; }
+  .switch { width:34px; height:20px; border-radius:20px; background:#d8d6cf; cursor:pointer; padding:2px; transition:.15s; }.switch:after { content:''; display:block; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; }.switch.on { background:#6a3fd1; }.switch.on:after { transform:translateX(14px); }
+  .cb-filter-title { font-size:12px; color:#6a6a66; font-weight:700; margin-bottom:8px; }.cb-filter-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:15px; }
+  .cb-chip { border:1px solid #d8d6cf; background:#fff; color:#4a4a46; border-radius:999px; padding:7px 11px; font-size:12px; cursor:pointer; }.cb-chip.active { background:#ede5ff; border-color:#a88df0; color:#5735bb; font-weight:700; }
+  .cb-results { border:1px solid #e4e2da; border-radius:10px; padding:14px; }.cb-results-head { display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:11px; }.cb-card-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }.cb-card { position:relative; border:1px solid #e4e2da; border-radius:8px; padding:7px; cursor:pointer; }.cb-card.selected { border-color:#6a3fd1; box-shadow:0 0 0 2px #ede5ff; }.cb-art { height:72px; background:#eaf1fb; border-radius:6px; display:grid; place-items:center; font-size:22px; margin-bottom:7px; }.cb-card:nth-child(2) .cb-art{background:#fbe6cf}.cb-card:nth-child(3) .cb-art{background:#e6f3e9}.cb-card:nth-child(4) .cb-art{background:#f2eafa}.cb-card-title { font-size:11px; font-weight:700; line-height:1.35; }.cb-card-meta { font-size:10px; color:#8a8a86; margin-top:3px; }.cb-check { position:absolute; top:11px; right:11px; width:16px; height:16px; border:1px solid #b3b2ac; border-radius:4px; background:#fff; text-align:center; font-size:11px; }.cb-card.selected .cb-check { background:#6a3fd1; color:#fff; border-color:#6a3fd1; }
+  .cb-fixed { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }.cb-playlist { border:1px solid #d8d6cf; border-radius:9px; padding:14px; cursor:pointer; }.cb-playlist.selected { border-color:#6a3fd1; background:#faf8ff; }.cb-playlist-icon { font-size:24px; margin-bottom:10px; }.cb-playlist-title{font-size:13px;font-weight:700;margin-bottom:4px}.cb-playlist-meta{font-size:11px;color:#8a8a86;line-height:1.4}
+  .cb-browser { display:grid; grid-template-columns:145px minmax(0,1fr); min-height:390px; border:1px solid #e4e2da; border-radius:10px; overflow:hidden; }
+  .cb-browser.targeted { grid-template-columns:145px minmax(0,1fr) 230px; }.cb-category-rail { padding:14px 9px; border-right:1px solid #e4e2da; }.cb-category-label { font-size:10px; font-weight:700; color:#8a8a86; margin:0 7px 8px; }.cb-category { display:flex; align-items:center; gap:7px; padding:9px 7px; border-radius:7px; font-size:11px; margin-bottom:3px; cursor:pointer; }.cb-category.active { background:#ece5fb; color:#5735bb; font-weight:700; }.cb-category-icon { width:24px; height:24px; border-radius:50%; background:#f0efeb; display:grid; place-items:center; font-size:13px; }.cb-category.active .cb-category-icon { background:#6a3fd1; color:#fff; }
+  .cb-browser-main { padding:14px; min-width:0; }.cb-target-banner { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 10px; background:#f6f3ff; border-radius:7px; font-size:11px; margin-bottom:12px; }.cb-target-banner b { font-size:12px; }.cb-target-banner-copy { color:#6a6a66; margin-top:2px; }.cb-match-notice { padding:9px 10px; background:#ece5fb; color:#5735bb; border-radius:7px; font-size:12px; line-height:1.35; margin:10px 0; }.cb-content-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }.cb-content-card { border:1px solid #e4e2da; border-radius:7px; padding:6px; min-width:0; }.cb-content-art { height:86px; background:#eaf1fb; border-radius:5px; display:grid; place-items:center; font-size:22px; margin-bottom:6px; }.cb-content-card:nth-child(2) .cb-content-art { background:#fbe6cf; }.cb-content-card:nth-child(3) .cb-content-art { background:#e6f3e9; }.cb-content-card:nth-child(4) .cb-content-art { background:#f2eafa; }.cb-content-title { font-size:10.5px; font-weight:700; line-height:1.3; }.cb-content-meta { font-size:10px; color:#8a8a86; margin-top:3px; }.cb-audience { padding:14px 11px; border-left:1px solid #e4e2da; }.cb-audience-head { font-size:12px; font-weight:700; }.cb-audience-sub { font-size:10px; color:#8a8a86; margin:3px 0 11px; }.cb-audience-group { border-top:1px solid #eceae4; padding:9px 0; }.cb-audience-group b { font-size:11px; }.cb-audience-option { display:flex; justify-content:space-between; gap:6px; font-size:10px; padding:5px 4px; margin-top:4px; }.cb-audience-option.selected { background:#ece5fb; border-radius:5px; color:#5735bb; font-weight:700; }.cb-audience-option span:last-child { color:#8a8a86; font-weight:400; }
+  .schedule-layout { display:grid; grid-template-columns:300px 1fr; gap:20px; }.cb-panel { border:1px solid #e4e2da; border-radius:10px; padding:15px; }.cb-panel h4 { font-size:13px; margin-bottom:13px; }.cb-select-row { display:flex; gap:10px; }.cb-select-row .field { flex:1; }.cb-mini-calendar { display:grid; grid-template-columns:50px repeat(7,1fr); border-top:1px solid #d8d6cf; border-left:1px solid #d8d6cf; }.cb-mini-calendar div { min-height:52px; border-right:1px solid #d8d6cf; border-bottom:1px solid #d8d6cf; padding:5px; font-size:10px; color:#6a6a66; }.cb-mini-calendar .head { min-height:30px; text-align:center; font-weight:700; }.cb-post { display:block; background:#ece5fb; color:#5735bb; border-radius:4px; padding:4px; font-size:10px; margin-top:8px; }.cb-summary-line { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eceae4; font-size:12px; }.cb-summary-line:last-child { border:0; }
+  .platform-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; }.cb-platform-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #e4e2da; }.cb-platform-icon { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d8d6cf; border-radius:7px; font-weight:700; }.cb-platform-name { font-size:13px; font-weight:700; }.cb-platform-sub { font-size:11px; color:#8a8a86; margin-top:2px; }.cb-connected { font-size:11px; color:#27813d; margin-left:auto; }.cb-notconnected { font-size:11px; color:#b45a3c; margin-left:auto; }
+</style>
+</head>
+<body>
+
+
+<div class="frame">
+  <div class="topbar">
+    <div class="topbar-row topbar-row-top">
+      <div class="profile-row" id="profileRow"></div>
+    </div>
+    <div class="topbar-row topbar-row-bottom">
+      <div class="topbar-sidebar-spacer"></div>
+      <div class="date-nav">
+        <span class="today-link" onclick="goToday()">Today</span>
+        <span class="nav-arrow" onclick="navDate(-1)">‹</span>
+        <span class="nav-arrow" onclick="navDate(1)">›</span>
+        <span class="date-range-text" id="dateRangePill">Jul 12 – 18, 2026</span>
+      </div>
+      <div class="view-toggle">
+        <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
+        <span id="viewTabMonth" onclick="switchView('month')">Month</span>
+        <span id="viewTabList" onclick="switchView('list')">List</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
+      <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
+      <div class="btn btn-tertiary">🔗 Connect your channel</div>
+    </div>
+
+    <div class="scrim" id="scrim" onclick="closePanels()"></div>
+
+    <!-- CONTENT SOURCES DRAWER (minimized, lifecycle-based) -->
+    <div class="drawer" id="postDrawer">
+      <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
+      <div class="sources-search-row">
+        <div class="sources-search">🔍 Search content...</div>
+        <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('drawer')">📤 Upload</div>
+      </div>
+      <div class="cat-pills" id="drawerPills"></div>
+      <div class="drawer-section-head">
+        <span class="drawer-section-title" id="drawerSectionTitle">Investor Education</span>
+        <span class="view-all-link" onclick="openBrowseModal()">View all</span>
+      </div>
+      <div class="drawer-scroll">
+        <div class="sq-grid" id="drawerGrid"></div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN DRAWER (State A lives here) -->
+    <div class="drawer" id="campaignDrawer">
+      <div class="drawer-header"><span class="title">Build a campaign</span><span class="close" onclick="closePanels()">✕</span></div>
+      <div class="drawer-scroll">
+        <div class="tip-card" id="tipCard">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text">Playlists are ready-made content sets. Drag any card below onto your calendar to schedule it.</div>
+          <div class="tip-dismiss" onclick="document.getElementById('tipCard').style.display='none'">✕</div>
+        </div>
+        <div class="btn btn-primary" style="margin-bottom:14px" onclick="openModal()">+ Build custom campaign</div>
+
+        <div class="view-all-row">
+          <span class="section-label">Playlists</span>
+          <span class="view-all-link" onclick="openModal('list','all')">View all</span>
+        </div>
+        <div class="sq-grid">
+          <div class="sq-card"><div class="sq-thumb">▦</div><div class="sq-title">Brand awareness starter pack</div><div class="sq-meta">6 posts · reach-focused</div></div>
+          <div class="sq-card"><div class="sq-thumb">💰</div><div class="sq-title">Tax season push</div><div class="sq-meta">5 posts · seasonal</div></div>
+          <div class="sq-card"><div class="sq-thumb">🚀</div><div class="sq-title">Product launch — new SIP plan</div><div class="sq-meta">8 posts · announcement</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="view-all-row">
+          <span class="section-label">Targeted</span>
+          <span class="view-all-link" onclick="openModal('list','targeted')">View all</span>
+        </div>
+        <div class="sq-grid">
+          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
+          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar" id="calendarRoot">
+      <div id="weekView"></div>
+      <div id="monthView" style="display:none; flex:1; display:none; flex-direction:column;"></div>
+      <div id="listView" class="list-view" style="display:none;"></div>
+
+      <div class="day-popover-backdrop" id="dpBackdrop" onclick="closeDayPopover()"></div>
+      <div class="day-popover" id="dayPopover"></div>
+    </div>
+
+    <!-- ============= STATE B MODAL ============= -->
+    <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal campaign-modal">
+        <div class="modal-head">
+          <span class="modal-back" id="modalBack" onclick="goBack()">←</span>
+          <span class="modal-title" id="modalTitle">All campaigns</span>
+          <span class="modal-close" onclick="closeModal()">✕</span>
+        </div>
+        <div class="campaign-progress" id="modalSteps">
+          <div class="campaign-progress-item" data-s="select"><span class="campaign-progress-num">1</span>Content selection</div>
+          <div class="campaign-progress-item" data-s="schedule"><span class="campaign-progress-num">2</span>Schedule & preview</div>
+          <div class="campaign-progress-item" data-s="platforms"><span class="campaign-progress-num">3</span>Select platforms & run</div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot" id="modalFoot"></div>
+      </div>
+    </div>
+
+    <!-- ============= FLOATING BROWSE MODAL (Content Sources → View all) ============= -->
+    <div class="browse-backdrop" id="browseBackdrop" onclick="if(event.target===this) closeBrowseModal()">
+      <div class="browse-modal">
+        <div class="bm-topbar">
+          <div class="bm-title">Browse content</div>
+          <div class="bm-search">🔍 Search 4,200+ creatives...</div>
+          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('modal')">📤 Upload</div>
+          <div class="bm-filters-btn" id="bmFiltersBtn" onclick="toggleFilterPanel()">☰ Filters <span id="filterCountBadge"></span></div>
+          <div class="bm-close" onclick="closeBrowseModal()">✕</div>
+        </div>
+        <div class="bm-chips" id="activeChips"></div>
+        <div class="bm-layout">
+          <div class="bm-cat-rail" id="bmCatRail"></div>
+          <div class="bm-main">
+            <div class="bm-main-head">
+              <div class="bm-main-title" id="bmMainTitle">Investor Education</div>
+              <div class="bm-main-count" id="bmMainCount">640 creatives</div>
+            </div>
+            <div class="bm-grid" id="bmGrid"></div>
+          </div>
+        </div>
+
+        <div class="fp-backdrop2" id="fpBackdrop2" onclick="if(event.target===this) toggleFilterPanel()">
+          <div class="filter-panel2" id="filterPanel2">
+            <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleFilterPanel()">✕</span></div>
+            <div class="fp-search2">🔍 Search across filters...</div>
+            <div class="fp-body">
+              <div class="fp-groups" id="fpGroups"></div>
+              <div class="fp-options" id="fpOptions"></div>
+            </div>
+            <div class="fp-foot">
+              <div class="fp-btn clear" onclick="clearFilters()">Clear filters</div>
+              <div class="fp-btn apply" onclick="toggleFilterPanel()">Apply</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= EDIT POST MODAL ============= -->
+    <div class="ep-backdrop" id="epBackdrop" onclick="if(event.target===this) closeEditPost()">
+      <div class="ep-modal">
+        <div class="ep-head">
+          <h2 id="epTitle">Edit post</h2>
+          <span class="ep-close" onclick="closeEditPost()">✕</span>
+        </div>
+        <div id="epFailBanner"></div>
+        <div class="ep-body">
+          <div class="ep-col ep-col-platforms">
+            <div class="ep-section-title">Select Platforms</div>
+            <div id="epPlatformRows"></div>
+            <div class="ep-connect-section">
+              <div class="ep-section-title">Connect platforms</div>
+              <div class="ep-connect-row">
+                <div class="ep-platform-icon wa">💬</div>
+                <div class="ep-platform-text"><div class="ep-platform-name">WhatsApp</div></div>
+                <div class="ep-add-btn">+</div>
+              </div>
+              <div class="ep-connect-row">
+                <div class="ep-platform-icon x">𝕏</div>
+                <div class="ep-platform-text"><div class="ep-platform-name">X</div></div>
+                <div class="ep-add-btn">+</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ep-col ep-col-media">
+            <div class="ep-toprow">
+              <div class="ep-section-title" style="margin-bottom:0">Add Media files</div>
+              <div class="ep-mini-toggle-row">
+                Customize for each socials
+                <div class="ep-toggle" id="epCustomizeToggle" onclick="toggleCustomize()"></div>
+              </div>
+            </div>
+            <div id="epFormatSection" style="display:none;">
+              <div class="ep-platform-tab-icons" id="epPlatformTabs"></div>
+              <div class="ep-format-radio">
+                <label><input type="radio" name="epFormat" checked onchange="setEpFormat('post')"> Post</label>
+                <label><input type="radio" name="epFormat" onchange="setEpFormat('story')"> Story</label>
+                <label><input type="radio" name="epFormat" onchange="setEpFormat('reel')"> Reel</label>
+              </div>
+              <div id="epMusicNotice"></div>
+            </div>
+            <div id="epMediaSlot"></div>
+            <textarea class="ep-caption-box" id="epCaption" placeholder="Add your caption to the post here, start writing..." oninput="onCaptionInput()"></textarea>
+            <div class="ep-char-count"><span id="epCharCount">0</span>/2200</div>
+            <div class="ep-pref-row">
+              <span>Preferred Captions</span>
+              <div class="ep-toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+
+          <div class="ep-col ep-col-preview">
+            <div class="ep-section-title" id="epPreviewTitle">Post Previews</div>
+            <div id="epPreviewCol"></div>
+          </div>
+        </div>
+
+        <div class="ep-foot">
+          <div class="ep-date-pill" id="epDatePill">📅 <span id="epDateLabel">Jul 12, 2026</span></div>
+          <div class="ep-split-btn">
+            <div class="ep-split-menu" id="epSplitMenu">
+              <div class="ep-split-option" id="epOptRetry" onclick="selectSaveMode('retry')" style="display:none;">
+                <div class="ep-split-option-title">🔁 Retry</div>
+                <div class="ep-split-option-sub">Attempt to publish this post to the failed platform(s) again.</div>
+              </div>
+              <div class="ep-split-option" id="epOptDuplicate" onclick="selectSaveMode('duplicate')" style="display:none;">
+                <div class="ep-split-option-title">⧉ Duplicate Post</div>
+                <div class="ep-split-option-sub">Create a copy of this post to edit and schedule separately.</div>
+              </div>
+              <div class="ep-split-option" id="epOptSchedule" onclick="selectSaveMode('scheduled')">
+                <div class="ep-split-option-title">🕐 Schedule Post</div>
+                <div class="ep-split-option-sub">Post will be published on the selected date and time.</div>
+              </div>
+              <div class="ep-split-option" id="epOptDraft" onclick="selectSaveMode('draft')">
+                <div class="ep-split-option-title">✎ Save as Draft</div>
+                <div class="ep-split-option-sub">Post won't be published.</div>
+              </div>
+            </div>
+            <div class="ep-split-main" id="epSplitMainBtn" onclick="handleEpMainCta()">Schedule Post</div>
+            <div class="ep-split-chevron" onclick="toggleSplitMenu()">▾</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ---------- drawer toggle ---------- */
+  let openPanel = null;
+  function togglePanel(which) {
+    if (openPanel === which) { closePanels(); return; }
+    openPanel = which;
+    document.getElementById('postDrawer').classList.toggle('show', which === 'post');
+    document.getElementById('campaignDrawer').classList.toggle('show', which === 'campaign');
+    document.getElementById('scrim').classList.add('show');
+    document.getElementById('btnPost').classList.toggle('on', which === 'post');
+    document.getElementById('btnCampaign').classList.toggle('on', which === 'campaign');
+  }
+  function closePanels() {
+    openPanel = null;
+    document.getElementById('postDrawer').classList.remove('show');
+    document.getElementById('campaignDrawer').classList.remove('show');
+    document.getElementById('scrim').classList.remove('show');
+    document.getElementById('btnPost').classList.remove('on');
+    document.getElementById('btnCampaign').classList.remove('on');
+  }
+
+  /* ---------- campaign builder ---------- */
+  const allCampaigns = [
+    {name:'Brand awareness starter pack', meta:'6 posts · reach-focused', targeted:false},
+    {name:'Tax season push', meta:'5 posts · seasonal', targeted:false},
+    {name:'Product launch — new SIP plan', meta:'8 posts · announcement', targeted:false},
+    {name:'Trust builders — client stories', meta:'4 posts · social proof', targeted:false},
+    {name:'Pre-retirees, age 45–60', meta:'5 posts · retirement planning', targeted:true},
+    {name:'New investors, first SIP', meta:'6 posts · beginner education', targeted:true},
+    {name:'High net-worth, FIRE seekers', meta:'4 posts · advanced strategy', targeted:true},
+  ];
+
+  let modalStep = 'select';
+  let campaignState = { targeted:false, platforms:{instagram:true,facebook:true,linkedin:true,x:false,pinterest:false} };
+  const campaignSteps = ['select','schedule','platforms'];
+
+  function openModal() {
+    modalStep = 'select';
+    campaignState = { targeted:false, platforms:{instagram:true,facebook:true,linkedin:true,x:false,pinterest:false} };
+    document.getElementById('modalBackdrop').classList.add('show'); render();
+  }
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('show');
+  }
+  function goBack() {
+    const idx = campaignSteps.indexOf(modalStep);
+    if (idx > 0) { modalStep = campaignSteps[idx - 1]; render(); }
+  }
+  function goNext() {
+    const idx = campaignSteps.indexOf(modalStep);
+    if (idx < campaignSteps.length - 1) { modalStep = campaignSteps[idx + 1]; render(); }
+  }
+
+  function render() {
+    document.getElementById('modalBack').classList.toggle('show', campaignSteps.indexOf(modalStep) > 0);
+    document.querySelectorAll('.campaign-progress-item').forEach(dot => {
+      const idx = campaignSteps.indexOf(dot.getAttribute('data-s'));
+      dot.classList.toggle('active', idx <= campaignSteps.indexOf(modalStep));
+    });
+
+    const body = document.getElementById('modalBody');
+    const foot = document.getElementById('modalFoot');
+    const title = document.getElementById('modalTitle');
+
+    if (modalStep === 'select') {
+      title.textContent = 'Create campaign';
+      const cards = [['🎬','Why the dip is not a reason to exit','Reel'],['📝','Stay invested meme','Meme'],['📊','Market volatility explainer','Carousel'],['🖼️','SIP myth vs fact','Image']];
+      const audience = `<aside class="cb-audience"><div class="cb-audience-head">Audience filters</div><div class="cb-audience-sub">From your imported CRM list</div><div class="cb-audience-group"><b>Marital status</b><div class="cb-audience-option selected"><span>✓ Married</span><span>642</span></div><div class="cb-audience-option"><span>Single</span><span>384</span></div></div><div class="cb-audience-group"><b>Risk appetite</b><div class="cb-audience-option selected"><span>✓ Conservative</span><span>184</span></div><div class="cb-audience-option"><span>Moderate</span><span>503</span></div><div class="cb-audience-option"><span>Aggressive</span><span>339</span></div></div><div class="cb-chip" style="display:inline-block;margin-top:5px">+ Add audience filter</div></aside>`;
+      body.innerHTML = `<div class="cb-step"><div class="cb-browser ${campaignState.targeted?'targeted':''}"><aside class="cb-category-rail"><div class="cb-category-label">CATEGORY</div>${[['🌱','Investor Education'],['📘','Financial Concepts'],['📉','Market Updates'],['🔥','Trending'],['🎯','Risk Profiling']].map((c,i)=>`<div class="cb-category ${i===2?'active':''}"><span class="cb-category-icon">${c[0]}</span>${c[1]}</div>`).join('')}</aside><section class="cb-browser-main"><div class="cb-target-banner"><div><b>Targeted campaign</b><div class="cb-target-banner-copy">Use CRM attributes to define who this campaign is for.</div></div><div class="switch ${campaignState.targeted?'on':''}" onclick="toggleTargeted()"></div></div><div class="cb-filter-title">CONTENT FILTERS</div><div class="cb-filter-row">${['Bearish sentiment','Reel','Meme','+ Add filter'].map((x,i)=>`<span class="cb-chip ${i<3?'active':''}">${x}</span>`).join('')}</div><div class="cb-match-notice">${campaignState.targeted?'34 matching items will be available to the 184 clients in this audience.':'This campaign currently matches 34 items and updates automatically as new content is tagged.'}</div><div class="cb-results-head"><span>Market updates</span><span>34 creatives</span></div><div class="cb-content-cards">${cards.map(c=>`<div class="cb-content-card"><div class="cb-content-art">${c[0]}</div><div class="cb-content-title">${c[1]}</div><div class="cb-content-meta">${c[2]} · English</div></div>`).join('')}</div></section>${campaignState.targeted?audience:''}</div></div>`;
+      foot.innerHTML = `<span class="m-btn ghost" onclick="closeModal()">Cancel</span><span class="m-btn primary" onclick="goNext()">Next: schedule →</span>`;
+    } else if (modalStep === 'schedule') {
+      title.textContent = 'Schedule & preview';
+      body.innerHTML = `<div class="cb-step schedule-layout"><div class="cb-panel"><h4>Campaign settings</h4><div class="field"><label>Campaign name</label><input value="${campaignState.targeted?'Conservative investor market update':'Bearish-market content series'}"></div><div class="cb-select-row"><div class="field"><label>Duration</label><select><option>30 days</option><option>14 days</option><option>7 days</option></select></div><div class="field"><label>Frequency</label><select><option>Daily</option><option>3× weekly</option><option>Weekly</option></select></div></div><div class="summary-box"><b>Content set</b><br>${campaignState.targeted?'CRM audience filters applied':'Market updates · Bearish · Reel, Meme'}<br>30 posts will be distributed automatically.</div></div><div class="cb-panel"><h4>Calendar preview <span style="font-weight:400;color:#8a8a86">· Jul 14 – 20</span></h4><div class="cb-mini-calendar">${['','Mon','Tue','Wed','Thu','Fri','Sat','Sun','9 AM','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▶ Reel</span>','', '<span class="cb-post">▣ Meme</span>','', '12 PM','<span class="cb-post">▣ Meme</span>','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','', '3 PM','','<span class="cb-post">▶ Reel</span>','','<span class="cb-post">▣ Meme</span>','',''].map((x,i)=>`<div class="${i<8?'head':''}">${x}</div>`).join('')}</div></div></div>`;
+      foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">← Back</span><span class="m-btn primary" onclick="goNext()">Next: platforms →</span>`;
+    } else {
+      title.textContent = 'Select platforms & run';
+      const ps = [['instagram','◎','Instagram','@your_handle'],['facebook','f','Facebook Page','Your Page'],['linkedin','in','LinkedIn','Your Company'],['x','𝕏','X (Twitter)','Not connected'],['pinterest','P','Pinterest','Not connected']];
+      body.innerHTML = `<div class="cb-step platform-layout"><div class="cb-panel"><h4>Select platforms</h4>${ps.map(p=>`<div class="cb-platform-row"><div class="cb-platform-icon">${p[1]}</div><div><div class="cb-platform-name">${p[2]}</div><div class="cb-platform-sub">${p[3]}</div></div><span class="${campaignState.platforms[p[0]]?'cb-connected':'cb-notconnected'}">${campaignState.platforms[p[0]]?'Connected':'Not connected'}</span><div class="switch ${campaignState.platforms[p[0]]?'on':''}" onclick="togglePlatform('${p[0]}')"></div></div>`).join('')}</div><div class="cb-panel"><h4>Campaign summary</h4><div class="cb-summary-line"><span>Content set</span><b>Bearish (Reel, Meme)</b></div><div class="cb-summary-line"><span>Duration</span><b>30 days</b></div><div class="cb-summary-line"><span>Frequency</span><b>Daily</b></div><div class="cb-summary-line"><span>Total posts</span><b>30</b></div><div class="cb-summary-line"><span>Platforms</span><b>${Object.values(campaignState.platforms).filter(Boolean).length}</b></div></div></div>`;
+      foot.innerHTML = `<span class="m-btn ghost" onclick="goBack()">← Back</span><span class="m-btn ghost" onclick="closeModal()">Save as draft</span><span class="m-btn primary" onclick="runCampaign()">▷ Run campaign</span>`;
+    }
+  }
+  function toggleTargeted(){campaignState.targeted=!campaignState.targeted;render()} function togglePlatform(p){campaignState.platforms[p]=!campaignState.platforms[p];render()} function runCampaign(){closeModal(); alert('Campaign is ready to run across your selected platforms.');}
+
+  /* ============= CONTENT DISCOVERY (Create Post) ============= */
+  const categories = [
+    {key:'education', label:'Investor Education', icon:'🌱', count:640},
+    {key:'concepts', label:'Financial Concepts', icon:'📘', count:1120},
+    {key:'market', label:'Market Updates', icon:'📉', count:980},
+    {key:'trending', label:'Trending', icon:'🔥', count:210},
+    {key:'risk', label:'Risk Profiling', icon:'🎯', count:340},
+    {key:'templates', label:'Custom Templates', icon:'📁', count:222, noFilters:true},
+  ];
+
+  const sampleCards = {
+    education: [
+      {icon:'🎬', title:'Why investing early matters', meta:'Reel · English', badge:{type:'seg', text:'New investors'}},
+      {icon:'📝', title:'5 mistakes new SIP investors make', meta:'Post · Hindi', badge:{type:'seg', text:'New investors'}},
+      {icon:'🖼️', title:'What happens if you skip an SIP', meta:'Carousel · English', badge:{type:'concept', text:'SIP'}},
+      {icon:'✨', title:'The power of compounding', meta:'Story · Tamil'},
+    ],
+    concepts: [
+      {icon:'📘', title:'SIP vs Lumpsum explained', meta:'Carousel · English', badge:{type:'concept', text:'SIP'}},
+      {icon:'📗', title:'What is NAV, really?', meta:'Post · Hindi', badge:{type:'concept', text:'NAV'}},
+      {icon:'📙', title:'STP for beginners', meta:'Reel · English', badge:{type:'concept', text:'STP'}},
+      {icon:'📕', title:'Expense ratio, decoded', meta:'Post · English'},
+    ],
+    market: [
+      {icon:'📉', title:'Why the dip is not a reason to exit', meta:'Reel · Hindi'},
+      {icon:'📈', title:'Weekly market wrap', meta:'Post · English'},
+      {icon:'📰', title:'Rate cut — what it means for you', meta:'Carousel · English'},
+      {icon:'🌍', title:'Global cues affecting Indian markets', meta:'Story · English'},
+    ],
+    trending: [
+      {icon:'🔥', title:'Balanced Advantage Funds explained', meta:'Reel · English', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Why Multi-Asset Funds are booming', meta:'Post · Hindi', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Gold ETFs — the current rally', meta:'Carousel · English', badge:{type:'trend', text:'Trending'}},
+      {icon:'🔥', title:'Small cap correction, explained calmly', meta:'Reel · Tamil', badge:{type:'trend', text:'Trending'}},
+    ],
+    risk: [
+      {icon:'🎯', title:'Understanding your risk appetite', meta:'Carousel · English'},
+      {icon:'🎯', title:'Conservative vs aggressive investing', meta:'Post · Hindi'},
+      {icon:'🎯', title:'Risk profiling — client conversation guide', meta:'Story · English', badge:{type:'seg', text:'Pre-retirees'}},
+      {icon:'🎯', title:'Matching fund philosophy to temperament', meta:'Post · English'},
+    ],
+    templates: [
+      {icon:'🧩', title:'Personalization templates', meta:'65 templates'},
+      {icon:'📊', title:'Sales deck', meta:'28 templates'},
+      {icon:'📄', title:'Client proposal templates', meta:'34 templates'},
+      {icon:'🎓', title:'Fund education templates', meta:'52 templates'},
+      {icon:'📦', title:'Onboarding kit', meta:'19 templates'},
+      {icon:'📈', title:'Review deck', meta:'24 templates'},
+    ],
+  };
+
+  let activeCat = 'education';
+
+  function renderDrawerPills() {
+    document.getElementById('drawerPills').innerHTML = categories.map(c =>
+      `<div class="cat-pill ${c.key==='trending'?'trend-pill':''} ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">${c.icon} ${c.label}</div>`
+    ).join('');
+  }
+  function renderDrawerGrid() {
+    document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
+    document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => {
+      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${idx})" ondragend="onCardDragEnd(event)"`;
+      return `
+      <div class="sq-card" ${dragAttrs}>
+        <div class="sq-thumb">${c.icon}</div>
+        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+        <div class="sq-title">${c.title}</div>
+        <div class="sq-meta">${c.meta}</div>
+      </div>`;
+    }).join('');
+  }
+  function setActiveCat(k) { activeCat = k; renderDrawerPills(); renderDrawerGrid(); renderBmCatRail(); renderBmGrid(); }
+
+  function openBrowseModal() {
+    document.getElementById('browseBackdrop').classList.add('show');
+    renderBmCatRail(); renderBmGrid();
+  }
+  function closeBrowseModal() { document.getElementById('browseBackdrop').classList.remove('show'); }
+
+  function renderBmCatRail() {
+    document.getElementById('bmCatRail').innerHTML = categories.map(c =>
+      `<div class="bm-cat-item ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">
+        <div class="bm-cat-icon">${c.icon}</div>
+        <div class="bm-cat-label">${c.label}</div>
+        <div class="bm-cat-count">${c.count}</div>
+      </div>`).join('');
+  }
+  function renderBmGrid() {
+    const cat = categories.find(c=>c.key===activeCat);
+    document.getElementById('bmMainTitle').textContent = cat.label;
+    document.getElementById('bmMainCount').textContent = cat.count + (activeCat==='templates' ? ' templates' : ' creatives');
+    document.getElementById('bmFiltersBtn').style.display = cat.noFilters ? 'none' : 'flex';
+    const source = sampleCards[activeCat];
+    const cards = activeCat==='templates' ? source : source.concat(source);
+    document.getElementById('bmGrid').innerHTML = cards.map((c,idx) => {
+      const srcIdx = idx % source.length;
+      const dragAttrs = activeCat==='templates' ? '' : `draggable="true" ondragstart="onCardDragStart(event,'${activeCat}',${srcIdx})" ondragend="onCardDragEnd(event)"`;
+      const clickAttr = activeCat==='templates' ? '' : `onclick="openCardFromBrowseModal('${activeCat}',${srcIdx})"`;
+      return `
+      <div class="sq-card" ${dragAttrs} ${clickAttr}>
+        <div class="sq-thumb">${c.icon}</div>
+        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+        <div class="sq-title">${c.title}</div>
+        <div class="sq-meta">${c.meta}</div>
+      </div>`;
+    }).join('');
+  }
+  // A click (as opposed to a drag) on a card in the expanded modal opens the
+  // Edit Post modal prefilled with that content, defaulting to today at 10am
+  // since no specific calendar slot was targeted.
+  function openCardFromBrowseModal(catKey, idx) {
+    const card = sampleCards[catKey][idx];
+    closeBrowseModal();
+    closePanels();
+    openEditPost({ mode:'create', date: TODAY_STR, hour: 10, prefillCard: card });
+  }
+
+  /* ---- discovery filter panel ---- */
+  const discoveryFilterGroups = {
+    trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
+      options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
+    sentiment: { label: 'Market sentiment', note: 'Content matched to the current market mood — useful for reassuring or re-engaging investors depending on how markets are behaving.',
+      options: [ {label:'Bearish / market correction',count:64}, {label:'Bullish / rally',count:88}, {label:'Volatile / uncertain',count:52}, {label:'Stay invested messaging',count:70}, {label:'Neutral / educational',count:210} ] },
+    concept: { label: 'Concept', note: 'The specific term or mechanism this content explains — cuts across every lifecycle category above.',
+      options: [ {label:'SIP',count:420}, {label:'STP',count:110}, {label:'SWP',count:95}, {label:'NAV',count:180}, {label:'Lumpsum',count:150}, {label:'XIRR',count:60}, {label:'Expense Ratio',count:75}, {label:'Exit Load',count:40}, {label:'CAGR',count:55}, {label:'Asset Allocation',count:130}, {label:'Compounding',count:140}, {label:'Tax Harvesting',count:35} ] },
+    segment: { label: 'Client segment', note: 'Which client this content suits best — independent of category.',
+      options: [ {label:'New investors',count:310}, {label:'Pre-retirees',count:210}, {label:'HNI',count:95}, {label:'Lapsed clients',count:60} ] },
+    format: { label: 'Format', note: '', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
+    language: { label: 'Language', note: '', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
+    platform: { label: 'Platform', note: '', options: [ {label:'Instagram',count:2400}, {label:'LinkedIn',count:1300}, {label:'WhatsApp Status',count:500} ] },
+    complexity: { label: 'Complexity level', note: '', options: [ {label:'Beginner',count:1800}, {label:'Intermediate',count:1500}, {label:'Advanced',count:900} ] },
+    fundtype: { label: 'Fund type', note: '', options: [ {label:'Equity',count:1100}, {label:'Debt',count:700}, {label:'Hybrid',count:520}, {label:'ELSS',count:340}, {label:'International',count:180} ] }
+  };
+  let activeGroup = 'trending';
+  let selected = {};
+  Object.keys(discoveryFilterGroups).forEach(k => selected[k] = new Set());
+
+  function renderGroups() {
+    document.getElementById('fpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
+      const g = discoveryFilterGroups[k]; const n = selected[k].size;
+      return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
+    }).join('');
+  }
+  function renderOptions() {
+    const g = discoveryFilterGroups[activeGroup];
+    let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
+    g.options.forEach(o => {
+      const checked = selected[activeGroup].has(o.label);
+      html += `<div class="fp-option" onclick="toggleOption('${o.label}')">
+        <div class="fp-check ${checked?'checked':''}"></div>
+        <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
+        <div class="fp-opt-count">${o.count}</div>
+      </div>`;
+    });
+    document.getElementById('fpOptions').innerHTML = html;
+  }
+  function setActiveGroup(k) { activeGroup = k; renderGroups(); renderOptions(); }
+  function toggleOption(label) {
+    const s = selected[activeGroup];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    renderGroups(); renderOptions(); renderDiscoveryChips();
+  }
+  function clearFilters() { Object.keys(selected).forEach(k => selected[k].clear()); renderGroups(); renderOptions(); renderDiscoveryChips(); }
+  function renderDiscoveryChips() {
+    let chips = [];
+    Object.keys(selected).forEach(k => selected[k].forEach(label => {
+      chips.push(`<div class="achip ${k==='segment'?'seg':''}${k==='concept'?'concept':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleOption('${label}');setActiveGroup('${k}')">✕</span></div>`);
+    }));
+    document.getElementById('activeChips').innerHTML = chips.join('');
+    const total = Object.values(selected).reduce((a,s)=>a+s.size,0);
+    document.getElementById('filterCountBadge').textContent = total ? '('+total+')' : '';
+    document.getElementById('bmFiltersBtn').classList.toggle('active', total > 0);
+  }
+  function toggleFilterPanel() {
+    document.getElementById('fpBackdrop2').classList.toggle('show');
+    document.getElementById('filterPanel2').classList.toggle('show');
+  }
+
+  renderDrawerPills(); renderDrawerGrid();
+  renderGroups(); renderOptions(); renderDiscoveryChips();
+
+  /* ================================================================
+     CALENDAR: shared data model + three views + drag-drop + Edit Post
+     ================================================================ */
+
+  // connection state — mirrors what "Connect your channel" would set.
+  // Instagram intentionally NOT connected, to demonstrate the "always blank
+  // until connected" behaviour; Facebook + LinkedIn are already connected.
+  const CONNECTED = { instagram: false, facebook: true, linkedin: true };
+
+  const PLATFORM_META = {
+    instagram: { label: 'Instagram', icon: '📷', cls: 'ig' },
+    facebook:  { label: 'Facebook',  icon: 'f',  cls: 'fb' },
+    linkedin:  { label: 'LinkedIn',  icon: 'in', cls: 'li' },
+  };
+
+  let events = [
+    { id:'e1', date:'2026-07-12', hour:11, minute:20, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'🖼️' },
+    { id:'e2', date:'2026-07-12', hour:13, minute:23, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:null },
+    { id:'e3', date:'2026-07-13', hour:8,  minute:0,  title:'SIP vs Lumpsum — Reel', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'🎬' },
+    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'posted', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈' },
+    { id:'e5', date:'2026-07-16', hour:10, minute:0,  title:'Client story — FIRE journey', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'✨' },
+    { id:'e6', date:'2026-07-18', hour:13, minute:0,  title:'Year-end portfolio CTA', caption:'', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'▦' },
+    { id:'e7', date:'2026-07-15', hour:9,  minute:0,  title:'Tax saving webinar invite', caption:'', status:'failed', platform:'instagram', account:'thefinpedia', thumbnail:'🎯',
+      failedPlatforms:['instagram'], failReason:'Instagram rejected the media file — the aspect ratio (4:3) isn\u2019t supported for Reels, which require 9:16.' },
+  ];
+  let eventSeq = 100;
+
+  const WEEK_START = new Date(2026, 6, 12); // Sun Jul 12, 2026 — matches "today"
+  const TODAY_STR = '2026-07-12';
+  const TIME_SLOTS = []; // hours 7..20
+  for (let h = 7; h <= 20; h++) TIME_SLOTS.push(h);
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function toDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+  function hourLabel(h) { const ampm = h < 12 ? 'AM' : 'PM'; let hh = h % 12; if (hh===0) hh = 12; return hh + ' ' + ampm; }
+  function fmtDateLong(dateStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+  function fmtTime12(hour, minute) {
+    const ampm = hour < 12 ? 'AM' : 'PM'; let hh = hour % 12; if (hh===0) hh = 12;
+    return hh + ':' + pad(minute) + ' ' + ampm;
+  }
+
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function updateTopbarDateLabel(v) {
+    const el = document.getElementById('dateRangePill');
+    if (v === 'month') {
+      el.textContent = MONTH_NAMES[6] + ' 2026'; // July 2026 — matches renderMonthView's hardcoded month
+    } else {
+      // week + list share the same "Jul 12 – 18, 2026" range style
+      const start = WEEK_START, end = addDays(WEEK_START, 6);
+      const sameMonth = start.getMonth() === end.getMonth();
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', sameMonth ? { day: 'numeric' } : { month: 'short', day: 'numeric' });
+      el.textContent = `${startStr} – ${endStr}, ${end.getFullYear()}`;
+    }
+  }
+
+  let currentView = 'week';
+  // This prototype's calendar data is seeded around a fixed week (Jul 12–18,
+  // 2026); real date navigation isn't wired up yet, same fidelity as other
+  // prototype-only actions (e.g. "Raise a ticket").
+  function goToday() { alert('This would jump the calendar back to today\'s date.'); }
+  function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
+  function switchView(v) {
+    currentView = v;
+    updateTopbarDateLabel(v);
+    ['Week','Month','List'].forEach(name => {
+      document.getElementById('viewTab'+name).classList.toggle('active', name.toLowerCase()===v);
+    });
+    document.getElementById('weekView').style.display = v==='week' ? 'block' : 'none';
+    document.getElementById('monthView').style.display = v==='month' ? 'flex' : 'none';
+    document.getElementById('listView').style.display = v==='list' ? 'block' : 'none';
+    closeDayPopover();
+    if (v==='week') renderWeekView();
+    if (v==='month') renderMonthView();
+    if (v==='list') renderListView();
+  }
+
+  /* ---------------- WEEK VIEW ---------------- */
+  /* ---------------- STATUS LEGEND (shared across all 3 views) ---------------- */
+  const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
+  const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
+  let statusFilter = new Set(STATUS_LIST);
+  function legendHTML() {
+    return '<div class="cal-legend">' + STATUS_LIST.map(s => {
+      const off = !statusFilter.has(s);
+      return `<div class="legend-item ${s} ${off?'off':''}" onclick="toggleStatus('${s}')">
+        <span class="legend-check"></span>${STATUS_LABEL[s]}
+      </div>`;
+    }).join('') + '</div>';
+  }
+  function toggleStatus(s) {
+    if (statusFilter.has(s)) statusFilter.delete(s); else statusFilter.add(s);
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    if (currentView === 'list') renderListView();
+  }
+
+  function renderWeekView() {
+    const days = [];
+    for (let i=0;i<7;i++) days.push(addDays(WEEK_START, i));
+
+    let html = legendHTML();
+    html += '<div class="cal-header"><div></div>';
+    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    days.forEach(d => {
+      const isToday = toDateStr(d) === TODAY_STR;
+      html += `<div class="${isToday?'today':''}">${dayNames[d.getDay()]}<span>${d.getDate()}</span></div>`;
+    });
+    html += '</div><div class="cal-body">';
+
+    html += '<div class="time-col">' + TIME_SLOTS.map(h => `<div class="time-slot" style="height:64px">${hourLabel(h)}</div>`).join('') + '</div>';
+
+    days.forEach(d => {
+      const dateStr = toDateStr(d);
+      html += '<div class="day-col">';
+      TIME_SLOTS.forEach(h => {
+        const ev = events.find(e => e.date===dateStr && e.hour===h);
+        if (ev) {
+          const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
+          html += `<div class="wk-slot" style="padding:0">
+            <div class="wk-event st-${ev.status} ${dim}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+              <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
+              <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
+            </div>
+          </div>`;
+        } else {
+          html += `<div class="wk-slot" data-date="${dateStr}" data-hour="${h}"
+            ondragover="onSlotDragOver(event)" ondragleave="onSlotDragLeave(event)" ondrop="onSlotDrop(event)"
+            onclick="openEditPost({mode:'create', date:'${dateStr}', hour:${h}})">
+            <div class="wk-slot-plus">+</div>
+          </div>`;
+        }
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('weekView').innerHTML = html;
+  }
+
+  /* ---------------- MONTH VIEW ---------------- */
+  function renderMonthView() {
+    const year = 2026, month = 6; // July 2026 (0-indexed)
+    const first = new Date(year, month, 1);
+    const startOffset = first.getDay();
+    const gridStart = addDays(first, -startOffset);
+    const cells = [];
+    for (let i=0;i<35;i++) cells.push(addDays(gridStart, i));
+
+    let html = legendHTML();
+    html += '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
+    html += '<div class="month-grid">';
+    cells.forEach(d => {
+      const dateStr = toDateStr(d);
+      const outside = d.getMonth() !== month;
+      const isToday = dateStr === TODAY_STR;
+      const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+      let inner = `<div class="month-date">${d.getDate()}</div>`;
+      inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">+</div>`;
+      if (dayEvents.length) {
+        const first2 = dayEvents.slice(0,1);
+        first2.forEach(ev => {
+          const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
+          inner += `<div class="month-item st-${ev.status} ${dim}">${ev.title || ev.caption || 'Untitled'}</div>`;
+        });
+        if (dayEvents.length > 1) {
+          inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
+        }
+      }
+      html += `<div class="month-cell ${outside?'outside':''} ${isToday?'today':''}" data-date="${dateStr}" onclick="openDayPopover(event,'${dateStr}')">${inner}</div>`;
+    });
+    html += '</div>';
+    document.getElementById('monthView').innerHTML = html;
+  }
+
+  function openDayPopover(evt, dateStr) {
+    const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+    if (!dayEvents.length) {
+      openEditPost({mode:'create', date: dateStr, hour: 10});
+      return;
+    }
+    const pop = document.getElementById('dayPopover');
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const label = new Date(y,m-1,d).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    let html = `<div class="dp-head"><span class="dp-title">${label}</span><span class="dp-close" onclick="closeDayPopover()">✕</span></div>`;
+    dayEvents.forEach(ev => {
+      html += `<div class="dp-item" onclick="closeDayPopover(); openEditPost({mode:'edit', eventId:'${ev.id}'})">
+        <div class="dp-thumb">${ev.thumbnail || '📝'}</div>
+        <div class="dp-text">
+          <div class="dp-time">${fmtTime12(ev.hour,ev.minute)}</div>
+          <div class="dp-caption">${ev.title || ev.caption || 'Untitled'}</div>
+        </div>
+        <span class="dp-badge st-${ev.status}">${ev.status}</span>
+      </div>`;
+    });
+    pop.innerHTML = html;
+
+    const cellRect = evt.currentTarget.getBoundingClientRect();
+    const calRect = document.getElementById('calendarRoot').getBoundingClientRect();
+    pop.style.top = (cellRect.top - calRect.top + 20) + 'px';
+    let left = cellRect.left - calRect.left;
+    if (left + 280 > calRect.width) left = calRect.width - 290;
+    pop.style.left = Math.max(8,left) + 'px';
+
+    document.getElementById('dpBackdrop').classList.add('show');
+    pop.classList.add('show');
+  }
+  function closeDayPopover() {
+    document.getElementById('dpBackdrop').classList.remove('show');
+    document.getElementById('dayPopover').classList.remove('show');
+  }
+
+  /* ---------------- LIST VIEW ---------------- */
+  let listDateRange = { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
+  let drpPendingStart = null;
+  let drpMonthCursor = new Date(2026, 6, 1); // month shown as the left calendar
+
+  function fmtDateShort(dateStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return new Date(y,m-1,d).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+  function rangeLabel() {
+    return fmtDateShort(listDateRange.start) + ' – ' + fmtDateShort(listDateRange.end) + ', ' + listDateRange.start.slice(0,4);
+  }
+
+  function renderListView() {
+    const sorted = [...events]
+      .filter(e => statusFilter.has(e.status))
+      .filter(e => e.date >= listDateRange.start && e.date <= listDateRange.end)
+      .sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
+    let html = `
+      <div class="list-filters">
+        <div class="lf-pill clickable" id="lfDatePill" onclick="toggleDateRangePicker(event)">📅 ${rangeLabel()} <span style="font-size:10px">▾</span></div>
+        <div class="lf-pill">Sort: New to Old ▾</div>
+        <div class="drp-popover" id="drpPopover"></div>
+      </div>`;
+    html += legendHTML();
+    if (!sorted.length) {
+      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected statuses.</div>`;
+    }
+    sorted.forEach(ev => {
+      const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
+      html += `
+        <div class="list-row">
+          <div class="lr-head">
+            <div class="lr-avatar">${pm.icon}</div>
+        <div><div class="lr-account">${ev.account}</div><div class="lr-platform">${pm.label}</div></div>
+        <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
+        <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
+        <div class="lr-icons">
+          <div class="lr-icon-btn" title="Duplicate">⧉</div>
+          <div class="lr-icon-btn" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})" title="Edit">✎</div>
+        </div>
+      </div>
+      <div class="lr-body">
+        ${ev.thumbnail ? `<div class="lr-thumb">${ev.thumbnail}</div>` : ''}
+        <div>
+          <div class="lr-caption-label">Post caption</div>
+          <div class="lr-caption-text">${ev.caption || ev.title || '(no caption)'}</div>
+        </div>
+      </div>
+    </div>`;
+    });
+    document.getElementById('listView').innerHTML = html;
+  }
+
+  function toggleDateRangePicker(evt) {
+    evt.stopPropagation();
+    const pop = document.getElementById('drpPopover');
+    const pill = document.getElementById('lfDatePill');
+    const showing = pop.classList.contains('show');
+    if (showing) {
+      pop.classList.remove('show');
+      pill.classList.remove('open');
+      return;
+    }
+    drpPendingStart = null;
+    drpMonthCursor = new Date(2026, 6, 1);
+    renderDrp();
+    pop.classList.add('show');
+    pill.classList.add('open');
+  }
+  function closeDateRangePicker() {
+    const pop = document.getElementById('drpPopover');
+    const pill = document.getElementById('lfDatePill');
+    if (pop) pop.classList.remove('show');
+    if (pill) pill.classList.remove('open');
+  }
+
+  const PRESETS = [
+    { label: '7 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),6)) }) },
+    { label: '14 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),13)) }) },
+    { label: '30 days', fn: () => ({ start: toDateStr(new Date(2026,6,12)), end: toDateStr(addDays(new Date(2026,6,12),29)) }) },
+    { label: 'Next week', fn: () => ({ start: toDateStr(new Date(2026,6,19)), end: toDateStr(new Date(2026,6,25)) }) },
+    { label: 'Next 2 weeks', fn: () => ({ start: toDateStr(new Date(2026,6,19)), end: toDateStr(new Date(2026,7,1)) }) },
+    { label: 'Next month', fn: () => ({ start: toDateStr(new Date(2026,7,1)), end: toDateStr(new Date(2026,7,31)) }) },
+  ];
+  function applyPreset(idx) {
+    listDateRange = PRESETS[idx].fn();
+    closeDateRangePicker();
+    renderListView();
+  }
+
+  const MONTH_SHORT = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function renderDrp() {
+    const pop = document.getElementById('drpPopover');
+    let html = '<div class="drp-presets">';
+    PRESETS.forEach((p, idx) => { html += `<div class="drp-preset-item" onclick="applyPreset(${idx})">${p.label}</div>`; });
+    html += '</div><div class="drp-calendars">';
+    html += drpMonthHTML(drpMonthCursor);
+    html += drpMonthHTML(new Date(drpMonthCursor.getFullYear(), drpMonthCursor.getMonth()+1, 1));
+    html += '</div>';
+    pop.innerHTML = html;
+  }
+  function drpMonthHTML(monthDate) {
+    const year = monthDate.getFullYear(), month = monthDate.getMonth();
+    const first = new Date(year, month, 1);
+    const startOffset = first.getDay();
+    const gridStart = addDays(first, -startOffset);
+    let cells = '';
+    for (let i=0;i<42;i++) {
+      const d = addDays(gridStart, i);
+      if (d.getMonth() !== month && i >= 35) continue; // trim trailing extra row when unnecessary
+      const dateStr = toDateStr(d);
+      const outside = d.getMonth() !== month;
+      const inRange = !outside && dateStr >= listDateRange.start && dateStr <= listDateRange.end;
+      const isStart = dateStr === listDateRange.start;
+      const isEnd = dateStr === listDateRange.end;
+      const cls = ['drp-day'];
+      if (outside) cls.push('outside');
+      if (inRange) cls.push('in-range');
+      if (isStart) cls.push('range-start');
+      if (isEnd) cls.push('range-end');
+      cells += `<div class="${cls.join(' ')}" onclick="${outside ? '' : `pickDrpDay('${dateStr}')`}">${d.getDate()}</div>`;
+    }
+    return `<div class="drp-month">
+      <div class="drp-month-head"><span class="drp-month-title">${MONTH_SHORT[month]} ${year}</span></div>
+      <div class="drp-grid">
+        <div class="drp-dow">Su</div><div class="drp-dow">Mo</div><div class="drp-dow">Tu</div><div class="drp-dow">We</div><div class="drp-dow">Th</div><div class="drp-dow">Fr</div><div class="drp-dow">Sa</div>
+        ${cells}
+      </div>
+    </div>`;
+  }
+  function pickDrpDay(dateStr) {
+    if (!drpPendingStart) {
+      drpPendingStart = dateStr;
+      listDateRange = { start: dateStr, end: dateStr };
+    } else {
+      const start = drpPendingStart < dateStr ? drpPendingStart : dateStr;
+      const end = drpPendingStart < dateStr ? dateStr : drpPendingStart;
+      listDateRange = { start, end };
+      drpPendingStart = null;
+      closeDateRangePicker();
+      renderListView();
+      return;
+    }
+    renderDrp();
+  }
+
+  /* ---------------- DRAG AND DROP FROM CONTENT SOURCES ---------------- */
+  let draggedCard = null;
+  /* ---------------- MANUAL UPLOAD ---------------- */
+  let uploadSource = 'drawer'; // 'drawer' | 'modal' — which grid to drop the new card into
+  function triggerUpload(source) {
+    uploadSource = source;
+    document.getElementById('uploadInput').click();
+  }
+  function handleFileUpload(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const isVideo = file.type.startsWith('video/');
+    const newCard = {
+      icon: isVideo ? '🎬' : '🖼️',
+      title: file.name,
+      meta: (isVideo ? 'Video' : 'Image') + ' · Just uploaded',
+    };
+    // dropped into whichever category is currently active, so it shows up
+    // immediately in the grid the person was just looking at
+    sampleCards[activeCat].unshift(newCard);
+    renderDrawerGrid();
+    if (document.getElementById('browseBackdrop').classList.contains('show')) {
+      renderBmGrid();
+    }
+    evt.target.value = ''; // allow re-selecting the same file later
+  }
+
+  // Closes every panel/modal that could be sitting on top of the calendar
+  // (drawer, browse modal + its filter panel, edit-post modal) so the user
+  // has full visibility of the grid the instant they start dragging.
+  function closeAllOverlaysForDrag() {
+    closePanels();
+    closeBrowseModal();
+    const filterPanel = document.getElementById('filterPanel2');
+    const fpBackdrop = document.getElementById('fpBackdrop2');
+    if (filterPanel) filterPanel.classList.remove('show');
+    if (fpBackdrop) fpBackdrop.classList.remove('show');
+    const epBackdrop = document.getElementById('epBackdrop');
+    if (epBackdrop && epBackdrop.classList.contains('show')) closeEditPost();
+  }
+
+  function onCardDragStart(evt, catKey, idx) {
+    draggedCard = sampleCards[catKey][idx];
+    evt.dataTransfer.setData('text/plain', catKey + ':' + idx);
+    evt.dataTransfer.effectAllowed = 'copy';
+    // the scrim sits above the calendar (to catch outside-clicks that close
+    // the drawer) and was silently swallowing drop events — disable it
+    // for the duration of the drag so drops reach the calendar cells.
+    document.getElementById('scrim').style.pointerEvents = 'none';
+    // give the user full visibility of the calendar underneath while dragging;
+    // deferred one tick so the browser finishes capturing the drag image first
+    // (the browse modal uses display:none, which can cancel an in-progress
+    // native drag if applied synchronously inside dragstart).
+    setTimeout(closeAllOverlaysForDrag, 0);
+  }
+  function onCardDragEnd(evt) {
+    document.getElementById('scrim').style.pointerEvents = '';
+  }
+  function onSlotDragOver(evt) { evt.preventDefault(); evt.currentTarget.classList.add('drag-over'); }
+  function onSlotDragLeave(evt) { evt.currentTarget.classList.remove('drag-over'); }
+  function onSlotDrop(evt) {
+    evt.preventDefault();
+    evt.currentTarget.classList.remove('drag-over');
+    document.getElementById('scrim').style.pointerEvents = '';
+    const date = evt.currentTarget.getAttribute('data-date');
+    const hour = parseInt(evt.currentTarget.getAttribute('data-hour'), 10);
+    closeBrowseModal();
+    closePanels();
+    openEditPost({ mode:'create', date, hour, prefillCard: draggedCard });
+    draggedCard = null;
+  }
+
+  /* ---------------- EDIT POST MODAL ---------------- */
+  let epState = null; // {mode, date, hour, minute, eventId, platforms:{key:{on,hour,minute}}, caption, thumbnail}
+
+  function cardKind(card) {
+    return card && /reel/i.test(card.meta || '') ? 'video' : 'image';
+  }
+
+  function openEditPost(opts) {
+    if (opts.mode === 'edit') {
+      const ev = events.find(e => e.id === opts.eventId);
+      if (!ev) return;
+      epState = {
+        mode: 'edit', eventId: ev.id, date: ev.date,
+        caption: ev.caption || '', thumbnail: ev.thumbnail || null,
+        mediaKind: ev.thumbnail === '🎬' ? 'video' : 'image',
+        failInfo: ev.status === 'failed' ? { platforms: ev.failedPlatforms || [ev.platform], reason: ev.failReason || 'No reason was returned by the platform.' } : null,
+        platforms: {}
+      };
+      Object.keys(PLATFORM_META).forEach(k => {
+        epState.platforms[k] = { on: k === ev.platform, hour: ev.hour, minute: ev.minute };
+      });
+    } else {
+      epState = {
+        mode: 'create', date: opts.date,
+        caption: opts.prefillCard ? opts.prefillCard.title : '',
+        thumbnail: opts.prefillCard ? opts.prefillCard.icon : null,
+        mediaKind: opts.prefillCard ? cardKind(opts.prefillCard) : 'image',
+        failInfo: null,
+        platforms: {}
+      };
+      Object.keys(PLATFORM_META).forEach(k => {
+        epState.platforms[k] = { on: false, hour: opts.hour, minute: 0 };
+      });
+    }
+    epState.customize = false;
+    epState.format = 'post';
+    epState.musicAdded = false;
+    epState.retrying = false;
+
+    document.getElementById('epTitle').textContent = epState.mode === 'edit' ? 'Edit post' : 'Create post';
+    renderEpDatePill();
+    document.getElementById('epCaption').value = epState.caption;
+    epPreviewPlatform = 'instagram';
+    document.getElementById('epOptRetry').style.display = epState.failInfo ? 'block' : 'none';
+    document.getElementById('epOptDuplicate').style.display = epState.failInfo ? 'block' : 'none';
+    initEpCta();
+    document.getElementById('epSplitMenu').classList.remove('show');
+    document.getElementById('epCustomizeToggle').classList.remove('on');
+    document.getElementById('epFormatSection').style.display = 'none';
+    const formatRadios = document.querySelectorAll('input[name="epFormat"]');
+    if (formatRadios[0]) formatRadios[0].checked = true;
+    onCaptionInput();
+    renderEpPlatformRows();
+    renderEpMediaSlot();
+    renderEpPlatformTabs();
+    renderMusicNotice();
+    renderEpFailBanner();
+    document.getElementById('epBackdrop').classList.add('show');
+  }
+  function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); }
+
+  function renderEpFailBanner() {
+    const el = document.getElementById('epFailBanner');
+    if (!epState.failInfo) { el.innerHTML = ''; return; }
+    if (epState.retrying) {
+      el.innerHTML = `
+      <div class="ep-fail-banner retry-mode">
+        <div class="ep-fail-title" style="color:#0c447c;">🔁 Retrying this post</div>
+        <div class="ep-fail-reason">Adjust the date, time, and platforms below, then confirm to retry. The original failed post stays on the calendar untouched.</div>
+      </div>`;
+      return;
+    }
+    const chips = epState.failInfo.platforms.map(p => {
+      const meta = PLATFORM_META[p];
+      return `<span class="ep-fail-platform-chip">${meta ? meta.label : p}</span>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="ep-fail-banner">
+        <div class="ep-fail-title">⚠ This post failed to publish</div>
+        <div class="ep-fail-platforms">${chips}</div>
+        <div class="ep-fail-reason">${epState.failInfo.reason}</div>
+        <div class="ep-fail-actions">
+          <div class="ep-fail-btn primary" onclick="alert('This would open a pre-filled support ticket with this post\\'s details attached.')">Raise a ticket</div>
+          <div class="ep-fail-btn ghost" onclick="alert('This would open live chat with support.')">Contact support</div>
+          <span class="ep-fail-link" onclick="alert('This would open: Why do posts fail to publish? — a short help doc.')">Why do posts fail? →</span>
+        </div>
+      </div>`;
+  }
+
+  // The date pill is static text normally; once a retry is in progress it
+  // becomes an actual date input so the user can pick when to retry.
+  function renderEpDatePill() {
+    const pill = document.getElementById('epDatePill');
+    if (epState.retrying) {
+      pill.innerHTML = `📅 <input type="date" id="epDateInput" value="${epState.date}" onchange="onEpDateChange(this.value)">`;
+    } else {
+      pill.innerHTML = `📅 <span id="epDateLabel">${fmtDateLong(epState.date)}</span>`;
+    }
+  }
+  function onEpDateChange(val) {
+    if (!val) return;
+    epState.date = val;
+  }
+
+
+  function toggleCustomize() {
+    epState.customize = !epState.customize;
+    document.getElementById('epCustomizeToggle').classList.toggle('on', epState.customize);
+    document.getElementById('epFormatSection').style.display = epState.customize ? 'block' : 'none';
+    if (!epState.customize) {
+      // customization off ⇒ one universal post, no per-format variants
+      epState.format = 'post';
+      document.querySelectorAll('input[name="epFormat"]')[0].checked = true;
+    }
+    renderMusicNotice();
+    renderEpPreview();
+  }
+  function setEpFormat(fmt) {
+    epState.format = fmt;
+    renderMusicNotice();
+    renderEpPreview();
+  }
+  function renderMusicNotice() {
+    const el = document.getElementById('epMusicNotice');
+    const needsMusic = epState.customize && epState.format === 'reel' && epState.thumbnail && epState.mediaKind !== 'video';
+    if (!needsMusic) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="ep-music-notice">
+        <div class="emn-text">🎵 This is static content — a Reel needs music or motion to play properly.</div>
+        <div class="ep-music-add-btn ${epState.musicAdded?'added':''}" onclick="toggleMusicAdded()">${epState.musicAdded ? '✓ Music added' : '+ Add music'}</div>
+      </div>`;
+  }
+  function toggleMusicAdded() {
+    epState.musicAdded = !epState.musicAdded;
+    renderMusicNotice();
+    renderEpPreview();
+  }
+
+  function renderEpPlatformRows() {
+    let html = '';
+    Object.keys(PLATFORM_META).forEach(k => {
+      const meta = PLATFORM_META[k];
+      const connected = CONNECTED[k];
+      const st = epState.platforms[k];
+      const failed = !!(epState.failInfo && epState.failInfo.platforms.includes(k) && !epState.retrying);
+      html += `<div class="ep-platform-row">
+        <div class="ep-platform-icon ${meta.cls}">${meta.icon}</div>
+        <div class="ep-platform-text"><div class="ep-platform-name">${meta.label}</div><div class="ep-platform-sub">${connected ? 'Connected' : 'Not connected'}</div></div>
+        ${failed
+          ? `<div class="ep-platform-failed-status">⚠ Failed</div>`
+          : connected
+            ? `<div class="ep-toggle ${st.on?'on':''}" onclick="toggleEpPlatform('${k}')"></div>`
+            : `<div class="ep-connect-btn" onclick="alert('This would start the channel-connect flow.')">Connect</div>`}
+      </div>`;
+      if (connected && st.on && !failed) {
+        html += `<div class="ep-time-row">🕐 <input type="text" value="${fmtTime12(st.hour,st.minute)}" onchange="onEpTimeChange('${k}', this.value)"></div>`;
+      }
+    });
+    document.getElementById('epPlatformRows').innerHTML = html;
+  }
+  function toggleEpPlatform(k) {
+    epState.platforms[k].on = !epState.platforms[k].on;
+    renderEpPlatformRows();
+    renderEpPlatformTabs();
+  }
+  function onEpTimeChange(k, val) {
+    // lightweight parse, prototype-level only
+    const m = val.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (m) {
+      let hh = parseInt(m[1],10) % 12;
+      if (/pm/i.test(m[3])) hh += 12;
+      epState.platforms[k].hour = hh;
+      epState.platforms[k].minute = parseInt(m[2],10);
+    }
+  }
+  let epActiveMediaPlatform = 'instagram';
+  function renderEpPlatformTabs() {
+    const onKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
+    const keys = onKeys.length ? onKeys : ['instagram'];
+    if (!keys.includes(epActiveMediaPlatform)) epActiveMediaPlatform = keys[0];
+    document.getElementById('epPlatformTabs').innerHTML = keys.map(k =>
+      `<div class="ep-platform-icon ${PLATFORM_META[k].cls} ${k===epActiveMediaPlatform?'active-tab':''}" style="width:28px;height:28px;font-size:12px;cursor:pointer" onclick="setActiveMediaPlatform('${k}')">${PLATFORM_META[k].icon}</div>`
+    ).join('');
+  }
+  function setActiveMediaPlatform(k) {
+    epActiveMediaPlatform = k;
+    renderEpPlatformTabs();
+    renderEpPreview();
+  }
+  function renderEpMediaSlot() {
+    const slot = document.getElementById('epMediaSlot');
+    if (epState.thumbnail) {
+      slot.innerHTML = `<div class="ep-media-box">${epState.thumbnail}<div class="ep-media-remove" onclick="epState.thumbnail=null; renderEpMediaSlot(); renderEpPreview();">✕</div></div>`;
+    } else {
+      slot.innerHTML = `
+        <div class="ep-media-empty2">
+          <div class="eme-arrow">↑</div>
+          <div class="eme-text">Upload your own content or choose from thefinpedia</div>
+          <div class="ep-choose-btn" onclick="toggleChooseFrom(event)">Choose from ▾</div>
+          <div class="ep-choose-menu" id="epChooseMenu">
+            <div class="ep-choose-item" onclick="chooseFromOption('collection')">⊕ My Collection</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('library')">📣 Content Library</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('social')">📣 Social Media</div>
+            <div class="ep-choose-item" onclick="chooseFromOption('manual')">📣 Upload manually</div>
+          </div>
+        </div>`;
+    }
+    renderEpPreview();
+  }
+  function toggleChooseFrom(evt) {
+    evt.stopPropagation();
+    document.getElementById('epChooseMenu').classList.toggle('show');
+  }
+  function chooseFromOption(type) {
+    document.getElementById('epChooseMenu').classList.remove('show');
+    if (type === 'library') {
+      // "Content Library" maps directly onto the browse experience we already built
+      closeEditPost();
+      openBrowseModal();
+    }
+    // other options (My Collection / Social Media / Upload manually) aren't
+    // wired to a real flow yet in this prototype — left as visual only.
+  }
+
+  function onCaptionInput() {
+    const val = document.getElementById('epCaption').value;
+    epState.caption = val;
+    document.getElementById('epCharCount').textContent = val.length;
+    renderEpPreview();
+  }
+
+  let epPreviewPlatform = 'instagram';
+  function setEpPreviewPlatform(k) { epPreviewPlatform = k; renderEpPreview(); }
+  function renderEpPreview() {
+    const col = document.getElementById('epPreviewCol');
+    const titleEl = document.getElementById('epPreviewTitle');
+    const activePlatform = epState.customize ? epActiveMediaPlatform : epPreviewPlatform;
+
+    let tabs = '';
+    if (epState.customize) {
+      // customizing per social ⇒ one focused preview for whichever platform
+      // is active in "Add Media files", no tab row underneath.
+      titleEl.innerHTML = `${PLATFORM_META[activePlatform].label} Preview <span style="font-weight:400;color:#b3b2ac;font-size:12px">ⓘ</span>`;
+    } else {
+      titleEl.textContent = 'Post Previews';
+      tabs = '<div class="ep-preview-tabs">';
+      Object.keys(PLATFORM_META).forEach(k => {
+        const meta = PLATFORM_META[k];
+        tabs += `<div class="ep-preview-tab ${meta.cls} ${activePlatform===k?'active':''}" style="background:${meta.cls==='ig'?'linear-gradient(45deg,#fdf497,#fd5949,#d6249f,#285AEB)':meta.cls==='fb'?'#1877f2':'#0a66c2'};color:#fff" onclick="setEpPreviewPlatform('${k}')">${meta.icon}</div>`;
+      });
+      tabs += '</div>';
+    }
+
+    const hasContent = epState.thumbnail || epState.caption;
+    if (!hasContent) {
+      col.innerHTML = tabs + `
+        <div class="ep-preview-empty">
+          <div class="epe-avatar"></div>
+          <div class="epe-line"></div>
+          <div class="epe-block"></div>
+          <div class="epe-line2"></div>
+          <div class="epe-line3"></div>
+          <div class="epe-caption">See your post's preview here</div>
+        </div>`;
+      return;
+    }
+
+    const media = epState.thumbnail || '🖼️';
+    const caption = epState.caption || '';
+    // format variants only apply to Instagram, and only once "customize for
+    // each social" is on — every other platform always shows its standard
+    // post layout in this prototype.
+    const format = (activePlatform === 'instagram' && epState.customize) ? epState.format : 'post';
+
+    let body = '';
+    if (activePlatform === 'instagram' && format === 'story') {
+      body = `
+        <div class="ig-story-frame">
+          <div class="ig-story-bar"></div>
+          <div class="ig-story-head"><div class="ig-story-avatar"></div><div class="ig-story-name">thefinpedia</div></div>
+          <div class="ig-story-media">${media}</div>
+          <div class="ig-story-reply">Send message</div>
+        </div>`;
+    } else if (activePlatform === 'instagram' && format === 'reel') {
+      const musicLine = epState.mediaKind === 'video'
+        ? '♪ Original audio'
+        : (epState.musicAdded ? '♪ Music added' : '♪ No music selected — will not play as a Reel');
+      body = `
+        <div class="ig-reel-frame">
+          <div class="ig-reel-media">${media}</div>
+          <div class="ig-reel-rail">
+            <div>♥<span>1.2k</span></div>
+            <div>💬<span>42</span></div>
+            <div>↗<span>18</span></div>
+            <div>⋯</div>
+          </div>
+          <div class="ig-reel-bottom">
+            <b>thefinpedia</b>
+            ${caption || 'Your caption will appear here...'}
+            <div class="ig-reel-music ${epState.mediaKind!=='video' && !epState.musicAdded ? 'no-music':''}">${musicLine}</div>
+          </div>
+        </div>`;
+    } else if (activePlatform === 'instagram') {
+      body = `
+        <div class="ig-post-card">
+          <div class="ig-post-head"><div class="ig-avatar">TFP</div><div class="ig-post-name">thefinpedia</div></div>
+          <div class="ig-post-media">${media}</div>
+          <div class="ig-post-actions">♥ 💬 ↗</div>
+          <div class="ig-post-likes">1,204 likes</div>
+          <div class="ig-post-caption"><b>thefinpedia</b>${caption || 'Your caption will appear here...'}</div>
+        </div>`;
+    } else if (activePlatform === 'linkedin') {
+      body = `
+        <div class="li-post-card">
+          <div class="li-post-head">
+            <div class="li-avatar">TFP</div>
+            <div>
+              <div class="li-post-name">TFP Checker</div>
+              <div class="li-post-sub">Wealth Advisor · 1st</div>
+              <div class="li-post-time">Just now · 🌐</div>
+            </div>
+          </div>
+          <div class="li-post-caption">${caption || 'Your caption will appear here...'}</div>
+          <div class="li-post-media">${media}</div>
+          <div class="li-post-reactions">👍❤️👏 &nbsp; 24</div>
+          <div class="li-post-actions"><span>👍 Like</span><span>💬 Comment</span><span>↻ Repost</span><span>➤ Send</span></div>
+        </div>`;
+    } else {
+      // Facebook
+      body = `
+        <div class="ep-preview-card">
+          <div class="ep-pv-head">
+            <div class="ep-pv-avatar">TFP</div>
+            <div><div class="ep-pv-name">TFP Checker</div><div class="ep-pv-time">Just now · 🌐</div></div>
+          </div>
+          <div class="ep-pv-media">${media}</div>
+          <div class="ep-pv-actions">👍 Like &nbsp; 💬 Comment &nbsp; ↗ Share</div>
+          <div class="ep-pv-caption">${caption || 'Your caption will appear here...'}</div>
+        </div>`;
+    }
+    col.innerHTML = tabs + body;
+  }
+
+  let epSaveMode = 'scheduled';
+  function toggleSplitMenu() {
+    document.getElementById('epSplitMenu').classList.toggle('show');
+  }
+  const EP_SAVE_MODE_LABEL = { scheduled: 'Schedule Post', draft: 'Save as Draft', retry: 'Retry', duplicate: 'Duplicate Post' };
+
+  // Entering "retry" from a failed post doesn't save right away — it first
+  // unlocks the platform toggles (pre-checked with the platforms that
+  // failed) and the date/time so the user can adjust what they want, then a
+  // second click on the (now "Confirm Retry") main button actually saves it.
+  function enterRetryMode() {
+    epState.retrying = true;
+    if (epState.failInfo) {
+      epState.failInfo.platforms.forEach(k => { if (epState.platforms[k]) epState.platforms[k].on = true; });
+    }
+    document.getElementById('epSplitMainBtn').textContent = 'Confirm Retry';
+    renderEpPlatformRows();
+    renderEpPlatformTabs();
+    renderEpFailBanner();
+    renderEpDatePill();
+  }
+
+  function selectSaveMode(mode) {
+    epSaveMode = mode;
+    document.getElementById('epOptSchedule').classList.toggle('active', mode==='scheduled');
+    document.getElementById('epOptDraft').classList.toggle('active', mode==='draft');
+    document.getElementById('epOptRetry').classList.toggle('active', mode==='retry');
+    document.getElementById('epOptDuplicate').classList.toggle('active', mode==='duplicate');
+    document.getElementById('epSplitMenu').classList.remove('show');
+    if (mode === 'retry' && epState.failInfo && !epState.retrying) {
+      enterRetryMode();
+    } else {
+      document.getElementById('epSplitMainBtn').textContent = EP_SAVE_MODE_LABEL[mode] || 'Schedule Post';
+    }
+  }
+
+  // Sets the initial CTA state when a post is opened, without unlocking
+  // anything — a failed post opens showing "Retry" as the suggested action,
+  // but stays in its locked/failed view until the user actually interacts.
+  function initEpCta() {
+    epSaveMode = epState.failInfo ? 'retry' : 'scheduled';
+    document.getElementById('epSplitMainBtn').textContent = epState.failInfo ? 'Retry' : 'Schedule Post';
+    document.getElementById('epOptSchedule').classList.remove('active');
+    document.getElementById('epOptDraft').classList.remove('active');
+    document.getElementById('epOptRetry').classList.toggle('active', !!epState.failInfo);
+    document.getElementById('epOptDuplicate').classList.remove('active');
+  }
+
+  function handleEpMainCta() {
+    if (epSaveMode === 'retry' && epState.failInfo && !epState.retrying) {
+      enterRetryMode();
+      return;
+    }
+    saveEditPost(epSaveMode);
+  }
+
+  function saveEditPost(status) {
+    const activeKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
+    const platform = activeKeys[0] || 'linkedin';
+    const st = epState.platforms[platform] || { hour: 10, minute: 0 };
+
+    if (status === 'duplicate' || status === 'retry') {
+      // both leave the original post exactly as-is and create a fresh event:
+      // duplicate → draft copy, retry → a new scheduled attempt
+      events.push({
+        id: 'e' + (eventSeq++), date: epState.date, hour: st.hour, minute: st.minute,
+        title: epState.caption, caption: epState.caption, status: status === 'retry' ? 'scheduled' : 'draft', platform,
+        account: platform === 'linkedin' ? 'bhashwati-pyne-299058222' : 'thefinpedia',
+        thumbnail: epState.thumbnail
+      });
+      closeEditPost();
+      if (currentView === 'week') renderWeekView();
+      if (currentView === 'month') renderMonthView();
+      if (currentView === 'list') renderListView();
+      return;
+    }
+
+    if (epState.mode === 'edit') {
+      const ev = events.find(e => e.id === epState.eventId);
+      if (ev) {
+        ev.caption = epState.caption;
+        ev.title = epState.caption;
+        ev.thumbnail = epState.thumbnail;
+        ev.status = status;
+        ev.platform = platform;
+        ev.hour = st.hour; ev.minute = st.minute;
+        if (status !== 'failed') { ev.failedPlatforms = null; ev.failReason = null; }
+      }
+    } else {
+      events.push({
+        id: 'e' + (eventSeq++), date: epState.date, hour: st.hour, minute: st.minute,
+        title: epState.caption, caption: epState.caption, status, platform,
+        account: platform === 'linkedin' ? 'bhashwati-pyne-299058222' : 'thefinpedia',
+        thumbnail: epState.thumbnail
+      });
+    }
+    closeEditPost();
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    if (currentView === 'list') renderListView();
+  }
+
+  // Decorative-only platforms (not part of the app's connect/post model yet)
+  // shown purely so the avatar row matches the reference — clicking them
+  // just starts the same "connect channel" flow as everywhere else.
+  const EXTRA_INACTIVE_PLATFORMS = {
+    pinterest: { label: 'Pinterest', icon: 'P' },
+    tiktok:    { label: 'TikTok',    icon: '♪' },
+    youtube:   { label: 'YouTube',   icon: '▶' },
+  };
+  function renderProfileRow() {
+    const connectedKeys = Object.keys(PLATFORM_META).filter(k => CONNECTED[k]);
+    const ACCOUNT_NAME = { linkedin: 'bhashwati-pyne', facebook: 'thefinpedia', instagram: 'thefinpedia' };
+    let html = '';
+    connectedKeys.forEach(k => {
+      const meta = PLATFORM_META[k];
+      const name = ACCOUNT_NAME[k] || meta.label;
+      html += `<div class="profile-avatar-wrap" title="${meta.label} — ${name}" onclick="alert('This would open ${meta.label} account settings.')">
+        <div class="profile-avatar connected ${meta.cls}">${meta.icon}</div>
+        <div class="profile-name">${name}</div>
+      </div>`;
+    });
+    const inactive = Object.keys(PLATFORM_META).filter(k => !CONNECTED[k])
+      .map(k => ({ label: PLATFORM_META[k].label, icon: PLATFORM_META[k].icon }))
+      .concat(Object.values(EXTRA_INACTIVE_PLATFORMS));
+    inactive.forEach(p => {
+      html += `<div class="profile-avatar-wrap" title="Connect ${p.label}" onclick="alert('This would start the channel-connect flow for ${p.label}.')">
+        <div class="profile-avatar inactive">${p.icon}<span class="profile-badge">+</span></div>
+      </div>`;
+    });
+    document.getElementById('profileRow').innerHTML = html;
+  }
+
+  switchView('week');
+  renderProfileRow();
+
+  document.addEventListener('click', function(evt) {
+    const chooseMenu = document.getElementById('epChooseMenu');
+    if (chooseMenu && chooseMenu.classList.contains('show') && !evt.target.closest('.ep-media-empty2')) {
+      chooseMenu.classList.remove('show');
+    }
+    const splitMenu = document.getElementById('epSplitMenu');
+    const splitBtn = document.querySelector('.ep-split-btn');
+    if (splitMenu && splitMenu.classList.contains('show') && splitBtn && !splitBtn.contains(evt.target)) {
+      splitMenu.classList.remove('show');
+    }
+    const drpPop = document.getElementById('drpPopover');
+    const drpPill = document.getElementById('lfDatePill');
+    if (drpPop && drpPop.classList.contains('show') && !evt.target.closest('.list-filters')) {
+      drpPop.classList.remove('show');
+      if (drpPill) drpPill.classList.remove('open');
+    }
+  });
+</script>
+
+<input type="file" id="uploadInput" style="display:none" onchange="handleFileUpload(event)" accept="image/*,video/*">
+</body>
+</html>
