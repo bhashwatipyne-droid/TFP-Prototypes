@@ -605,44 +605,43 @@
   .platform-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; }.cb-platform-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #e4e2da; }.cb-platform-icon { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d8d6cf; border-radius:7px; font-weight:700; }.cb-platform-name { font-size:13px; font-weight:700; }.cb-platform-sub { font-size:11px; color:#8a8a86; margin-top:2px; }.cb-connected { font-size:11px; color:#27813d; margin-left:auto; }.cb-notconnected { font-size:11px; color:#b45a3c; margin-left:auto; }
 
   /* ===== Campaign planner v3: accordion rail + live calendar ===== */
-  .camp2-modal { width: 1440px; max-width: 96vw; height: 860px; max-height: 92vh; display:flex; flex-direction:column; }
+  .camp2-modal { width: 1440px; max-width: 96vw; height: 860px; max-height: 92vh; display:flex; flex-direction:column; position:relative; }
   .camp2-topbar { display:flex; align-items:center; gap:14px; padding:16px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
   .camp2-title { font-size:16px; font-weight:700; }
   .camp2-count-pill { font-size:11px; font-weight:600; color:#6a6a66; background:#f0ece2; padding:5px 12px; border-radius:999px; }
-  .camp2-strip { display:flex; align-items:center; gap:20px; padding:9px 22px; background:#fdf6e0; border-bottom:1px solid #eadd9c; font-size:11.5px; color:#6b5900; flex-shrink:0; }
-  .camp2-strip.ok { background:#eaf3de; border-bottom-color:#cfe3b0; color:#3d6512; }
-  .camp2-strip a { color:#0c447c; font-weight:600; cursor:pointer; text-decoration:underline; }
-  .camp2-body { flex:1; display:flex; overflow:hidden; }
-  .camp2-rail { width:440px; flex-shrink:0; border-right:1px solid #e4e2da; overflow-y:auto; padding:16px; background:#fbfbfa; }
-  .camp2-cal { flex:1; overflow-y:auto; padding:18px 22px; }
+  .camp2-body { flex:1; display:flex; overflow:hidden; position:relative; }
+  .camp2-rail { width:200px; flex-shrink:0; border-right:1px solid #e4e2da; overflow-y:auto; padding:16px; background:#fbfbfa; position:relative; z-index:2; }
+  .camp2-scrim { position:absolute; top:0; left:200px; right:0; bottom:0; background:rgba(20,20,18,0.5); z-index:3; opacity:0; pointer-events:none; transition:opacity .15s; }
+  .camp2-scrim.show { opacity:1; pointer-events:auto; }
+  .camp2-panel { position:absolute; top:16px; left:216px; width:900px; max-width:calc(100% - 232px); max-height:calc(100% - 32px); background:#fff; border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,0.3); z-index:4; display:none; flex-direction:column; overflow:hidden; }
+  .camp2-panel.show { display:flex; }
+  .camp2-panel-topbar { display:flex; align-items:center; gap:14px; padding:16px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
+  .camp2-panel-topbar .bm-search { max-width:340px; }
+  .camp2-panel-close { width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#8a8a86; font-size:14px; cursor:pointer; margin-left:auto; flex-shrink:0; }
+  .camp2-panel-close:hover { background:#f4f4f2; }
+  .camp2-panel-body { flex:1; overflow-y:auto; padding:20px 24px; }
+  .camp2-panel-head { font-size:15px; font-weight:700; margin-bottom:16px; }
 
-  .camp2-acc { border-radius:8px; margin-bottom:10px; overflow:hidden; border:1px solid transparent; }
+  .camp2-acc { border-radius:8px; margin-bottom:8px; overflow:hidden; border:1px solid transparent; }
+  .camp2-acc.open { box-shadow:0 0 0 1.5px rgba(0,0,0,0.06); }
   .camp2-acc-head { display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; }
   .camp2-acc-dot { width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8.5px; color:#fff; flex-shrink:0; }
   .camp2-acc-text { flex:1; min-width:0; }
   .camp2-acc-title { font-size:12.5px; font-weight:700; }
   .camp2-acc-sub { font-size:10px; margin-top:1px; }
   .camp2-acc-chev { font-size:12px; flex-shrink:0; }
-  .camp2-acc-body { padding:14px; background:#fff; border-top:1px solid; }
+  .camp2-panel-head { font-size:15px; font-weight:700; margin-bottom:16px; }
   .camp2-acc.channels .camp2-acc-head { background:#eaf3de; }
   .camp2-acc.channels .camp2-acc-dot { background:#4c7a16; }
   .camp2-acc.channels .camp2-acc-title { color:#3d6512; }
   .camp2-acc.channels .camp2-acc-sub { color:#57821f; }
-  .camp2-acc.channels .camp2-acc-body { border-color:#cfe3b0; }
-  .camp2-acc.audience .camp2-acc-head { background:#e6f1fb; }
-  .camp2-acc.audience .camp2-acc-dot { background:#0c447c; }
-  .camp2-acc.audience .camp2-acc-title { color:#0c447c; }
-  .camp2-acc.audience .camp2-acc-sub { color:#3d6f9c; }
-  .camp2-acc.audience .camp2-acc-body { border-color:#b8d7f2; }
-  .camp2-acc.audience.inactive .camp2-acc-head { background:#f4f4f2; cursor:default; }
-  .camp2-acc.audience.inactive .camp2-acc-dot { background:#c7c5bc; }
-  .camp2-acc.audience.inactive .camp2-acc-title { color:#9a9a94; }
-  .camp2-acc.audience.inactive .camp2-acc-sub { color:#b3b2ac; }
+  .camp2-audience-nested { background:#e6f1fb; border:1px solid #b8d7f2; border-radius:8px; padding:12px 14px; margin-top:16px; }
+  .camp2-audience-nested-head { display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:700; color:#0c447c; }
+  .camp2-audience-nested-sub { font-size:10px; color:#3d6f9c; margin:2px 0 10px 20px; }
   .camp2-acc.content .camp2-acc-head { background:#fdeee0; }
   .camp2-acc.content .camp2-acc-dot { background:#b6560a; }
   .camp2-acc.content .camp2-acc-title { color:#b6560a; }
   .camp2-acc.content .camp2-acc-sub { color:#a06022; }
-  .camp2-acc.content .camp2-acc-body { border-color:#f3cda5; }
   .camp2-acc.cadence .camp2-acc-head { background:#ede4fb; }
   .camp2-acc.cadence .camp2-acc-dot { background:#5a2ea6; }
   .camp2-acc.cadence .camp2-acc-title { color:#5a2ea6; }
@@ -680,14 +679,10 @@
   .camp2-cal-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
   .camp2-cal-title { font-size:13px; font-weight:700; }
   .camp2-cal-sub { font-size:10.5px; color:#9a9a94; }
-  .camp2-grid { display:grid; grid-template-columns:repeat(7,1fr); border-top:1px solid #ececea; border-left:1px solid #ececea; }
-  .camp2-cell { border-right:1px solid #ececea; border-bottom:1px solid #ececea; min-height:88px; padding:6px; background:#f4f4f2; }
-  .camp2-cell.lit { background:#ede4fb; }
-  .camp2-cell-date { font-size:10px; color:#9a9a94; margin-bottom:5px; }
-  .camp2-chip { font-size:8.5px; font-weight:600; padding:3px 6px; border-radius:4px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .camp2-chip.organic { background:#ede4fb; color:#5a2ea6; border:1px solid #d9cdf5; }
-  .camp2-chip.wa { background:#eaf3de; color:#3d6512; border:1px solid #cfe3b0; }
-  .camp2-cell-empty { font-size:8.5px; color:#b3b2ac; font-style:italic; }
+  .camp2-cal .wk-slot { cursor:default; }
+  .camp2-cal .wk-slot:hover { background:none; }
+  .wk-event.camp-organic { background:#ede4fb; color:#5a2ea6; }
+  .wk-event.camp-empty { background:#f4f4f2; border:1px dashed #d8d6cf; color:#9a9a94; }
   .camp2-legend { display:flex; gap:18px; margin-top:14px; font-size:10.5px; color:#4a4a46; }
   .camp2-legend span.sw { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
 </style>
@@ -792,9 +787,10 @@
           <span class="m-btn ghost" onclick="closeModal()">Save as draft</span>
           <span class="m-btn primary" onclick="runCampaign()">▷ Run campaign</span>
         </div>
-        <div class="camp2-strip" id="camp2Strip"></div>
         <div class="camp2-body">
           <div class="camp2-rail" id="camp2Rail"></div>
+          <div class="camp2-scrim" id="camp2Scrim" onclick="toggleAcc(campaignState.openAcc)"></div>
+          <div class="camp2-panel" id="camp2Panel"></div>
           <div class="camp2-cal" id="camp2Cal"></div>
         </div>
 
@@ -1011,15 +1007,13 @@
   function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); }
 
   function toggleAcc(key) {
-    if (key === 'audience' && !audienceActive()) return;
     campaignState.openAcc = campaignState.openAcc === key ? null : key;
     renderCamp2();
   }
   function toggleChannel(key) {
     campaignState.channels[key] = !campaignState.channels[key];
-    if (key === 'whatsapp_broadcast' || key === 'paid_ads') {
-      if (!audienceActive()) { Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear()); campaignState.openAcc = 'channels'; }
-      else campaignState.openAcc = 'audience';
+    if ((key === 'whatsapp_broadcast' || key === 'paid_ads') && !audienceActive()) {
+      Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear());
     }
     renderCamp2();
   }
@@ -1054,49 +1048,70 @@
   }
 
   function renderCamp2() {
-    renderCamp2Strip();
     renderCamp2Rail();
+    renderCamp2Panel();
     renderCamp2Cal();
+    document.getElementById('camp2Panel').classList.toggle('show', !!campaignState.openAcc);
+    document.getElementById('camp2Scrim').classList.toggle('show', !!campaignState.openAcc);
     document.getElementById('camp2CountPill').textContent = campaignState.selectedCards.size + ' pieces · ' + cadenceDayCount() + ' scheduled days';
   }
 
-  function renderCamp2Strip() {
-    const pieces = campaignState.selectedCards.size;
-    const days = cadenceDayCount();
-    const el = document.getElementById('camp2Strip');
-    if (pieces === 0) {
-      el.className = 'camp2-strip';
-      el.innerHTML = `⚠ No content selected yet — open <a onclick="toggleAcc('content')">Content</a> to start filtering the library.`;
-    } else if (pieces < days) {
-      el.className = 'camp2-strip';
-      el.innerHTML = `⚠ ${pieces} piece${pieces===1?'':'s'} selected for a ${days}-day ${campaignState.cadence.frequency} cadence — content will repeat after day ${pieces}.
-        <a onclick="setCadenceDuration(${pieces});renderCamp2()">Reduce to ${pieces} days</a>
-        <a onclick="setCadenceFreq('every_other');renderCamp2()">Post every other day</a>
-        <a onclick="toggleAcc('content')">Browse more content →</a>`;
-    } else {
-      el.className = 'camp2-strip ok';
-      el.innerHTML = `✓ ${pieces} pieces cover all ${days} scheduled days — no repeats.`;
-    }
-  }
 
   function renderCamp2Rail() {
     const rail = document.getElementById('camp2Rail');
     const open = campaignState.openAcc;
-    const aActive = audienceActive();
     const chanOnList = Object.entries({instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
     const directOnList = Object.entries({whatsapp_broadcast:'WhatsApp Broadcast',paid_ads:'Paid Ads'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
+    const cat = campaignState.contentCat;
 
-    let html = '';
+    const items = [
+      { key:'channels', cls:'channels', dot:'▤', num:'1', title:'Channels',
+        sub: chanOnList.concat(directOnList).join(', ') || 'None selected' },
+      { key:'content', cls:'content', dot:'🏷', num:'2', title:'Content',
+        sub: campaignState.selectedCards.size + ' piece' + (campaignState.selectedCards.size===1?'':'s') + ' selected' },
+      { key:'cadence', cls:'cadence', dot:'🕐', num:'3', title:'Cadence',
+        sub: (campaignState.cadence.frequency === 'daily' ? 'Daily' : campaignState.cadence.frequency === 'weekly' ? 'Weekly' : 'Every other day') + ' · ' + campaignState.cadence.duration + ' days' },
+    ];
 
-    // 1. CHANNELS
-    html += `<div class="camp2-acc channels">
-      <div class="camp2-acc-head" onclick="toggleAcc('channels')">
-        <div class="camp2-acc-dot">▤</div>
-        <div class="camp2-acc-text"><div class="camp2-acc-title">1 · Channels</div><div class="camp2-acc-sub">${chanOnList.concat(directOnList).join(', ') || 'None selected'}</div></div>
-        <div class="camp2-acc-chev">${open==='channels'?'︿':'⌄'}</div>
-      </div>`;
+    rail.innerHTML = items.map(it => `
+      <div class="camp2-acc ${it.cls} ${open===it.key?'open':''}">
+        <div class="camp2-acc-head" onclick="toggleAcc('${it.key}')">
+          <div class="camp2-acc-dot">${it.dot}</div>
+          <div class="camp2-acc-text"><div class="camp2-acc-title">${it.num} · ${it.title}</div><div class="camp2-acc-sub">${it.sub}</div></div>
+          <div class="camp2-acc-chev">${open===it.key?'‹':'›'}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderCamp2Panel() {
+    const panel = document.getElementById('camp2Panel');
+    const open = campaignState.openAcc;
+    if (!open) { panel.innerHTML = ''; return; }
+    const titles = { channels:'Channels', content:'Content', cadence:'Cadence' };
+    const headerExtra = open === 'content' ? `
+        <div class="bm-search">🔍 Search 4,212 creatives...</div>
+        <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
+        <div class="bm-filters-btn" id="ccFiltersBtn" onclick="toggleCbFilterPanel()">☰ Filters <span id="ccFilterCountBadge"></span></div>` : '';
+
+    panel.innerHTML = `
+      <div class="camp2-panel-topbar">
+        <div class="bm-title">${titles[open]}</div>
+        ${headerExtra}
+        <div class="camp2-panel-close" onclick="toggleAcc('${open}')">✕</div>
+      </div>
+      ${open === 'content' ? '<div class="bm-chips" id="ccChips"></div>' : ''}
+      <div class="camp2-panel-body" id="camp2PanelBody"></div>`;
+
+    renderCamp2PanelBody(open);
+    if (open === 'content') { renderCcCatRail(); renderCcGrid(); renderCbFpGroups(); renderCbFpOptions(); renderCcChips(); }
+  }
+
+  function renderCamp2PanelBody(open) {
+    const body = document.getElementById('camp2PanelBody');
+    const aActive = audienceActive();
+
     if (open === 'channels') {
-      html += `<div class="camp2-acc-body">
+      body.innerHTML = `
         <div class="camp2-group-label">Organic <span class="camp2-group-hint">full following / own number</span></div>
         <div class="camp2-chan-row">
           ${['instagram','linkedin','facebook','whatsapp'].map(k => `
@@ -1109,81 +1124,48 @@
           <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
           <div class="camp2-chan-item" onclick="toggleChannel('paid_ads')"><div class="camp2-check2 ${campaignState.channels.paid_ads?'on':''}"></div>Paid Ads</div>
         </div>
-        <div class="camp2-hint-italic">Toggle one of these on to reveal Audience below.</div>
-      </div>`;
+        ${aActive ? `<div class="camp2-audience-nested">
+          <div class="camp2-audience-nested-head">↳ 👤 Audience</div>
+          <div class="camp2-audience-nested-sub">Applies to Paid Ads / WhatsApp Broadcast only — organic channels above still reach everyone.</div>
+          ${Object.keys(audienceFilterGroups).map(g => {
+            const grp = audienceFilterGroups[g];
+            return `<div class="camp2-group-label">${grp.label}</div><div class="camp2-chan-row" style="gap:6px;">` +
+              grp.options.map(o => `<span class="cb-chip ${selectedAudience[g].has(o.label)?'active':''}" onclick="toggleCampAudienceOption('${g}','${o.label}')">${o.label}</span>`).join('') +
+              `</div>`;
+          }).join('')}
+          <div class="camp2-match-pill">Matches ${audienceMatchCount()} clients</div>
+        </div>` : `<div class="camp2-hint-italic" style="margin-top:16px;">Toggle WhatsApp Broadcast or Paid Ads on to reveal Audience filters here.</div>`}`;
+      return;
     }
-    html += `</div>`;
 
-    // 2. AUDIENCE
-    html += `<div class="camp2-acc audience ${aActive?'':'inactive'}">
-      <div class="camp2-acc-head" onclick="toggleAcc('audience')">
-        <div class="camp2-acc-dot">👤</div>
-        <div class="camp2-acc-text"><div class="camp2-acc-title">2 · Audience</div><div class="camp2-acc-sub">${aActive ? (Object.values(selectedAudience).some(s=>s.size) ? 'Filtered · matches ' + audienceMatchCount() + ' clients' : 'All clients — no filters applied') : 'Not applicable — no Broadcast or Ads channel selected'}</div></div>
-        ${aActive ? `<div class="camp2-acc-chev">${open==='audience'?'︿':'⌄'}</div>` : ''}
-      </div>`;
-    if (open === 'audience' && aActive) {
-      html += `<div class="camp2-acc-body">
-        <div class="camp2-audience-note">Applies to the WhatsApp Broadcast / Paid Ads leg only — organic channels above still reach everyone.</div>`;
-      Object.keys(audienceFilterGroups).forEach(g => {
-        const grp = audienceFilterGroups[g];
-        html += `<div class="camp2-group-label">${grp.label}</div><div class="camp2-chan-row" style="gap:6px;">`;
-        grp.options.forEach(o => {
-          const checked = selectedAudience[g].has(o.label);
-          html += `<span class="cb-chip ${checked?'active':''}" onclick="toggleCampAudienceOption('${g}','${o.label}')">${o.label}</span>`;
-        });
-        html += `</div>`;
-      });
-      html += `<div class="camp2-match-pill">Matches ${audienceMatchCount()} clients</div></div>`;
-    }
-    html += `</div>`;
-
-    // 3. CONTENT
-    const cat = campaignState.contentCat;
-    const cats = CAMPAIGN_CATS();
-    html += `<div class="camp2-acc content">
-      <div class="camp2-acc-head" onclick="toggleAcc('content')">
-        <div class="camp2-acc-dot">🏷</div>
-        <div class="camp2-acc-text"><div class="camp2-acc-title">3 · Content</div><div class="camp2-acc-sub">${campaignState.selectedCards.size} piece${campaignState.selectedCards.size===1?'':'s'} selected</div></div>
-        <div class="camp2-acc-chev">${open==='content'?'︿':'⌄'}</div>
-      </div>`;
     if (open === 'content') {
-      html += `<div class="camp2-acc-body">
-        <div class="camp2-group-label">Category</div>
-        <div class="cat-pills" style="margin-bottom:10px;">${cats.map(c => `<div class="cat-pill ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>
-        <div class="sq-grid">${sampleCards[cat].map((c, idx) => {
-          const id = cat + ':' + idx;
-          const checked = campaignState.selectedCards.has(id);
-          return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
-            <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
-            <div class="sq-thumb">${c.icon}</div>
-            ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
-            <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
-          </div>`;
-        }).join('')}</div>
-        <div class="camp2-content-summary" style="margin-top:14px;"><span class="camp2-group-label" style="margin:0;">Selected (${campaignState.selectedCards.size})</span></div>
-        <div class="camp2-content-list">
-          ${[...campaignState.selectedCards].map(id => {
-            const c = cardTitleById(id);
-            return `<div class="camp2-content-row">
-              <div class="camp2-content-thumb">${c.icon}</div>
-              <div class="camp2-content-text"><div class="t1">${c.title}</div><div class="t2">${c.meta}</div></div>
-              <div class="camp2-content-x" onclick="removeCampCard('${id}')">✕</div>
-            </div>`;
-          }).join('') || '<div class="camp2-cell-empty">Nothing selected yet — click cards above.</div>'}
-        </div>
-      </div>`;
+      body.innerHTML = `
+        <div class="bm-layout" style="height:100%;">
+          <div class="bm-cat-rail" id="ccCatRail"></div>
+          <div class="bm-main">
+            <div class="bm-main-head">
+              <div class="bm-main-title" id="ccMainTitle"></div>
+              <div class="bm-main-count" id="ccMainCount"></div>
+            </div>
+            <div class="bm-grid" id="ccGrid"></div>
+            <div class="camp2-content-summary" style="margin-top:18px;"><span class="camp2-group-label" style="margin:0;">Selected (${campaignState.selectedCards.size})</span></div>
+            <div class="camp2-content-list">
+              ${[...campaignState.selectedCards].map(id => {
+                const c = cardTitleById(id);
+                return `<div class="camp2-content-row">
+                  <div class="camp2-content-thumb">${c.icon}</div>
+                  <div class="camp2-content-text"><div class="t1">${c.title}</div><div class="t2">${c.meta}</div></div>
+                  <div class="camp2-content-x" onclick="removeCampCard('${id}')">✕</div>
+                </div>`;
+              }).join('') || '<div class="camp2-cell-empty">Nothing selected yet — click cards above.</div>'}
+            </div>
+          </div>
+        </div>`;
+      return;
     }
-    html += `</div>`;
 
-    // 4. CADENCE
-    html += `<div class="camp2-acc cadence">
-      <div class="camp2-acc-head" onclick="toggleAcc('cadence')">
-        <div class="camp2-acc-dot">🕐</div>
-        <div class="camp2-acc-text"><div class="camp2-acc-title">4 · Cadence</div><div class="camp2-acc-sub">${campaignState.cadence.frequency === 'daily' ? 'Daily' : campaignState.cadence.frequency === 'weekly' ? 'Weekly' : 'Every other day'} · ${campaignState.cadence.duration} days · starts Jul 14</div></div>
-        <div class="camp2-acc-chev">${open==='cadence'?'︿':'⌄'}</div>
-      </div>`;
     if (open === 'cadence') {
-      html += `<div class="camp2-acc-body">
+      body.innerHTML = `
         <div class="camp2-group-label">Frequency</div>
         <div class="camp2-cadence-row">
           <div class="camp2-freq-opt ${campaignState.cadence.frequency==='daily'?'active':''}" onclick="setCadenceFreq('daily')">Daily</div>
@@ -1195,12 +1177,80 @@
           <option value="7" ${campaignState.cadence.duration===7?'selected':''}>7 days</option>
           <option value="14" ${campaignState.cadence.duration===14?'selected':''}>14 days</option>
           <option value="30" ${campaignState.cadence.duration===30?'selected':''}>30 days</option>
-        </select>
-      </div>`;
+        </select>`;
     }
-    html += `</div>`;
+  }
 
-    rail.innerHTML = html;
+  /* ---- Content tab within the campaign panel: reuses bm-cat-rail / bm-grid / filter-panel2 from the create-post browse modal ---- */
+  function renderCcCatRail() {
+    const cat = campaignState.contentCat;
+    document.getElementById('ccCatRail').innerHTML = CAMPAIGN_CATS().map(c =>
+      `<div class="bm-cat-item ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')">
+        <div class="bm-cat-icon">${c.icon}</div>
+        <div class="bm-cat-label">${c.label}</div>
+        <div class="bm-cat-count">${c.count}</div>
+      </div>`).join('');
+  }
+  function renderCcGrid() {
+    const cat = campaignState.contentCat;
+    const catMeta = CAMPAIGN_CATS().find(c => c.key === cat);
+    document.getElementById('ccMainTitle').textContent = catMeta.label;
+    document.getElementById('ccMainCount').textContent = catMeta.count + ' creatives';
+    document.getElementById('ccGrid').innerHTML = sampleCards[cat].map((c, idx) => {
+      const id = cat + ':' + idx;
+      const checked = campaignState.selectedCards.has(id);
+      return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
+        <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
+        <div class="sq-thumb">${c.icon}</div>
+        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+        <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
+      </div>`;
+    }).join('');
+  }
+  function renderCcChips() {
+    let chips = [];
+    Object.keys(cbSelected).forEach(k => cbSelected[k].forEach(label => {
+      chips.push(`<div class="achip ${k==='segment'?'seg':''}${k==='concept'?'concept':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleCbOption('${label}');setCbActiveGroup('${k}')">✕</span></div>`);
+    }));
+    document.getElementById('ccChips').innerHTML = chips.join('');
+    const total = Object.values(cbSelected).reduce((a,s)=>a+s.size,0);
+    document.getElementById('ccFilterCountBadge').textContent = total ? '('+total+')' : '';
+    document.getElementById('ccFiltersBtn').classList.toggle('active', total > 0);
+  }
+
+  /* ---- Filters for the campaign Content panel: separate selection state, same discoveryFilterGroups data and fp- markup ---- */
+  let cbActiveGroup = 'trending';
+  const cbSelected = {};
+
+  function renderCbFpGroups() {
+    document.getElementById('cbFpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
+      const g = discoveryFilterGroups[k]; const n = cbSelected[k].size;
+      return `<div class="fp-group-item ${k===cbActiveGroup?'active':''}" onclick="setCbActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
+    }).join('');
+  }
+  function renderCbFpOptions() {
+    const g = discoveryFilterGroups[cbActiveGroup];
+    let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
+    g.options.forEach(o => {
+      const checked = cbSelected[cbActiveGroup].has(o.label);
+      html += `<div class="fp-option" onclick="toggleCbOption('${o.label}')">
+        <div class="fp-check ${checked?'checked':''}"></div>
+        <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
+        <div class="fp-opt-count">${o.count}</div>
+      </div>`;
+    });
+    document.getElementById('cbFpOptions').innerHTML = html;
+  }
+  function setCbActiveGroup(k) { cbActiveGroup = k; renderCbFpGroups(); renderCbFpOptions(); }
+  function toggleCbOption(label) {
+    const s = cbSelected[cbActiveGroup];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    renderCbFpGroups(); renderCbFpOptions(); renderCcChips();
+  }
+  function clearCbFilters() { Object.keys(cbSelected).forEach(k => cbSelected[k].clear()); renderCbFpGroups(); renderCbFpOptions(); renderCcChips(); }
+  function toggleCbFilterPanel() {
+    document.getElementById('cbFpBackdrop').classList.toggle('show');
+    document.getElementById('cbFpPanel').classList.toggle('show');
   }
 
   function renderCamp2Cal() {
@@ -1208,31 +1258,62 @@
     const days = cadenceDayCount();
     const pieces = campaignState.selectedCards.size;
     const cardsArr = [...campaignState.selectedCards];
-    const step = campaignState.cadence.frequency === 'weekly' ? 7 : campaignState.cadence.frequency === 'every_other' ? 2 : 1;
-    const totalCells = 35;
+    const spacing = campaignState.cadence.frequency === 'weekly' ? 7 : campaignState.cadence.frequency === 'every_other' ? 2 : 1;
+
+    const start = new Date(2026, 6, 14); // campaign start date
+    const scheduleMap = {};
+    for (let k = 0; k < days; k++) scheduleMap[toDateStr(addDays(start, k * spacing))] = k;
+
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) weekDays.push(addDays(WEEK_START, i));
+    const postHour = 10;
+
     let html = `<div class="camp2-cal-head"><div class="camp2-cal-title">Live calendar preview</div><div class="camp2-cal-sub">${audienceActive() ? 'Organic (full reach) + WhatsApp Broadcast (' + audienceMatchCount() + ' clients) overlaid' : 'Highlighted = will be scheduled by this campaign'}</div></div>`;
-    html += `<div class="camp2-grid">`;
-    for (let i = 0; i < totalCells; i++) {
-      const dayNum = Math.floor(i / step) + 1;
-      const isScheduleDay = (i % step === 0) && dayNum <= days;
-      const hasContent = isScheduleDay && dayNum <= pieces;
-      html += `<div class="camp2-cell ${isScheduleDay?'lit':''}"><div class="camp2-cell-date">${i+1}</div>`;
-      if (isScheduleDay) {
-        const c = hasContent ? cardTitleById(cardsArr[dayNum-1]) : (pieces ? cardTitleById(cardsArr[(dayNum-1) % pieces]) : null);
-        if (c) {
-          html += `<div class="camp2-chip organic">${c.icon} ${c.title}</div>`;
-          if (audienceActive()) html += `<div class="camp2-chip wa">💬 WA · ${audienceMatchCount()}</div>`;
+
+    html += '<div class="cal-header"><div></div>';
+    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    weekDays.forEach(d => {
+      const isToday = toDateStr(d) === TODAY_STR;
+      html += `<div class="${isToday?'today':''}">${dayNames[d.getDay()]}<span>${d.getDate()}</span></div>`;
+    });
+    html += '</div><div class="cal-body">';
+    html += '<div class="time-col">' + TIME_SLOTS.map(h => `<div class="time-slot" style="height:64px">${hourLabel(h)}</div>`).join('') + '</div>';
+
+    weekDays.forEach(d => {
+      const dateStr = toDateStr(d);
+      const scheduledHere = scheduleMap.hasOwnProperty(dateStr);
+      html += '<div class="day-col">';
+      TIME_SLOTS.forEach(h => {
+        if (scheduledHere && h === postHour) {
+          const k = scheduleMap[dateStr];
+          const c = pieces ? cardTitleById(cardsArr[k % pieces]) : null;
+          if (c) {
+            html += `<div class="wk-slot" style="padding:0">
+              <div class="wk-event camp-organic">
+                <div class="we-title">${c.icon} ${c.title}</div>
+                <div class="we-status">${hourLabel(h)} · organic${audienceActive() ? ' + WA' : ''}</div>
+              </div>
+            </div>`;
+          } else {
+            html += `<div class="wk-slot" style="padding:0">
+              <div class="wk-event camp-empty">
+                <div class="we-title">No content selected</div>
+                <div class="we-status">${hourLabel(h)}</div>
+              </div>
+            </div>`;
+          }
         } else {
-          html += `<div class="camp2-cell-empty">no content selected</div>`;
+          html += '<div class="wk-slot"></div>';
         }
-      }
-      html += `</div>`;
-    }
-    html += `</div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+
     html += `<div class="camp2-legend">
       <span><span class="sw" style="background:#ede4fb;"></span>Organic — full reach</span>
       ${audienceActive() ? '<span><span class="sw" style="background:#eaf3de;"></span>WhatsApp Broadcast — filtered audience</span>' : ''}
-      <span><span class="sw" style="background:#f4f4f2;border:1px solid #e4e2da;"></span>Outside current cadence</span>
+      <span><span class="sw" style="background:#f4f4f2;border:1px dashed #d8d6cf;"></span>Scheduled day, no content yet</span>
     </div>`;
     cal.innerHTML = html;
   }
@@ -1415,6 +1496,7 @@
 
   renderDrawerPills(); renderDrawerGrid();
   renderGroups(); renderOptions(); renderDiscoveryChips();
+  Object.keys(discoveryFilterGroups).forEach(k => cbSelected[k] = new Set());
 
   /* ================================================================
      CALENDAR: shared data model + three views + drag-drop + Edit Post
