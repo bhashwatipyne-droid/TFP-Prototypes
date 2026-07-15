@@ -676,13 +676,14 @@
   .camp2-freq-opt { font-size:11px; padding:8px 14px; border-radius:6px; border:1px solid #d8d6cf; background:#fff; cursor:pointer; }
   .camp2-freq-opt.active { background:#f6f3ff; border-color:#d9cdf5; color:#5735bb; font-weight:700; }
 
+  .camp2-cal { flex: 1; min-width: 0; overflow-y: auto; padding: 20px 24px; }
   .camp2-cal-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
   .camp2-cal-title { font-size:13px; font-weight:700; }
   .camp2-cal-sub { font-size:10.5px; color:#9a9a94; }
   .camp2-cal .wk-slot { cursor:default; }
   .camp2-cal .wk-slot:hover { background:none; }
-  .wk-event.camp-organic { background:#ede4fb; color:#5a2ea6; }
-  .wk-event.camp-empty { background:#f4f4f2; border:1px dashed #d8d6cf; color:#9a9a94; }
+  .wk-event.camp-organic { background:#e6f1fb; color:#0c447c; }
+  .wk-event.camp-empty { background:#fdf6e0; border:1px dashed #eadd9c; color:#6b5900; }
   .camp2-legend { display:flex; gap:18px; margin-top:14px; font-size:10.5px; color:#4a4a46; }
   .camp2-legend span.sw { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
 </style>
@@ -1270,6 +1271,12 @@
 
     let html = `<div class="camp2-cal-head"><div class="camp2-cal-title">Live calendar preview</div><div class="camp2-cal-sub">${audienceActive() ? 'Organic (full reach) + WhatsApp Broadcast (' + audienceMatchCount() + ' clients) overlaid' : 'Highlighted = will be scheduled by this campaign'}</div></div>`;
 
+    html += '<div class="cal-legend">';
+    html += '<div class="legend-item scheduled"><span class="legend-check"></span>Organic — full reach</div>';
+    if (audienceActive()) html += '<div class="legend-item posted"><span class="legend-check"></span>WhatsApp Broadcast — filtered audience</div>';
+    html += '<div class="legend-item draft"><span class="legend-check"></span>Scheduled day, no content yet</div>';
+    html += '</div>';
+
     html += '<div class="cal-header"><div></div>';
     const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
     weekDays.forEach(d => {
@@ -1310,11 +1317,6 @@
     });
     html += '</div>';
 
-    html += `<div class="camp2-legend">
-      <span><span class="sw" style="background:#ede4fb;"></span>Organic — full reach</span>
-      ${audienceActive() ? '<span><span class="sw" style="background:#eaf3de;"></span>WhatsApp Broadcast — filtered audience</span>' : ''}
-      <span><span class="sw" style="background:#f4f4f2;border:1px dashed #d8d6cf;"></span>Scheduled day, no content yet</span>
-    </div>`;
     cal.innerHTML = html;
   }
 
