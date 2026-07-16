@@ -236,6 +236,8 @@
   .fp-close { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #8a8a86; cursor: pointer; }
   .fp-close:hover { background: #f4f4f2; }
   .fp-search2 { margin: 14px 20px 0; display: flex; align-items: center; gap: 8px; background: #f4f4f2; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #9a9a94; }
+  .fp-source-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 20px 0; }
+  .fp-source-label { font-size: 11px; font-weight: 700; color: #8a8a86; width: 100%; margin-bottom: -2px; }
   .fp-body { flex: 1; display: flex; overflow: hidden; margin-top: 14px; }
   .fp-groups { width: 160px; flex-shrink: 0; border-right: 1px solid #e4e2da; overflow-y: auto; padding: 4px 0; }
   .fp-group-item { padding: 11px 16px; font-size: 12.5px; color: #6a6a66; cursor: pointer; border-left: 3px solid transparent; }
@@ -790,7 +792,6 @@
         <div class="sources-search">🔍 Search content...</div>
       </div>
       <div class="cat-pills" id="drawerPills"></div>
-      <div class="drawer-source-toggle" id="drawerSourceToggle"></div>
       <div class="drawer-section-head">
         <span class="drawer-section-title" id="drawerSectionTitle">Investor Education</span>
         <div style="display:flex;align-items:center;gap:10px;">
@@ -833,6 +834,18 @@
           <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
           <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
         </div>
+
+        <div class="divider"></div>
+
+        <div class="view-all-row">
+          <span class="section-label">Personalisation</span>
+          <span class="view-all-link" onclick="openModal('list','personalisation')">View all</span>
+        </div>
+        <div class="sq-grid">
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">🎂</div><div class="sq-title">Client birthday greetings</div><div class="sq-meta">auto-sent · per client</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">💍</div><div class="sq-title">Investment anniversary</div><div class="sq-meta">auto-sent · per client</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">🏆</div><div class="sq-title">10-year SIP milestone</div><div class="sq-meta">auto-sent · per client</div></div>
+        </div>
       </div>
     </div>
 
@@ -869,6 +882,7 @@
             <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
             <div style="display:flex;border-bottom:0.5px solid #e4e2da;" id="cbFpTabs"></div>
             <div class="fp-search2">🔍 Search across filters...</div>
+            <div class="fp-source-row" id="cbFpSourceRow"><span class="fp-source-label">Source</span></div>
             <div class="fp-body">
               <div class="fp-groups" id="cbFpGroups"></div>
               <div class="fp-options" id="cbFpOptions"></div>
@@ -909,6 +923,7 @@
           <div class="filter-panel2" id="filterPanel2">
             <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleFilterPanel()">✕</span></div>
             <div class="fp-search2">🔍 Search across filters...</div>
+            <div class="fp-source-row" id="fpSourceRow"><span class="fp-source-label">Source</span></div>
             <div class="fp-body">
               <div class="fp-groups" id="fpGroups"></div>
               <div class="fp-options" id="fpOptions"></div>
@@ -1303,7 +1318,9 @@
     }
 
     html += `<div id="tourFilters"><div class="camp2-group-label" style="margin-top:14px;">Category</div>
-      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>`;
+      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>
+      <div class="camp2-group-label" style="margin-top:14px;">Source</div>
+      <div class="fp-source-row" id="camp2SourceRow" style="margin:0;"></div>`;
 
     Object.keys(campContentFilterGroups).forEach(g => {
       const grp = campContentFilterGroups[g];
@@ -1330,6 +1347,7 @@
       </select>`;
 
     col.innerHTML = html;
+    renderSourceRow('camp2SourceRow');
   }
 
   function renderCamp2ResultCol() {
@@ -1341,7 +1359,10 @@
       col.innerHTML = `
         <div class="camp2-result-topline">
           <div class="camp2-result-count">0 posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
-          <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
+            <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+          </div>
         </div>
         <div class="camp2-empty-state">
           <div class="camp2-empty-icon">🗂</div>
@@ -1354,7 +1375,10 @@
     col.innerHTML = `
       <div class="camp2-result-topline">
         <div class="camp2-result-count">${campaignState.selectedCards.size} posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
-        <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
+          <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+        </div>
       </div>
       <div class="camp2-cards-grid">${cards.map((c, idx) => {
         const id = cat + ':' + idx;
@@ -1533,17 +1557,33 @@
 
   let activeCat = 'education';
 
-  let drawerSource = 'all';
+  const SOURCE_LIST = [ {key:'all',label:'All sources'}, {key:'amfi',label:'AMFI'}, {key:'tfp',label:'Thefinpedia'}, {key:'amc',label:'AMC'} ];
+  let contentSource = 'all';
+  function renderSourceRow(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const label = el.querySelector('.fp-source-label');
+    el.innerHTML = '';
+    if (label) el.appendChild(label);
+    SOURCE_LIST.forEach(s => {
+      const span = document.createElement('span');
+      span.className = 'cb-chip' + (s.key === contentSource ? ' active' : '');
+      span.textContent = s.label;
+      span.onclick = () => setContentSource(s.key);
+      el.appendChild(span);
+    });
+  }
+  function setContentSource(k) {
+    contentSource = k;
+    ['fpSourceRow','cbFpSourceRow','camp2SourceRow'].forEach(id => {
+      if (document.getElementById(id)) renderSourceRow(id);
+    });
+  }
   function renderDrawerPills() {
     document.getElementById('drawerPills').innerHTML = categories.map(c =>
       `<div class="cat-pill ${c.key==='trending'?'trend-pill':''} ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">${c.icon} ${c.label}</div>`
     ).join('');
-    const sources = [ {key:'all',label:'All sources'}, {key:'amfi',label:'AMFI'}, {key:'tfp',label:'Thefinpedia'}, {key:'amc',label:'AMC'} ];
-    document.getElementById('drawerSourceToggle').innerHTML = sources.map(s =>
-      `<span class="cb-chip ${s.key===drawerSource?'active':''}" onclick="setDrawerSource('${s.key}')">${s.label}</span>`
-    ).join('');
   }
-  function setDrawerSource(k) { drawerSource = k; renderDrawerPills(); }
   function renderDrawerGrid() {
     document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
     document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => {
@@ -1664,6 +1704,7 @@
 
   renderDrawerPills(); renderDrawerGrid();
   renderGroups(); renderOptions(); renderDiscoveryChips();
+  renderSourceRow('fpSourceRow');
 
   /* ================================================================
      CALENDAR: shared data model + three views + drag-drop + Edit Post
