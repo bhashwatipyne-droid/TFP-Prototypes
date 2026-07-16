@@ -23,6 +23,9 @@
   .topbar { display: flex; flex-direction: column; border-bottom: 1px solid #e4e2da; }
   .topbar-row { display: flex; align-items: center; gap: 20px; padding: 12px 24px; }
   .topbar-row-top { justify-content: flex-end; padding-bottom: 8px; }
+  .breadcrumb { font-size: 13px; color: #9a9a94; }
+  .breadcrumb-sep { margin: 0 6px; color: #d8d6cf; }
+  .breadcrumb-current { color: #1a1a1a; font-weight: 600; }
   .topbar-row-bottom { padding-top: 8px; }
   .topbar-sidebar-spacer { width: 220px; flex-shrink: 0; }
   .pill { display: flex; align-items: center; gap: 6px; border: 1px solid #e4e2da; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #4a4a46; white-space: nowrap; }
@@ -183,6 +186,7 @@
 
   .cat-pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
   .cat-pills::-webkit-scrollbar { display: none; }
+  .drawer-source-toggle { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 12px; }
   .cat-pill { flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: #f4f4f2; color: #6a6a66; cursor: pointer; white-space: nowrap; }
   .cat-pill.active { background: #1a1a1a; color: #fff; }
   .cat-pill.trend-pill.active { background: #b6560a; }
@@ -218,7 +222,7 @@
   .bm-cat-label { font-size: 11.5px; font-weight: 600; line-height: 1.3; }
   .bm-cat-count { font-size: 10px; color: #b3b2ac; }
   .bm-main { flex: 1; padding: 18px 22px; overflow-y: auto; }
-  .bm-main-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .bm-main-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
   .bm-main-title { font-size: 14px; font-weight: 700; }
   .bm-main-count { font-size: 12px; color: #9a9a94; }
   .bm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -319,6 +323,36 @@
     font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .12s ease; cursor: pointer;
   }
   .month-cell:hover .month-cell-plus { opacity: 1; }
+  .sq-card.camp-card { position: relative; cursor: pointer; }
+  .camp-card-plus {
+    position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 6px;
+    background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; opacity: 0; transition: opacity .12s; z-index: 2;
+  }
+  .sq-card.camp-card:hover .camp-card-plus { opacity: 1; }
+  .camp2-cell-plus {
+    width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity .12s ease; cursor: pointer;
+  }
+  .month-cell:hover .camp2-cell-plus { opacity: 1; }
+
+  .tour-overlay { display:none; }
+  .tour-overlay.show { display:block; }
+  .tour-highlight-box {
+    position: fixed; border-radius: 10px; box-shadow: 0 0 0 9999px rgba(20,20,18,0.55);
+    pointer-events: none; z-index: 200; transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+  }
+  .tour-tooltip {
+    position: fixed; width: 280px; background: #fff; border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25); z-index: 201; transition: top .25s ease, left .25s ease;
+  }
+  .tour-step-count { font-size: 10.5px; font-weight: 700; color: #6a3fd1; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+  .tour-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .tour-text { font-size: 12.5px; color: #4a4a46; line-height: 1.55; margin-bottom: 14px; }
+  .tour-actions { display: flex; align-items: center; justify-content: space-between; }
+  .tour-skip { font-size: 12px; color: #9a9a94; cursor: pointer; }
+  .tour-next { font-size: 12.5px; font-weight: 700; background: #1a1a1a; color: #fff; padding: 7px 14px; border-radius: 7px; cursor: pointer; }
 
   .day-popover-backdrop { position: absolute; inset: 0; z-index: 15; display: none; }
   .day-popover-backdrop.show { display: block; }
@@ -605,43 +639,63 @@
   .platform-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; }.cb-platform-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #e4e2da; }.cb-platform-icon { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d8d6cf; border-radius:7px; font-weight:700; }.cb-platform-name { font-size:13px; font-weight:700; }.cb-platform-sub { font-size:11px; color:#8a8a86; margin-top:2px; }.cb-connected { font-size:11px; color:#27813d; margin-left:auto; }.cb-notconnected { font-size:11px; color:#b45a3c; margin-left:auto; }
 
   /* ===== Campaign planner v3: accordion rail + live calendar ===== */
-  .camp2-modal { width: 1440px; max-width: 96vw; height: 860px; max-height: 92vh; display:flex; flex-direction:column; position:relative; }
+  .camp2-modal { width: 1240px; max-width: 94%; height: 760px; max-height: 92vh; border-radius: 16px; display:flex; flex-direction:column; }
   .camp2-topbar { display:flex; align-items:center; gap:14px; padding:16px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
   .camp2-title { font-size:16px; font-weight:700; }
   .camp2-count-pill { font-size:11px; font-weight:600; color:#6a6a66; background:#f0ece2; padding:5px 12px; border-radius:999px; }
-  .camp2-body { flex:1; display:flex; overflow:hidden; position:relative; }
-  .camp2-rail { width:200px; flex-shrink:0; border-right:1px solid #e4e2da; overflow-y:auto; padding:16px; background:#fbfbfa; position:relative; z-index:2; }
-  .camp2-scrim { position:absolute; top:0; left:200px; right:0; bottom:0; background:rgba(20,20,18,0.5); z-index:3; opacity:0; pointer-events:none; transition:opacity .15s; }
-  .camp2-scrim.show { opacity:1; pointer-events:auto; }
-  .camp2-panel { position:absolute; top:16px; left:216px; width:900px; max-width:calc(100% - 232px); max-height:calc(100% - 32px); background:#fff; border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,0.3); z-index:4; display:none; flex-direction:column; overflow:hidden; }
-  .camp2-panel.show { display:flex; }
-  .camp2-panel-topbar { display:flex; align-items:center; gap:14px; padding:16px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
-  .camp2-panel-topbar .bm-search { max-width:340px; }
-  .camp2-panel-close { width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#8a8a86; font-size:14px; cursor:pointer; margin-left:auto; flex-shrink:0; }
-  .camp2-panel-close:hover { background:#f4f4f2; }
-  .camp2-panel-body { flex:1; overflow-y:auto; padding:20px 24px; }
-  .camp2-panel-head { font-size:15px; font-weight:700; margin-bottom:16px; }
+  .camp2-strip { display:flex; align-items:center; gap:20px; padding:9px 22px; background:#fdf6e0; border-bottom:1px solid #eadd9c; font-size:11.5px; color:#6b5900; flex-shrink:0; }
+  .camp2-strip.ok { background:#eaf3de; border-bottom-color:#cfe3b0; color:#3d6512; }
+  .camp2-strip a { color:#0c447c; font-weight:600; cursor:pointer; text-decoration:underline; }
+  .camp2-body { flex:1; display:flex; overflow:hidden; }
+  .camp2-back { font-size:16px; color:#6a6a66; cursor:pointer; padding:4px 6px; border-radius:6px; }
+  .camp2-back:hover { background:#f4f4f2; }
+  .camp2-screen-hidden { display:none !important; }
 
-  .camp2-acc { border-radius:8px; margin-bottom:8px; overflow:hidden; border:1px solid transparent; }
-  .camp2-acc.open { box-shadow:0 0 0 1.5px rgba(0,0,0,0.06); }
-  .camp2-acc-head { display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; }
+  .camp2-filter-col { width:300px; flex-shrink:0; border-right:1px solid #e4e2da; padding:18px 16px; overflow-y:auto; background:#fbfbfa; }
+  .camp2-result-col { flex:1; padding:18px 22px; overflow-y:auto; min-width:0; }
+  .camp2-result-topline { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .camp2-result-count { font-size:14px; font-weight:700; }
+  .camp2-result-link { font-size:11.5px; font-weight:600; color:#0c447c; cursor:pointer; }
+  .camp2-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .camp2-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:#9a9a94; }
+  .camp2-empty-icon { font-size:28px; margin-bottom:10px; opacity:0.6; }
+  .camp2-empty-title { font-size:13.5px; font-weight:700; color:#6a6a66; margin-bottom:4px; }
+  .camp2-empty-sub { font-size:12px; max-width:320px; line-height:1.6; }
+
+  .camp2-summary-col { width:340px; flex-shrink:0; border-right:1px solid #e4e2da; padding:18px 20px; overflow-y:auto; background:#fbfbfa; }
+  .camp2-sum-sec-title { font-size:12px; font-weight:700; color:#6a6a66; text-transform:uppercase; letter-spacing:.02em; margin:14px 0 8px; }
+  .camp2-sum-sec-title:first-child { margin-top:0; }
+  .camp2-sum-row { display:flex; justify-content:space-between; font-size:12px; padding:7px 0; border-bottom:1px solid #ececea; color:#4a4a46; }
+  .camp2-sum-row b { color:#1a1a1a; font-weight:600; }
+
+  .camp2-acc { border-radius:8px; margin-bottom:10px; overflow:hidden; border:1px solid transparent; flex-shrink:0; }
+  .camp2-acc.open { flex:1; min-height:0; display:flex; flex-direction:column; }
+  .camp2-acc-head { display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; flex-shrink:0; }
   .camp2-acc-dot { width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8.5px; color:#fff; flex-shrink:0; }
   .camp2-acc-text { flex:1; min-width:0; }
   .camp2-acc-title { font-size:12.5px; font-weight:700; }
   .camp2-acc-sub { font-size:10px; margin-top:1px; }
   .camp2-acc-chev { font-size:12px; flex-shrink:0; }
-  .camp2-panel-head { font-size:15px; font-weight:700; margin-bottom:16px; }
+  .camp2-acc-body { padding:14px; background:#fff; border-top:1px solid; flex:1; min-height:0; overflow-y:auto; }
   .camp2-acc.channels .camp2-acc-head { background:#eaf3de; }
   .camp2-acc.channels .camp2-acc-dot { background:#4c7a16; }
   .camp2-acc.channels .camp2-acc-title { color:#3d6512; }
   .camp2-acc.channels .camp2-acc-sub { color:#57821f; }
-  .camp2-audience-nested { background:#e6f1fb; border:1px solid #b8d7f2; border-radius:8px; padding:12px 14px; margin-top:16px; }
-  .camp2-audience-nested-head { display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:700; color:#0c447c; }
-  .camp2-audience-nested-sub { font-size:10px; color:#3d6f9c; margin:2px 0 10px 20px; }
+  .camp2-acc.channels .camp2-acc-body { border-color:#cfe3b0; }
+  .camp2-acc.audience .camp2-acc-head { background:#e6f1fb; }
+  .camp2-acc.audience .camp2-acc-dot { background:#0c447c; }
+  .camp2-acc.audience .camp2-acc-title { color:#0c447c; }
+  .camp2-acc.audience .camp2-acc-sub { color:#3d6f9c; }
+  .camp2-acc.audience .camp2-acc-body { border-color:#b8d7f2; }
+  .camp2-acc.audience.inactive .camp2-acc-head { background:#f4f4f2; cursor:default; }
+  .camp2-acc.audience.inactive .camp2-acc-dot { background:#c7c5bc; }
+  .camp2-acc.audience.inactive .camp2-acc-title { color:#9a9a94; }
+  .camp2-acc.audience.inactive .camp2-acc-sub { color:#b3b2ac; }
   .camp2-acc.content .camp2-acc-head { background:#fdeee0; }
   .camp2-acc.content .camp2-acc-dot { background:#b6560a; }
   .camp2-acc.content .camp2-acc-title { color:#b6560a; }
   .camp2-acc.content .camp2-acc-sub { color:#a06022; }
+  .camp2-acc.content .camp2-acc-body { border-color:#f3cda5; }
   .camp2-acc.cadence .camp2-acc-head { background:#ede4fb; }
   .camp2-acc.cadence .camp2-acc-dot { background:#5a2ea6; }
   .camp2-acc.cadence .camp2-acc-title { color:#5a2ea6; }
@@ -676,14 +730,21 @@
   .camp2-freq-opt { font-size:11px; padding:8px 14px; border-radius:6px; border:1px solid #d8d6cf; background:#fff; cursor:pointer; }
   .camp2-freq-opt.active { background:#f6f3ff; border-color:#d9cdf5; color:#5735bb; font-weight:700; }
 
-  .camp2-cal { flex: 1; min-width: 0; overflow-y: auto; padding: 20px 24px; }
+  .camp2-cal { flex:1; overflow-y:auto; padding:18px 22px; min-width:0; }
   .camp2-cal-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+  .camp2-view-toggle { display:flex; background:#f4f4f2; border-radius:8px; padding:3px; }
+  .camp2-view-toggle span { font-size:12px; padding:5px 12px; border-radius:6px; color:#8a8a86; cursor:pointer; }
+  .camp2-view-toggle span.active { background:#ece5fb; color:#6a3fd1; font-weight:600; }
   .camp2-cal-title { font-size:13px; font-weight:700; }
   .camp2-cal-sub { font-size:10.5px; color:#9a9a94; }
-  .camp2-cal .wk-slot { cursor:default; }
-  .camp2-cal .wk-slot:hover { background:none; }
-  .wk-event.camp-organic { background:#e6f1fb; color:#0c447c; }
-  .wk-event.camp-empty { background:#fdf6e0; border:1px dashed #eadd9c; color:#6b5900; }
+  .camp2-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); border-top:1px solid #ececea; border-left:1px solid #ececea; }
+  .camp2-cell { border-right:1px solid #ececea; border-bottom:1px solid #ececea; min-height:88px; padding:6px; background:#f4f4f2; }
+  .camp2-cell.lit { background:#ede4fb; }
+  .camp2-cell-date { font-size:10px; color:#9a9a94; margin-bottom:5px; }
+  .camp2-chip { font-size:8.5px; font-weight:600; padding:3px 6px; border-radius:4px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .camp2-chip.organic { background:#ede4fb; color:#5a2ea6; border:1px solid #d9cdf5; }
+  .camp2-chip.wa { background:#eaf3de; color:#3d6512; border:1px solid #cfe3b0; }
+  .camp2-cell-empty { font-size:8.5px; color:#b3b2ac; font-style:italic; }
   .camp2-legend { display:flex; gap:18px; margin-top:14px; font-size:10.5px; color:#4a4a46; }
   .camp2-legend span.sw { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
 </style>
@@ -693,7 +754,8 @@
 
 <div class="frame">
   <div class="topbar">
-    <div class="topbar-row topbar-row-top">
+    <div class="topbar-row topbar-row-top" style="justify-content:space-between;">
+      <div class="breadcrumb">Marketing <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Schedule</span></div>
       <div class="profile-row" id="profileRow"></div>
     </div>
     <div class="topbar-row topbar-row-bottom">
@@ -704,11 +766,12 @@
         <span class="nav-arrow" onclick="navDate(1)">›</span>
         <span class="date-range-text" id="dateRangePill">Jul 12 – 18, 2026</span>
       </div>
-      <div class="view-toggle">
+      <div class="view-toggle" id="viewToggleGroup">
         <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
         <span id="viewTabMonth" onclick="switchView('month')">Month</span>
         <span id="viewTabList" onclick="switchView('list')">List</span>
       </div>
+      <span class="m-btn ghost" style="margin-left:12px;" onclick="startLandingTour()">✦ Take a tour</span>
     </div>
   </div>
 
@@ -716,7 +779,7 @@
     <div class="sidebar">
       <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
       <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
-      <div class="btn btn-tertiary">🔗 Connect your channel</div>
+      <div class="btn btn-tertiary" id="btnConnectChannel">🔗 Connect your channel</div>
     </div>
 
     <div class="scrim" id="scrim" onclick="closePanels()"></div>
@@ -725,12 +788,15 @@
       <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
       <div class="sources-search-row">
         <div class="sources-search">🔍 Search content...</div>
-        <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('drawer')">📤 Upload</div>
       </div>
       <div class="cat-pills" id="drawerPills"></div>
+      <div class="drawer-source-toggle" id="drawerSourceToggle"></div>
       <div class="drawer-section-head">
         <span class="drawer-section-title" id="drawerSectionTitle">Investor Education</span>
-        <span class="view-all-link" onclick="openBrowseModal()">View all</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('drawer')">📤 Upload</div>
+          <span class="view-all-link" onclick="openBrowseModal()">View all</span>
+        </div>
       </div>
       <div class="drawer-scroll">
         <div class="sq-grid" id="drawerGrid"></div>
@@ -752,9 +818,9 @@
           <span class="view-all-link" onclick="openModal('list','all')">View all</span>
         </div>
         <div class="sq-grid">
-          <div class="sq-card"><div class="sq-thumb">▦</div><div class="sq-title">Brand awareness starter pack</div><div class="sq-meta">6 posts · reach-focused</div></div>
-          <div class="sq-card"><div class="sq-thumb">💰</div><div class="sq-title">Tax season push</div><div class="sq-meta">5 posts · seasonal</div></div>
-          <div class="sq-card"><div class="sq-thumb">🚀</div><div class="sq-title">Product launch — new SIP plan</div><div class="sq-meta">8 posts · announcement</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">▦</div><div class="sq-title">Brand awareness starter pack</div><div class="sq-meta">6 posts · reach-focused</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">💰</div><div class="sq-title">Tax season push</div><div class="sq-meta">5 posts · seasonal</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">🚀</div><div class="sq-title">Product launch — new SIP plan</div><div class="sq-meta">8 posts · announcement</div></div>
         </div>
 
         <div class="divider"></div>
@@ -764,8 +830,8 @@
           <span class="view-all-link" onclick="openModal('list','targeted')">View all</span>
         </div>
         <div class="sq-grid">
-          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
-          <div class="sq-card"><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
+          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
         </div>
       </div>
     </div>
@@ -782,16 +848,19 @@
     <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
       <div class="modal camp2-modal">
         <div class="camp2-topbar">
-          <span class="camp2-title">New campaign</span>
+          <span class="camp2-back" id="camp2Back" onclick="goToScreen('build')" style="display:none;">←</span>
+          <span class="camp2-title" id="camp2Title">Build campaign</span>
           <span class="camp2-count-pill" id="camp2CountPill"></span>
           <span class="modal-close" style="margin-left:auto" onclick="closeModal()">✕</span>
           <span class="m-btn ghost" onclick="closeModal()">Save as draft</span>
-          <span class="m-btn primary" onclick="runCampaign()">▷ Run campaign</span>
+          <span class="m-btn ghost" onclick="camp2TakeTourClick()">✦ Take a tour</span>
+          <span class="m-btn primary" id="camp2Cta" onclick="camp2CtaClick()">Continue to review →</span>
         </div>
+        <div class="camp2-strip" id="camp2Strip"></div>
         <div class="camp2-body">
-          <div class="camp2-rail" id="camp2Rail"></div>
-          <div class="camp2-scrim" id="camp2Scrim" onclick="toggleAcc(campaignState.openAcc)"></div>
-          <div class="camp2-panel" id="camp2Panel"></div>
+          <div class="camp2-filter-col" id="camp2FilterCol"></div>
+          <div class="camp2-result-col" id="camp2ResultCol"></div>
+          <div class="camp2-summary-col" id="camp2SummaryCol"></div>
           <div class="camp2-cal" id="camp2Cal"></div>
         </div>
 
@@ -818,8 +887,6 @@
         <div class="bm-topbar">
           <div class="bm-title">Browse content</div>
           <div class="bm-search">🔍 Search 4,200+ creatives...</div>
-          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('modal')">📤 Upload</div>
-          <div class="bm-filters-btn" id="bmFiltersBtn" onclick="toggleFilterPanel()">☰ Filters <span id="filterCountBadge"></span></div>
           <div class="bm-close" onclick="closeBrowseModal()">✕</div>
         </div>
         <div class="bm-chips" id="activeChips"></div>
@@ -829,6 +896,10 @@
             <div class="bm-main-head">
               <div class="bm-main-title" id="bmMainTitle">Investor Education</div>
               <div class="bm-main-count" id="bmMainCount">640 creatives</div>
+              <div style="margin-left:auto;display:flex;gap:8px;">
+                <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('modal')">📤 Upload</div>
+                <div class="bm-filters-btn" id="bmFiltersBtn" onclick="toggleFilterPanel()">☰ Filters <span id="filterCountBadge"></span></div>
+              </div>
             </div>
             <div class="bm-grid" id="bmGrid"></div>
           </div>
@@ -855,11 +926,12 @@
       <div class="ep-modal">
         <div class="ep-head">
           <h2 id="epTitle">Edit post</h2>
+          <span class="m-btn ghost" style="margin-left:auto;margin-right:10px;" onclick="startCreatePostTour()">✦ Take a tour</span>
           <span class="ep-close" onclick="closeEditPost()">✕</span>
         </div>
         <div id="epFailBanner"></div>
         <div class="ep-body">
-          <div class="ep-col ep-col-platforms">
+          <div class="ep-col ep-col-platforms" id="epColPlatforms">
             <div class="ep-section-title">Select Platforms</div>
             <div id="epPlatformRows"></div>
             <div class="ep-connect-section">
@@ -877,7 +949,7 @@
             </div>
           </div>
 
-          <div class="ep-col ep-col-media">
+          <div class="ep-col ep-col-media" id="epColMedia">
             <div class="ep-toprow">
               <div class="ep-section-title" style="margin-bottom:0">Add Media files</div>
               <div class="ep-mini-toggle-row">
@@ -903,13 +975,13 @@
             </div>
           </div>
 
-          <div class="ep-col ep-col-preview">
+          <div class="ep-col ep-col-preview" id="epColPreview">
             <div class="ep-section-title" id="epPreviewTitle">Post Previews</div>
             <div id="epPreviewCol"></div>
           </div>
         </div>
 
-        <div class="ep-foot">
+        <div class="ep-foot" id="epFoot">
           <div class="ep-date-pill" id="epDatePill">📅 <span id="epDateLabel">Jul 12, 2026</span></div>
           <div class="ep-split-btn">
             <div class="ep-split-menu" id="epSplitMenu">
@@ -961,7 +1033,7 @@
     document.getElementById('btnCampaign').classList.remove('on');
   }
 
-  /* ---------- campaign builder v3: channels -> audience -> content -> cadence ---------- */
+  /* ---------- campaign builder v4: build (filters + live content) -> review & schedule ---------- */
   const audienceFilterGroups = {
     segment: { label: 'Lifecycle segment', note: 'Where this client sits in their investing journey.',
       options: [ {label:'New investor',count:310}, {label:'Pre-retiree',count:210}, {label:'HNI',count:95}, {label:'Lapsed clients',count:60} ] },
@@ -973,6 +1045,13 @@
   let selectedAudience = {};
   Object.keys(audienceFilterGroups).forEach(k => selectedAudience[k] = new Set());
 
+  const campContentFilterGroups = {
+    format: { label: 'Format', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
+    language: { label: 'Language', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
+  };
+  let selectedCampContent = {};
+  Object.keys(campContentFilterGroups).forEach(k => selectedCampContent[k] = new Set());
+
   const CAMPAIGN_CATS = () => categories.filter(c => c.key !== 'templates');
 
   function freshCampaignState() {
@@ -980,7 +1059,7 @@
       channels: { instagram:true, linkedin:true, facebook:false, whatsapp:true, whatsapp_broadcast:false, paid_ads:false },
       contentCat: 'market', selectedCards: new Set(),
       cadence: { frequency:'daily', duration:30 },
-      openAcc: 'channels'
+      screen: 'build', filtersTouched: false
     };
   }
   let campaignState = null;
@@ -1000,16 +1079,117 @@
     return campaignState.cadence.frequency === 'daily' ? d : Math.ceil(d / (campaignState.cadence.frequency === 'weekly' ? 7 : 2.33));
   }
 
+  let campaignTourSeen = false;
   function openModal() {
     campaignState = freshCampaignState();
+    Object.keys(selectedCampContent).forEach(k => selectedCampContent[k].clear());
     document.getElementById('modalBackdrop').classList.add('show');
     renderCamp2();
+    if (!campaignTourSeen) { campaignTourSeen = true; setTimeout(startCampaignTour, 300); }
   }
-  function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); }
+  function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); endCampaignTour(); }
 
-  function toggleAcc(key) {
-    campaignState.openAcc = campaignState.openAcc === key ? null : key;
+  let campaignReviewTourSeen = false;
+  function goToScreen(name) {
+    campaignState.screen = name;
     renderCamp2();
+    if (name === 'schedule' && !campaignReviewTourSeen) {
+      campaignReviewTourSeen = true;
+      setTimeout(() => startTour(campaignReviewTourSteps), 300);
+    }
+  }
+  function camp2CtaClick() {
+    if (campaignState.screen === 'build') goToScreen('schedule');
+    else runCampaign();
+  }
+
+  const landingTourSteps = [
+    { target: 'btnConnectChannel', title: 'Connect your channels first', text: 'Link your social accounts here so scheduled posts actually have somewhere to publish.' },
+    { target: 'btnPost', title: 'Create a single post', text: 'Pick platforms, add media and a caption, then schedule it for one specific time.' },
+    { target: 'btnCampaign', title: 'Or create a campaign', text: 'Same idea, but at volume — a whole set of posts generated and placed on a cadence automatically.' },
+    { target: 'calendarRoot', title: 'Your calendar', text: 'Everything scheduled, posted, drafted, or failed shows up here, organized by day.' },
+    { target: 'calLegend', title: 'Filter by status', text: 'Toggle these to show or hide scheduled, posted, draft, or failed posts.' },
+    { target: 'viewToggleGroup', title: 'Switch views', text: 'Move between Week, Month, and List depending on how much you want to see at once.' }
+  ];
+  function startLandingTour() { startTour(landingTourSteps); }
+
+  const campaignBuildTourSteps = [
+    { target: 'tourChannels', title: 'Start with channels', text: 'Organic channels reach everyone. Turn on WhatsApp Broadcast or Paid Ads to unlock audience targeting below.' },
+    { target: 'tourFilters', title: 'Narrow the content', text: 'Category, format and language shape which posts actually get generated on the right.' },
+    { target: 'camp2ResultCol', title: 'Review what\'s generated', text: 'Matching content shows up here automatically. Select, deselect, or add more from your library.' },
+    { target: 'camp2Cta', title: 'Move to scheduling', text: 'Once your set looks right, continue to review everything and place it on the calendar.' }
+  ];
+  const campaignReviewTourSteps = [
+    { target: 'camp2SummaryCol', title: 'Everything you decided', text: 'A collapsed, editable recap of channels, audience, content and cadence — nothing new to decide here.' },
+    { target: 'camp2Cal', title: 'Where it lands', text: 'Your generated posts placed on the calendar, exactly as they\'ll go out.' },
+    { target: 'camp2Cta', title: 'Ship it', text: 'Once it looks right, schedule the campaign — or go back to adjust anything first.' }
+  ];
+  const createPostTourSteps = [
+    { target: 'epColPlatforms', title: 'Pick your platforms', text: 'Choose where this post goes — each platform can be customized separately if needed.' },
+    { target: 'epColMedia', title: 'Add media and caption', text: 'Upload your media and write the caption here. Turn on customize-per-platform for platform-specific formats.' },
+    { target: 'epColPreview', title: 'Check the preview', text: 'See exactly how this post will look on each selected platform before you send it.' },
+    { target: 'epFoot', title: 'Pick a date and act', text: 'Set the date, then schedule, save as draft, or duplicate — whichever fits.' }
+  ];
+
+  let activeTourSteps = campaignBuildTourSteps;
+  let tourStepIndex = 0;
+
+  function startTour(steps) {
+    activeTourSteps = steps;
+    tourStepIndex = 0;
+    document.getElementById('tourOverlay').classList.add('show');
+    showTourStep();
+  }
+  function startCampaignTour() {
+    if (campaignState.screen !== 'build') goToScreen('build');
+    startTour(campaignBuildTourSteps);
+  }
+  function startCampaignReviewTour() {
+    if (campaignState.screen !== 'schedule') goToScreen('schedule');
+    startTour(campaignReviewTourSteps);
+  }
+  function camp2TakeTourClick() {
+    if (campaignState.screen === 'schedule') startCampaignReviewTour();
+    else startCampaignTour();
+  }
+  function startCreatePostTour() {
+    startTour(createPostTourSteps);
+  }
+  function showTourStep() {
+    const step = activeTourSteps[tourStepIndex];
+    const el = document.getElementById(step.target);
+    if (!el) { endCampaignTour(); return; }
+    const r = el.getBoundingClientRect();
+    const pad = 8;
+    const box = document.getElementById('tourHighlightBox');
+    box.style.top = (r.top - pad) + 'px';
+    box.style.left = (r.left - pad) + 'px';
+    box.style.width = (r.width + pad*2) + 'px';
+    box.style.height = (r.height + pad*2) + 'px';
+
+    const tip = document.getElementById('tourTooltip');
+    const isLast = tourStepIndex === activeTourSteps.length - 1;
+    tip.innerHTML = `<div class="tour-step-count">${tourStepIndex+1} of ${activeTourSteps.length}</div>
+      <div class="tour-title">${step.title}</div>
+      <div class="tour-text">${step.text}</div>
+      <div class="tour-actions">
+        <span class="tour-skip" onclick="endCampaignTour()">Skip</span>
+        <span class="tour-next" onclick="nextTourStep()">${isLast ? 'Done' : 'Next →'}</span>
+      </div>`;
+    let tipTop = r.bottom + 16;
+    let tipLeft = r.left;
+    if (tipTop + 170 > window.innerHeight) tipTop = r.top - 180;
+    if (tipLeft + 296 > window.innerWidth) tipLeft = window.innerWidth - 296;
+    tip.style.top = tipTop + 'px';
+    tip.style.left = tipLeft + 'px';
+  }
+  function nextTourStep() {
+    tourStepIndex++;
+    if (tourStepIndex >= activeTourSteps.length) { endCampaignTour(); return; }
+    showTourStep();
+  }
+  function endCampaignTour() {
+    document.getElementById('tourOverlay').classList.remove('show');
   }
   function toggleChannel(key) {
     campaignState.channels[key] = !campaignState.channels[key];
@@ -1023,6 +1203,12 @@
     if (s.has(label)) s.delete(label); else s.add(label);
     renderCamp2();
   }
+  function toggleCampContentOption(group, label) {
+    const s = selectedCampContent[group];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    campaignState.filtersTouched = true;
+    renderCamp2();
+  }
   function audienceMatchCount() {
     let count = 0, any = false;
     Object.keys(selectedAudience).forEach(g => selectedAudience[g].forEach(label => {
@@ -1032,7 +1218,7 @@
     }));
     return any ? count : 2100; // "all clients" default pool
   }
-  function setCampaignCat(k) { campaignState.contentCat = k; renderCamp2(); }
+  function setCampaignCat(k) { campaignState.contentCat = k; campaignState.filtersTouched = true; renderCamp2(); }
   function toggleCardSelect(id) {
     if (campaignState.selectedCards.has(id)) campaignState.selectedCards.delete(id);
     else campaignState.selectedCards.add(id);
@@ -1049,274 +1235,246 @@
   }
 
   function renderCamp2() {
-    renderCamp2Rail();
-    renderCamp2Panel();
-    renderCamp2Cal();
-    document.getElementById('camp2Panel').classList.toggle('show', !!campaignState.openAcc);
-    document.getElementById('camp2Scrim').classList.toggle('show', !!campaignState.openAcc);
+    const isBuild = campaignState.screen === 'build';
+    document.getElementById('camp2FilterCol').classList.toggle('camp2-screen-hidden', !isBuild);
+    document.getElementById('camp2ResultCol').classList.toggle('camp2-screen-hidden', !isBuild);
+    document.getElementById('camp2SummaryCol').classList.toggle('camp2-screen-hidden', isBuild);
+    document.getElementById('camp2Cal').classList.toggle('camp2-screen-hidden', isBuild);
+    document.getElementById('camp2Back').style.display = isBuild ? 'none' : 'flex';
+    document.getElementById('camp2Title').textContent = isBuild ? 'Build campaign' : 'Review & schedule';
+    document.getElementById('camp2Cta').textContent = isBuild ? 'Continue to review →' : '▷ Schedule campaign';
+
+    renderCamp2Strip();
+    if (isBuild) { renderCamp2FilterCol(); renderCamp2ResultCol(); }
+    else { renderCamp2SummaryCol(); renderCamp2Cal(); }
     document.getElementById('camp2CountPill').textContent = campaignState.selectedCards.size + ' pieces · ' + cadenceDayCount() + ' scheduled days';
   }
 
-
-  function renderCamp2Rail() {
-    const rail = document.getElementById('camp2Rail');
-    const open = campaignState.openAcc;
-    const chanOnList = Object.entries({instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
-    const directOnList = Object.entries({whatsapp_broadcast:'WhatsApp Broadcast',paid_ads:'Paid Ads'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
-    const cat = campaignState.contentCat;
-
-    const items = [
-      { key:'channels', cls:'channels', dot:'▤', num:'1', title:'Channels',
-        sub: chanOnList.concat(directOnList).join(', ') || 'None selected' },
-      { key:'content', cls:'content', dot:'🏷', num:'2', title:'Content',
-        sub: campaignState.selectedCards.size + ' piece' + (campaignState.selectedCards.size===1?'':'s') + ' selected' },
-      { key:'cadence', cls:'cadence', dot:'🕐', num:'3', title:'Cadence',
-        sub: (campaignState.cadence.frequency === 'daily' ? 'Daily' : campaignState.cadence.frequency === 'weekly' ? 'Weekly' : 'Every other day') + ' · ' + campaignState.cadence.duration + ' days' },
-    ];
-
-    rail.innerHTML = items.map(it => `
-      <div class="camp2-acc ${it.cls} ${open===it.key?'open':''}">
-        <div class="camp2-acc-head" onclick="toggleAcc('${it.key}')">
-          <div class="camp2-acc-dot">${it.dot}</div>
-          <div class="camp2-acc-text"><div class="camp2-acc-title">${it.num} · ${it.title}</div><div class="camp2-acc-sub">${it.sub}</div></div>
-          <div class="camp2-acc-chev">${open===it.key?'‹':'›'}</div>
-        </div>
-      </div>`).join('');
+  function renderCamp2Strip() {
+    const pieces = campaignState.selectedCards.size;
+    const days = cadenceDayCount();
+    const el = document.getElementById('camp2Strip');
+    if (pieces === 0) {
+      el.className = 'camp2-strip';
+      el.innerHTML = `⚠ No content selected yet — pick some from the results on the right.`;
+    } else if (pieces < days) {
+      el.className = 'camp2-strip';
+      el.innerHTML = `⚠ ${pieces} piece${pieces===1?'':'s'} selected for a ${days}-day ${campaignState.cadence.frequency} cadence — content will repeat after day ${pieces}.
+        <a onclick="setCadenceDuration(${pieces});renderCamp2()">Reduce to ${pieces} days</a>
+        <a onclick="setCadenceFreq('every_other');renderCamp2()">Post every other day</a>`;
+    } else {
+      el.className = 'camp2-strip ok';
+      el.innerHTML = `✓ ${pieces} pieces cover all ${days} scheduled days — no repeats.`;
+    }
   }
 
-  function renderCamp2Panel() {
-    const panel = document.getElementById('camp2Panel');
-    const open = campaignState.openAcc;
-    if (!open) { panel.innerHTML = ''; return; }
-    const titles = { channels:'Channels', content:'Content', cadence:'Cadence' };
-    const headerExtra = open === 'content' ? `
-        <div class="bm-search">🔍 Search 4,212 creatives...</div>
-        <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
-        <div class="bm-filters-btn" id="ccFiltersBtn" onclick="toggleCbFilterPanel()">☰ Filters <span id="ccFilterCountBadge"></span></div>` : '';
-
-    panel.innerHTML = `
-      <div class="camp2-panel-topbar">
-        <div class="bm-title">${titles[open]}</div>
-        ${headerExtra}
-        <div class="camp2-panel-close" onclick="toggleAcc('${open}')">✕</div>
-      </div>
-      ${open === 'content' ? '<div class="bm-chips" id="ccChips"></div>' : ''}
-      <div class="camp2-panel-body" id="camp2PanelBody"></div>`;
-
-    renderCamp2PanelBody(open);
-    if (open === 'content') { renderCcCatRail(); renderCcGrid(); renderCbFpGroups(); renderCbFpOptions(); renderCcChips(); }
-  }
-
-  function renderCamp2PanelBody(open) {
-    const body = document.getElementById('camp2PanelBody');
+  function renderCamp2FilterCol() {
+    const col = document.getElementById('camp2FilterCol');
     const aActive = audienceActive();
+    let html = '';
 
-    if (open === 'channels') {
-      body.innerHTML = `
-        <div class="camp2-group-label">Organic <span class="camp2-group-hint">full following / own number</span></div>
-        <div class="camp2-chan-row">
-          ${['instagram','linkedin','facebook','whatsapp'].map(k => `
-            <div class="camp2-chan-item" onclick="toggleChannel('${k}')">
-              <div class="camp2-check2 ${campaignState.channels[k]?'on':''}"></div>${k.charAt(0).toUpperCase()+k.slice(1)}
-            </div>`).join('')}
-        </div>
-        <div class="camp2-group-label" style="margin-top:16px;">Direct / Paid <span class="camp2-group-hint">requires an audience</span></div>
-        <div class="camp2-chan-row">
-          <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
-          <div class="camp2-chan-item" onclick="toggleChannel('paid_ads')"><div class="camp2-check2 ${campaignState.channels.paid_ads?'on':''}"></div>Paid Ads</div>
-        </div>
-        ${aActive ? `<div class="camp2-audience-nested">
-          <div class="camp2-audience-nested-head">↳ 👤 Audience</div>
-          <div class="camp2-audience-nested-sub">Applies to Paid Ads / WhatsApp Broadcast only — organic channels above still reach everyone.</div>
-          ${Object.keys(audienceFilterGroups).map(g => {
-            const grp = audienceFilterGroups[g];
-            return `<div class="camp2-group-label">${grp.label}</div><div class="camp2-chan-row" style="gap:6px;">` +
-              grp.options.map(o => `<span class="cb-chip ${selectedAudience[g].has(o.label)?'active':''}" onclick="toggleCampAudienceOption('${g}','${o.label}')">${o.label}</span>`).join('') +
-              `</div>`;
-          }).join('')}
-          <div class="camp2-match-pill">Matches ${audienceMatchCount()} clients</div>
-        </div>` : `<div class="camp2-hint-italic" style="margin-top:16px;">Toggle WhatsApp Broadcast or Paid Ads on to reveal Audience filters here.</div>`}`;
-      return;
+    html += `<div id="tourChannels"><div class="camp2-group-label">Channels <span class="camp2-group-hint">organic — full reach</span></div>
+      <div class="camp2-chan-row">
+        ${['instagram','linkedin','facebook','whatsapp'].map(k => `
+          <div class="camp2-chan-item" onclick="toggleChannel('${k}')">
+            <div class="camp2-check2 ${campaignState.channels[k]?'on':''}"></div>${k.charAt(0).toUpperCase()+k.slice(1)}
+          </div>`).join('')}
+      </div>
+      <div class="camp2-group-label" style="margin-top:14px;">Direct / Paid <span class="camp2-group-hint">requires an audience</span></div>
+      <div class="camp2-chan-row">
+        <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
+        <div class="camp2-chan-item" onclick="toggleChannel('paid_ads')"><div class="camp2-check2 ${campaignState.channels.paid_ads?'on':''}"></div>Paid Ads</div>
+      </div></div>`;
+
+    if (aActive) {
+      html += `<div class="camp2-group-label" style="margin-top:14px;">Audience <span class="camp2-group-hint">Broadcast / Ads leg only</span></div>`;
+      Object.keys(audienceFilterGroups).forEach(g => {
+        const grp = audienceFilterGroups[g];
+        html += `<div class="camp2-group-label" style="text-transform:none;font-weight:600;color:#4a4a46;">${grp.label}</div><div class="camp2-chan-row" style="gap:6px;">`;
+        grp.options.forEach(o => {
+          const checked = selectedAudience[g].has(o.label);
+          html += `<span class="cb-chip ${checked?'active':''}" onclick="toggleCampAudienceOption('${g}','${o.label}')">${o.label}</span>`;
+        });
+        html += `</div>`;
+      });
+      html += `<div class="camp2-match-pill">Matches ${audienceMatchCount()} clients</div>`;
+    } else {
+      html += `<div class="camp2-hint-italic" style="margin-top:8px;">Turn on WhatsApp Broadcast or Paid Ads to target a specific audience.</div>`;
     }
 
-    if (open === 'content') {
-      body.innerHTML = `
-        <div class="bm-layout" style="height:100%;">
-          <div class="bm-cat-rail" id="ccCatRail"></div>
-          <div class="bm-main">
-            <div class="bm-main-head">
-              <div class="bm-main-title" id="ccMainTitle"></div>
-              <div class="bm-main-count" id="ccMainCount"></div>
-            </div>
-            <div class="bm-grid" id="ccGrid"></div>
-            <div class="camp2-content-summary" style="margin-top:18px;"><span class="camp2-group-label" style="margin:0;">Selected (${campaignState.selectedCards.size})</span></div>
-            <div class="camp2-content-list">
-              ${[...campaignState.selectedCards].map(id => {
-                const c = cardTitleById(id);
-                return `<div class="camp2-content-row">
-                  <div class="camp2-content-thumb">${c.icon}</div>
-                  <div class="camp2-content-text"><div class="t1">${c.title}</div><div class="t2">${c.meta}</div></div>
-                  <div class="camp2-content-x" onclick="removeCampCard('${id}')">✕</div>
-                </div>`;
-              }).join('') || '<div class="camp2-cell-empty">Nothing selected yet — click cards above.</div>'}
-            </div>
-          </div>
+    html += `<div id="tourFilters"><div class="camp2-group-label" style="margin-top:14px;">Category</div>
+      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>`;
+
+    Object.keys(campContentFilterGroups).forEach(g => {
+      const grp = campContentFilterGroups[g];
+      const n = selectedCampContent[g].size;
+      html += `<div class="camp2-group-label" style="margin-top:14px;">${grp.label}${n ? ` (${n})` : ''}</div><div class="camp2-chan-row" style="gap:6px;">`;
+      grp.options.forEach(o => {
+        const checked = selectedCampContent[g].has(o.label);
+        html += `<span class="cb-chip ${checked?'active':''}" onclick="toggleCampContentOption('${g}','${o.label}')">${o.label}</span>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+
+    html += `<div class="camp2-group-label" style="margin-top:14px;">Duration &amp; cadence</div>
+      <div class="camp2-cadence-row">
+        <div class="camp2-freq-opt ${campaignState.cadence.frequency==='daily'?'active':''}" onclick="setCadenceFreq('daily')">Daily</div>
+        <div class="camp2-freq-opt ${campaignState.cadence.frequency==='every_other'?'active':''}" onclick="setCadenceFreq('every_other')">Every other day</div>
+        <div class="camp2-freq-opt ${campaignState.cadence.frequency==='weekly'?'active':''}" onclick="setCadenceFreq('weekly')">Weekly</div>
+      </div>
+      <select onchange="setCadenceDuration(this.value)" style="padding:8px 12px;border:1px solid #d8d6cf;border-radius:6px;font-size:12px;width:100%;">
+        <option value="7" ${campaignState.cadence.duration===7?'selected':''}>7 days</option>
+        <option value="14" ${campaignState.cadence.duration===14?'selected':''}>14 days</option>
+        <option value="30" ${campaignState.cadence.duration===30?'selected':''}>30 days</option>
+      </select>`;
+
+    col.innerHTML = html;
+  }
+
+  function renderCamp2ResultCol() {
+    const col = document.getElementById('camp2ResultCol');
+    const cat = campaignState.contentCat;
+    const cards = sampleCards[cat];
+
+    if (!campaignState.filtersTouched) {
+      col.innerHTML = `
+        <div class="camp2-result-topline">
+          <div class="camp2-result-count">0 posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
+          <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+        </div>
+        <div class="camp2-empty-state">
+          <div class="camp2-empty-icon">🗂</div>
+          <div class="camp2-empty-title">Nothing generated yet</div>
+          <div class="camp2-empty-sub">Pick a category, format, or language on the left and matching content will show up here.</div>
         </div>`;
       return;
     }
 
-    if (open === 'cadence') {
-      body.innerHTML = `
-        <div class="camp2-group-label">Frequency</div>
-        <div class="camp2-cadence-row">
-          <div class="camp2-freq-opt ${campaignState.cadence.frequency==='daily'?'active':''}" onclick="setCadenceFreq('daily')">Daily</div>
-          <div class="camp2-freq-opt ${campaignState.cadence.frequency==='every_other'?'active':''}" onclick="setCadenceFreq('every_other')">Every other day</div>
-          <div class="camp2-freq-opt ${campaignState.cadence.frequency==='weekly'?'active':''}" onclick="setCadenceFreq('weekly')">Weekly</div>
-        </div>
-        <div class="camp2-group-label">Duration</div>
-        <select onchange="setCadenceDuration(this.value)" style="padding:8px 12px;border:1px solid #d8d6cf;border-radius:6px;font-size:12px;">
-          <option value="7" ${campaignState.cadence.duration===7?'selected':''}>7 days</option>
-          <option value="14" ${campaignState.cadence.duration===14?'selected':''}>14 days</option>
-          <option value="30" ${campaignState.cadence.duration===30?'selected':''}>30 days</option>
-        </select>`;
+    col.innerHTML = `
+      <div class="camp2-result-topline">
+        <div class="camp2-result-count">${campaignState.selectedCards.size} posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
+        <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+      </div>
+      <div class="camp2-cards-grid">${cards.map((c, idx) => {
+        const id = cat + ':' + idx;
+        const checked = campaignState.selectedCards.has(id);
+        return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
+          <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
+          <div class="sq-thumb">${c.icon}</div>
+          ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
+          <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
+        </div>`;
+      }).join('')}</div>`;
+  }
+
+  function renderCamp2SummaryCol() {
+    const col = document.getElementById('camp2SummaryCol');
+    const chanOnList = Object.entries({instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
+    const directOnList = Object.entries({whatsapp_broadcast:'WhatsApp Broadcast',paid_ads:'Paid Ads'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
+    const formatN = selectedCampContent.format.size, langN = selectedCampContent.language.size;
+    let html = `<div class="camp2-sum-sec-title">Channels</div>
+      <div class="camp2-sum-row"><span>Organic</span><b>${chanOnList.join(', ') || 'None'}</b></div>
+      <div class="camp2-sum-row"><span>Direct / Paid</span><b>${directOnList.join(', ') || 'None'}</b></div>`;
+    if (audienceActive()) {
+      html += `<div class="camp2-sum-sec-title">Audience</div>
+        <div class="camp2-sum-row"><span>Matches</span><b>${audienceMatchCount()} clients</b></div>`;
     }
+    html += `<div class="camp2-sum-sec-title">Content</div>
+      <div class="camp2-sum-row"><span>Pieces selected</span><b>${campaignState.selectedCards.size}</b></div>
+      <div class="camp2-sum-row"><span>Format</span><b>${formatN ? formatN + ' selected' : 'Any'}</b></div>
+      <div class="camp2-sum-row"><span>Language</span><b>${langN ? langN + ' selected' : 'Any'}</b></div>
+      <div class="camp2-sum-sec-title">Cadence</div>
+      <div class="camp2-sum-row"><span>Frequency</span><b>${campaignState.cadence.frequency === 'daily' ? 'Daily' : campaignState.cadence.frequency === 'weekly' ? 'Weekly' : 'Every other day'}</b></div>
+      <div class="camp2-sum-row"><span>Duration</span><b>${campaignState.cadence.duration} days</b></div>`;
+    col.innerHTML = html;
   }
 
-  /* ---- Content tab within the campaign panel: reuses bm-cat-rail / bm-grid / filter-panel2 from the create-post browse modal ---- */
-  function renderCcCatRail() {
-    const cat = campaignState.contentCat;
-    document.getElementById('ccCatRail').innerHTML = CAMPAIGN_CATS().map(c =>
-      `<div class="bm-cat-item ${c.key===cat?'active':''}" onclick="setCampaignCat('${c.key}')">
-        <div class="bm-cat-icon">${c.icon}</div>
-        <div class="bm-cat-label">${c.label}</div>
-        <div class="bm-cat-count">${c.count}</div>
-      </div>`).join('');
-  }
-  function renderCcGrid() {
-    const cat = campaignState.contentCat;
-    const catMeta = CAMPAIGN_CATS().find(c => c.key === cat);
-    document.getElementById('ccMainTitle').textContent = catMeta.label;
-    document.getElementById('ccMainCount').textContent = catMeta.count + ' creatives';
-    document.getElementById('ccGrid').innerHTML = sampleCards[cat].map((c, idx) => {
-      const id = cat + ':' + idx;
-      const checked = campaignState.selectedCards.has(id);
-      return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
-        <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
-        <div class="sq-thumb">${c.icon}</div>
-        ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
-        <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
-      </div>`;
-    }).join('');
-  }
-  function renderCcChips() {
-    let chips = [];
-    Object.keys(cbSelected).forEach(k => cbSelected[k].forEach(label => {
-      chips.push(`<div class="achip ${k==='segment'?'seg':''}${k==='concept'?'concept':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleCbOption('${label}');setCbActiveGroup('${k}')">✕</span></div>`);
-    }));
-    document.getElementById('ccChips').innerHTML = chips.join('');
-    const total = Object.values(cbSelected).reduce((a,s)=>a+s.size,0);
-    document.getElementById('ccFilterCountBadge').textContent = total ? '('+total+')' : '';
-    document.getElementById('ccFiltersBtn').classList.toggle('active', total > 0);
+  let camp2View = 'month';
+  function switchCamp2View(v) { camp2View = v; renderCamp2Cal(); }
+
+  function camp2ScheduleDays() {
+    const days = cadenceDayCount();
+    const pieces = campaignState.selectedCards.size;
+    const cardsArr = [...campaignState.selectedCards];
+    const step = campaignState.cadence.frequency === 'weekly' ? 7 : campaignState.cadence.frequency === 'every_other' ? 2 : 1;
+    const start = new Date(2026, 6, 14);
+    const out = [];
+    for (let dayNum = 1; dayNum <= days; dayNum += step) {
+      const scheduleIndex = Math.floor((dayNum - 1) / step);
+      const c = pieces ? cardTitleById(cardsArr[scheduleIndex % pieces]) : null;
+      out.push({ date: addDays(start, dayNum - 1), card: c });
+    }
+    return out;
   }
 
-  /* ---- Filters for the campaign Content panel: separate selection state, same discoveryFilterGroups data and fp- markup ---- */
-  let cbActiveGroup = 'trending';
-  const cbSelected = {};
-
-  function renderCbFpGroups() {
-    document.getElementById('cbFpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
-      const g = discoveryFilterGroups[k]; const n = cbSelected[k].size;
-      return `<div class="fp-group-item ${k===cbActiveGroup?'active':''}" onclick="setCbActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
-    }).join('');
-  }
-  function renderCbFpOptions() {
-    const g = discoveryFilterGroups[cbActiveGroup];
-    let html = g.note ? `<div class="fp-option-note">${g.note}</div>` : '';
-    g.options.forEach(o => {
-      const checked = cbSelected[cbActiveGroup].has(o.label);
-      html += `<div class="fp-option" onclick="toggleCbOption('${o.label}')">
-        <div class="fp-check ${checked?'checked':''}"></div>
-        <div class="fp-opt-label">${o.label}${o.flag?'<span class="fp-trend-flag">live</span>':''}</div>
-        <div class="fp-opt-count">${o.count}</div>
-      </div>`;
-    });
-    document.getElementById('cbFpOptions').innerHTML = html;
-  }
-  function setCbActiveGroup(k) { cbActiveGroup = k; renderCbFpGroups(); renderCbFpOptions(); }
-  function toggleCbOption(label) {
-    const s = cbSelected[cbActiveGroup];
-    if (s.has(label)) s.delete(label); else s.add(label);
-    renderCbFpGroups(); renderCbFpOptions(); renderCcChips();
-  }
-  function clearCbFilters() { Object.keys(cbSelected).forEach(k => cbSelected[k].clear()); renderCbFpGroups(); renderCbFpOptions(); renderCcChips(); }
-  function toggleCbFilterPanel() {
-    document.getElementById('cbFpBackdrop').classList.toggle('show');
-    document.getElementById('cbFpPanel').classList.toggle('show');
+  function camp2LegendHTML() {
+    const aActive = audienceActive();
+    return '<div class="cal-legend">' +
+      '<div class="legend-item scheduled">' + '<span class="legend-check"></span>Organic — full reach</div>' +
+      (aActive ? '<div class="legend-item posted"><span class="legend-check"></span>WhatsApp Broadcast — ' + audienceMatchCount() + ' clients</div>' : '') +
+      '<div class="legend-item draft"><span class="legend-check"></span>Scheduled day, no content yet</div>' +
+      '</div>';
   }
 
   function renderCamp2Cal() {
     const cal = document.getElementById('camp2Cal');
-    const days = cadenceDayCount();
-    const pieces = campaignState.selectedCards.size;
-    const cardsArr = [...campaignState.selectedCards];
-    const spacing = campaignState.cadence.frequency === 'weekly' ? 7 : campaignState.cadence.frequency === 'every_other' ? 2 : 1;
+    const schedule = camp2ScheduleDays();
+    const byDate = {};
+    schedule.forEach(s => { byDate[toDateStr(s.date)] = s; });
 
-    const start = new Date(2026, 6, 14); // campaign start date
-    const scheduleMap = {};
-    for (let k = 0; k < days; k++) scheduleMap[toDateStr(addDays(start, k * spacing))] = k;
+    let html = `<div class="camp2-cal-head">
+      <div><div class="camp2-cal-title">Schedule preview</div><div class="camp2-cal-sub">${audienceActive() ? 'Organic (full reach) + WhatsApp Broadcast (' + audienceMatchCount() + ' clients) overlaid' : 'Highlighted = will be scheduled by this campaign'}</div></div>
+      <div class="camp2-view-toggle">
+        <span class="${camp2View==='month'?'active':''}" onclick="switchCamp2View('month')">Month</span>
+        <span class="${camp2View==='list'?'active':''}" onclick="switchCamp2View('list')">List</span>
+      </div>
+    </div>`;
 
-    const weekDays = [];
-    for (let i = 0; i < 7; i++) weekDays.push(addDays(WEEK_START, i));
-    const postHour = 10;
+    if (camp2View === 'month') {
+      const year = 2026, month = 6;
+      const first = new Date(year, month, 1);
+      const gridStart = addDays(first, -first.getDay());
+      const cells = [];
+      for (let i=0;i<35;i++) cells.push(addDays(gridStart, i));
 
-    let html = `<div class="camp2-cal-head"><div class="camp2-cal-title">Live calendar preview</div><div class="camp2-cal-sub">${audienceActive() ? 'Organic (full reach) + WhatsApp Broadcast (' + audienceMatchCount() + ' clients) overlaid' : 'Highlighted = will be scheduled by this campaign'}</div></div>`;
-
-    html += '<div class="cal-legend">';
-    html += '<div class="legend-item scheduled"><span class="legend-check"></span>Organic — full reach</div>';
-    if (audienceActive()) html += '<div class="legend-item posted"><span class="legend-check"></span>WhatsApp Broadcast — filtered audience</div>';
-    html += '<div class="legend-item draft"><span class="legend-check"></span>Scheduled day, no content yet</div>';
-    html += '</div>';
-
-    html += '<div class="cal-header"><div></div>';
-    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-    weekDays.forEach(d => {
-      const isToday = toDateStr(d) === TODAY_STR;
-      html += `<div class="${isToday?'today':''}">${dayNames[d.getDay()]}<span>${d.getDate()}</span></div>`;
-    });
-    html += '</div><div class="cal-body">';
-    html += '<div class="time-col">' + TIME_SLOTS.map(h => `<div class="time-slot" style="height:64px">${hourLabel(h)}</div>`).join('') + '</div>';
-
-    weekDays.forEach(d => {
-      const dateStr = toDateStr(d);
-      const scheduledHere = scheduleMap.hasOwnProperty(dateStr);
-      html += '<div class="day-col">';
-      TIME_SLOTS.forEach(h => {
-        if (scheduledHere && h === postHour) {
-          const k = scheduleMap[dateStr];
-          const c = pieces ? cardTitleById(cardsArr[k % pieces]) : null;
-          if (c) {
-            html += `<div class="wk-slot" style="padding:0">
-              <div class="wk-event camp-organic">
-                <div class="we-title">${c.icon} ${c.title}</div>
-                <div class="we-status">${hourLabel(h)} · organic${audienceActive() ? ' + WA' : ''}</div>
-              </div>
-            </div>`;
+      html += camp2LegendHTML();
+      html += '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
+      html += '<div class="month-grid">';
+      cells.forEach(d => {
+        const dateStr = toDateStr(d);
+        const outside = d.getMonth() !== month;
+        const sch = byDate[dateStr];
+        let inner = `<div class="month-date">${d.getDate()}</div>`;
+        if (sch) {
+          if (sch.card) {
+            inner += `<div class="month-item st-scheduled">${sch.card.icon} ${sch.card.title}</div>`;
           } else {
-            html += `<div class="wk-slot" style="padding:0">
-              <div class="wk-event camp-empty">
-                <div class="we-title">No content selected</div>
-                <div class="we-status">${hourLabel(h)}</div>
-              </div>
-            </div>`;
+            inner += `<div class="month-item st-draft" onclick="event.stopPropagation(); goToScreen('build')">+ Add content</div>`;
           }
-        } else {
-          html += '<div class="wk-slot"></div>';
         }
+        html += `<div class="month-cell ${outside?'outside':''}">${inner}</div>`;
       });
       html += '</div>';
-    });
-    html += '</div>';
-
+    } else {
+      html += camp2LegendHTML();
+      if (!schedule.length) {
+        html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No scheduled days yet — set a cadence to preview the schedule.</div>`;
+      }
+      schedule.forEach(s => {
+        const dateLabel = s.date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+        html += `
+          <div class="list-row">
+            <div class="lr-head">
+              <div class="lr-avatar">${s.card ? s.card.icon : '📅'}</div>
+              <div><div class="lr-account">${s.card ? s.card.title : 'No content selected yet'}</div><div class="lr-platform">${audienceActive() ? 'Organic + WhatsApp Broadcast' : 'Organic — full reach'}</div></div>
+              <span class="lr-badge ${s.card ? 'st-scheduled' : 'st-draft'}">${s.card ? 'Scheduled' : 'Needs content'}</span>
+              <div class="lr-time">⚡ ${dateLabel}, 2026</div>
+            </div>
+            ${s.card ? `<div class="lr-body"><div class="lr-thumb">${s.card.icon}</div><div><div class="lr-caption-label">Content piece</div><div class="lr-caption-text">${s.card.meta}</div></div></div>` : ''}
+          </div>`;
+      });
+    }
     cal.innerHTML = html;
   }
 
@@ -1375,11 +1533,17 @@
 
   let activeCat = 'education';
 
+  let drawerSource = 'all';
   function renderDrawerPills() {
     document.getElementById('drawerPills').innerHTML = categories.map(c =>
       `<div class="cat-pill ${c.key==='trending'?'trend-pill':''} ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">${c.icon} ${c.label}</div>`
     ).join('');
+    const sources = [ {key:'all',label:'All sources'}, {key:'amfi',label:'AMFI'}, {key:'tfp',label:'Thefinpedia'}, {key:'amc',label:'AMC'} ];
+    document.getElementById('drawerSourceToggle').innerHTML = sources.map(s =>
+      `<span class="cb-chip ${s.key===drawerSource?'active':''}" onclick="setDrawerSource('${s.key}')">${s.label}</span>`
+    ).join('');
   }
+  function setDrawerSource(k) { drawerSource = k; renderDrawerPills(); }
   function renderDrawerGrid() {
     document.getElementById('drawerSectionTitle').textContent = categories.find(c=>c.key===activeCat).label;
     document.getElementById('drawerGrid').innerHTML = sampleCards[activeCat].map((c,idx) => {
@@ -1448,6 +1612,8 @@
     format: { label: 'Format', note: '', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
     language: { label: 'Language', note: '', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
     platform: { label: 'Platform', note: '', options: [ {label:'Instagram',count:2400}, {label:'LinkedIn',count:1300}, {label:'WhatsApp Status',count:500} ] },
+    source: { label: 'Content source', note: 'Who originally produced this piece.',
+      options: [ {label:'AMFI',count:900}, {label:'Thefinpedia',count:2200}, {label:'AMC',count:800} ] },
     complexity: { label: 'Complexity level', note: '', options: [ {label:'Beginner',count:1800}, {label:'Intermediate',count:1500}, {label:'Advanced',count:900} ] },
     fundtype: { label: 'Fund type', note: '', options: [ {label:'Equity',count:1100}, {label:'Debt',count:700}, {label:'Hybrid',count:520}, {label:'ELSS',count:340}, {label:'International',count:180} ] }
   };
@@ -1498,7 +1664,6 @@
 
   renderDrawerPills(); renderDrawerGrid();
   renderGroups(); renderOptions(); renderDiscoveryChips();
-  Object.keys(discoveryFilterGroups).forEach(k => cbSelected[k] = new Set());
 
   /* ================================================================
      CALENDAR: shared data model + three views + drag-drop + Edit Post
@@ -1579,7 +1744,7 @@
   const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
   let statusFilter = new Set(STATUS_LIST);
   function legendHTML() {
-    return '<div class="cal-legend">' + STATUS_LIST.map(s => {
+    return '<div class="cal-legend" id="calLegend">' + STATUS_LIST.map(s => {
       const off = !statusFilter.has(s);
       return `<div class="legend-item ${s} ${off?'off':''}" onclick="toggleStatus('${s}')">
         <span class="legend-check"></span>${STATUS_LABEL[s]}
@@ -1967,8 +2132,10 @@
     renderMusicNotice();
     renderEpFailBanner();
     document.getElementById('epBackdrop').classList.add('show');
+    if (!createPostTourSeen) { createPostTourSeen = true; setTimeout(startCreatePostTour, 300); }
   }
-  function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); }
+  let createPostTourSeen = false;
+  function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); endCampaignTour(); }
 
   function renderEpFailBanner() {
     const el = document.getElementById('epFailBanner');
@@ -2362,6 +2529,7 @@
 
   switchView('week');
   renderProfileRow();
+  setTimeout(startLandingTour, 400);
 
   document.addEventListener('click', function(evt) {
     const chooseMenu = document.getElementById('epChooseMenu');
@@ -2382,6 +2550,10 @@
   });
 </script>
 
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-highlight-box" id="tourHighlightBox"></div>
+  <div class="tour-tooltip" id="tourTooltip"></div>
+</div>
 <input type="file" id="uploadInput" style="display:none" onchange="handleFileUpload(event)" accept="image/*,video/*">
 </body>
 </html>
