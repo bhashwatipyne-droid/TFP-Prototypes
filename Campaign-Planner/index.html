@@ -1496,6 +1496,7 @@
           inner += `<div class="month-item st-scheduled" draggable="true"
             ondragstart="event.stopPropagation(); camp2DragStart('${dateStr}')"
             onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10, prefillCard:cardTitleById('${sch.id}')})">${sch.card.icon} ${sch.card.title}</div>`;
+          inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:11})" title="Add another post on this day">+</div>`;
         } else {
           inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); goToScreen('build')">+</div>`;
         }
