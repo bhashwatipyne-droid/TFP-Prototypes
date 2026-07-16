@@ -1074,7 +1074,7 @@
       channels: { instagram:true, linkedin:true, facebook:false, whatsapp:true, whatsapp_broadcast:false, paid_ads:false },
       contentCat: 'market', selectedCards: new Set(),
       cadence: { frequency:'daily', duration:30 },
-      screen: 'build', filtersTouched: false
+      screen: 'build', filtersTouched: false, manualAssignments: {}
     };
   }
   let campaignState = null;
@@ -1426,10 +1426,32 @@
     const out = [];
     for (let dayNum = 1; dayNum <= days; dayNum += step) {
       const scheduleIndex = Math.floor((dayNum - 1) / step);
-      const c = pieces ? cardTitleById(cardsArr[scheduleIndex % pieces]) : null;
-      out.push({ date: addDays(start, dayNum - 1), card: c });
+      const date = addDays(start, dayNum - 1);
+      const dateStr = toDateStr(date);
+      let id = pieces ? cardsArr[scheduleIndex % pieces] : null;
+      if (Object.prototype.hasOwnProperty.call(campaignState.manualAssignments, dateStr)) {
+        id = campaignState.manualAssignments[dateStr];
+      }
+      out.push({ date, dateStr, id, card: id ? cardTitleById(id) : null });
     }
     return out;
+  }
+
+  let camp2DragSrcDate = null;
+  function camp2DragStart(dateStr) { camp2DragSrcDate = dateStr; }
+  function camp2DragOver(evt) { evt.preventDefault(); }
+  function camp2Drop(evt, targetDateStr) {
+    evt.preventDefault();
+    if (!camp2DragSrcDate || camp2DragSrcDate === targetDateStr) { camp2DragSrcDate = null; return; }
+    const schedule = camp2ScheduleDays();
+    const byDate = {};
+    schedule.forEach(s => { byDate[s.dateStr] = s; });
+    const src = byDate[camp2DragSrcDate], tgt = byDate[targetDateStr];
+    camp2DragSrcDate = null;
+    if (!src || !tgt) return;
+    campaignState.manualAssignments[targetDateStr] = src.id || null;
+    campaignState.manualAssignments[src.dateStr] = tgt.id || null;
+    renderCamp2Cal();
   }
 
   function camp2LegendHTML() {
@@ -1470,14 +1492,16 @@
         const outside = d.getMonth() !== month;
         const sch = byDate[dateStr];
         let inner = `<div class="month-date">${d.getDate()}</div>`;
-        if (sch) {
-          if (sch.card) {
-            inner += `<div class="month-item st-scheduled">${sch.card.icon} ${sch.card.title}</div>`;
-          } else {
-            inner += `<div class="month-item st-draft" onclick="event.stopPropagation(); goToScreen('build')">+ Add content</div>`;
-          }
+        if (sch && sch.card) {
+          inner += `<div class="month-item st-scheduled" draggable="true"
+            ondragstart="event.stopPropagation(); camp2DragStart('${dateStr}')"
+            onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10, prefillCard:cardTitleById('${sch.id}')})">${sch.card.icon} ${sch.card.title}</div>`;
+        } else {
+          inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); goToScreen('build')">+</div>`;
         }
-        html += `<div class="month-cell ${outside?'outside':''}">${inner}</div>`;
+        html += `<div class="month-cell ${outside?'outside':''} ${sch?'':'no-schedule'}"
+          ondragover="${sch ? 'camp2DragOver(event)' : ''}"
+          ondrop="${sch ? `camp2Drop(event,'${dateStr}')` : ''}">${inner}</div>`;
       });
       html += '</div>';
     } else {
@@ -1488,7 +1512,10 @@
       schedule.forEach(s => {
         const dateLabel = s.date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
         html += `
-          <div class="list-row">
+          <div class="list-row" draggable="true" style="cursor:grab;"
+            ondragstart="camp2DragStart('${s.dateStr}')"
+            ondragover="camp2DragOver(event)"
+            ondrop="camp2Drop(event,'${s.dateStr}')">
             <div class="lr-head">
               <div class="lr-avatar">${s.card ? s.card.icon : '📅'}</div>
               <div><div class="lr-account">${s.card ? s.card.title : 'No content selected yet'}</div><div class="lr-platform">${audienceActive() ? 'Organic + WhatsApp Broadcast' : 'Organic — full reach'}</div></div>
