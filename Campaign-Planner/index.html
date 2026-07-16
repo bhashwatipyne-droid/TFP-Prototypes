@@ -658,6 +658,22 @@
   .camp2-result-topline { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .camp2-result-count { font-size:14px; font-weight:700; }
   .camp2-result-link { font-size:11.5px; font-weight:600; color:#0c447c; cursor:pointer; }
+  .camp2-add-dd { position:relative; }
+  .camp2-add-btn { display:flex; align-items:center; gap:6px; background:#1a1a1a; color:#fff; border-radius:8px; font-size:12.5px; font-weight:600; padding:9px 14px; cursor:pointer; white-space:nowrap; }
+  .camp2-add-btn:hover { background:#333; }
+  .camp2-add-menu { position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e2da; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,0.14); padding:6px; width:190px; display:none; z-index:5; }
+  .camp2-add-menu.show { display:block; }
+  .camp2-add-item { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#3a3a36; padding:9px 10px; border-radius:7px; cursor:pointer; }
+  .camp2-add-item:hover { background:#f4f4f2; }
+  .camp2-filter-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 14px; }
+  .camp2-filter-chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+  .camp2-filter-btn { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#4a4a46; background:#fff; border:1px solid #d8d6cf; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .camp2-filter-btn.active { border-color:#6a3fd1; color:#5a2ea6; background:#f6f1ff; }
+  .camp2-date-row { display:flex; gap:8px; }
+  .camp2-date-input { flex:1; min-width:0; padding:8px 10px; border:1px solid #d8d6cf; border-radius:6px; font-size:12px; font-family:inherit; color:#1a1a1a; }
+  .camp2-caption-box { width:100%; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-family:inherit; color:#1a1a1a; resize:vertical; min-height:64px; box-sizing:border-box; }
+  .camp2-cta-input { width:100%; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-family:inherit; color:#1a1a1a; box-sizing:border-box; }
+  .camp2-cta-learnmore { display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; color:#4a4a46; cursor:pointer; }
   .camp2-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   .camp2-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:#9a9a94; }
   .camp2-empty-icon { font-size:28px; margin-bottom:10px; opacity:0.6; }
@@ -713,6 +729,10 @@
   .camp2-check2 { width:16px; height:16px; border-radius:4px; border:1.5px solid #c7c5bc; position:relative; flex-shrink:0; background:#fff; }
   .camp2-check2.on { background:#1a1a1a; border-color:#1a1a1a; }
   .camp2-check2.on::after { content:'✓'; color:#fff; font-size:10px; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .camp2-chan-col { display:flex; flex-direction:column; gap:9px; margin-bottom:4px; }
+  .camp2-chan-line { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .camp2-chan-time { display:flex; align-items:center; gap:5px; font-size:11px; color:#4a4a46; background:#f5f4f0; border:1px solid #e2e0d8; border-radius:6px; padding:3px 8px; cursor:default; }
+  .camp2-chan-time input[type=time] { border:none; background:transparent; font-size:11px; color:#1a1a1a; font-family:inherit; padding:0; cursor:pointer; }
   .camp2-hint-italic { font-size:9.5px; color:#9a9a94; font-style:italic; margin-top:8px; }
 
   .camp2-audience-note { font-size:11px; color:#9a9a94; line-height:1.5; }
@@ -749,6 +769,117 @@
   .camp2-cell-empty { font-size:8.5px; color:#b3b2ac; font-style:italic; }
   .camp2-legend { display:flex; gap:18px; margin-top:14px; font-size:10.5px; color:#4a4a46; }
   .camp2-legend span.sw { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
+
+  /* ===== Campaigns hub view ===== */
+  .campaigns-view { flex:1; overflow-y:auto; padding:22px 24px 32px; }
+  .camp-toolbar { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
+  .camp-tabs { display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid #e4e2da; padding-bottom:12px; }
+  .camp-tab { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#6a6a66; padding:8px 13px; border-radius:8px; cursor:pointer; }
+  .camp-tab:hover { background:#f4f4f2; }
+  .camp-tab.active { background:#1a1a1a; color:#fff; }
+  .camp-tab .cnt { font-size:11px; font-weight:700; color:#9a9a94; background:#eceae4; border-radius:999px; padding:1px 7px; }
+  .camp-tab.active .cnt { color:#1a1a1a; background:#fff; }
+  .camp-search-row { display:flex; align-items:center; gap:10px; }
+  .camp-search { flex:1; display:flex; align-items:center; gap:8px; background:#f4f4f2; border-radius:8px; padding:9px 14px; font-size:13px; color:#4a4a46; }
+  .camp-search input { border:none; background:transparent; outline:none; font-size:13px; font-family:inherit; color:#1a1a1a; flex:1; }
+  .camp-search input::placeholder { color:#9a9a94; }
+  .camp-sort-pill { flex-shrink:0; }
+  .camp-new-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; background:#1a1a1a; color:#fff; font-size:13px; font-weight:600; padding:9px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .camp-new-btn:hover { background:#333; }
+
+  .camp-list { display:flex; flex-direction:column; gap:10px; }
+  .camp-empty { text-align:center; color:#b3b2ac; font-size:13px; padding:50px 0; }
+
+  .camp-row { border:1px solid #e4e2da; border-radius:12px; background:#fff; padding:14px 16px; cursor:pointer; transition:border-color .12s; }
+  .camp-row:hover { border-color:#c7c5bc; }
+  .camp-row-top { display:flex; align-items:center; gap:14px; }
+  .camp-icon { width:38px; height:38px; border-radius:9px; background:#f4f4f2; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .camp-name-wrap { min-width:0; flex-shrink:0; width:220px; }
+  .camp-name { font-size:13.5px; font-weight:700; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .camp-cat { font-size:11.5px; color:#9a9a94; margin-top:1px; }
+  .camp-channels { display:flex; gap:4px; flex-shrink:0; width:76px; }
+  .camp-chan-dot { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700; }
+  .camp-chan-dot.ig { background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+  .camp-chan-dot.fb { background:#1877f2; }
+  .camp-chan-dot.li { background:#0a66c2; }
+  .camp-chan-dot.wab { background:#3d6512; }
+  .camp-chan-dot.pad { background:#6a3fd1; }
+  .camp-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; flex-shrink:0; width:118px; justify-content:center; white-space:nowrap; }
+  .camp-badge::before { content:''; width:6px; height:6px; border-radius:50%; }
+  .camp-badge.st-draft { background:#eceae4; color:#6a6a66; }
+  .camp-badge.st-draft::before { background:#9a9a94; }
+  .camp-badge.st-upcoming { background:#e6f1fb; color:#0c447c; }
+  .camp-badge.st-upcoming::before { background:#378add; }
+  .camp-badge.st-active { background:#eaf3de; color:#27500a; }
+  .camp-badge.st-active::before { background:#639922; }
+  .camp-badge.st-needs_attention { background:#fbe4e4; color:#9c2b2b; }
+  .camp-badge.st-needs_attention::before { background:#d84c4c; }
+  .camp-badge.st-paused { background:#fdf6e0; color:#6b5900; }
+  .camp-badge.st-paused::before { background:#d4b106; }
+  .camp-badge.st-completed { background:#ece5fb; color:#5a2ea6; }
+  .camp-badge.st-completed::before { background:#8a5fd9; }
+  .camp-progress-col { flex:1; min-width:140px; }
+  .camp-progress-label { font-size:11px; color:#6a6a66; margin-bottom:5px; display:flex; justify-content:space-between; }
+  .camp-progress-bar { height:6px; border-radius:99px; background:#eceae4; overflow:hidden; }
+  .camp-progress-fill { height:100%; border-radius:99px; background:#639922; }
+  .camp-progress-fill.needs_attention { background:#d84c4c; }
+  .camp-progress-fill.paused { background:#d4b106; }
+  .camp-progress-fill.upcoming, .camp-progress-fill.draft { background:#b3b2ac; }
+  .camp-dates-col { width:150px; flex-shrink:0; font-size:11.5px; color:#6a6a66; }
+  .camp-next-col { width:100px; flex-shrink:0; font-size:11.5px; color:#6a6a66; }
+  .camp-next-col b { display:block; color:#1a1a1a; font-size:12px; }
+  .camp-menu-dd { position:relative; flex-shrink:0; }
+  .camp-menu-btn { width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#6a6a66; cursor:pointer; font-size:16px; font-weight:700; }
+  .camp-menu-btn:hover { background:#f4f4f2; }
+  .camp-menu { position:absolute; top:calc(100% + 4px); right:0; background:#fff; border:1px solid #e4e2da; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,0.14); padding:6px; width:170px; display:none; z-index:8; }
+  .camp-menu.show { display:block; }
+  .camp-menu-item { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:#3a3a36; padding:9px 10px; border-radius:7px; cursor:pointer; }
+  .camp-menu-item:hover { background:#f4f4f2; }
+  .camp-menu-item.danger { color:#9c2b2b; }
+  .camp-row-warn { display:flex; align-items:center; gap:6px; margin-top:10px; font-size:11.5px; color:#9c2b2b; background:#fbe4e4; border-radius:7px; padding:7px 10px; }
+
+  /* ===== Campaign detail drawer (right side) ===== */
+  .camp-detail-scrim { position:absolute; inset:0; background:rgba(20,20,18,0.28); z-index:9; opacity:0; pointer-events:none; transition:opacity .15s; }
+  .camp-detail-scrim.show { opacity:1; pointer-events:auto; }
+  .camp-detail-drawer {
+    position:absolute; top:0; right:0; bottom:0; width:440px;
+    background:#fff; border-left:1px solid #d8d6cf; box-shadow:-10px 0 28px rgba(0,0,0,0.12);
+    padding:20px 22px; display:flex; flex-direction:column; z-index:10; overflow-y:auto;
+    transform:translateX(16px); opacity:0; pointer-events:none; transition:transform .16s, opacity .16s;
+  }
+  .camp-detail-drawer.show { transform:translateX(0); opacity:1; pointer-events:auto; }
+  .cd-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:4px; }
+  .cd-head-title { font-size:16px; font-weight:700; padding-right:10px; }
+  .cd-head-cat { font-size:11.5px; color:#9a9a94; margin-top:3px; }
+  .cd-close { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:#8a8a86; cursor:pointer; font-size:15px; flex-shrink:0; }
+  .cd-close:hover { background:#f4f4f2; }
+  .cd-badge-row { margin:10px 0 18px; }
+  .cd-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .cd-metric { background:#f4f4f2; border-radius:9px; padding:10px 8px; text-align:center; }
+  .cd-metric b { display:block; font-size:16px; color:#1a1a1a; }
+  .cd-metric span { font-size:9.5px; color:#8a8a86; text-transform:uppercase; letter-spacing:.02em; }
+  .cd-section-title { font-size:11.5px; font-weight:700; color:#6a6a66; text-transform:uppercase; letter-spacing:.03em; margin:0 0 10px; }
+  .cd-timeline { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px; }
+  .cd-dot { width:16px; height:16px; border-radius:4px; }
+  .cd-dot.posted { background:#639922; }
+  .cd-dot.scheduled { background:#378add; }
+  .cd-dot.failed { background:#d84c4c; }
+  .cd-dot.upcoming { background:#d8d6cf; }
+  .cd-legend { display:flex; gap:14px; margin-bottom:20px; font-size:10.5px; color:#6a6a66; }
+  .cd-legend span.sw { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
+  .cd-recap-row { display:flex; justify-content:space-between; font-size:12.5px; padding:9px 0; border-bottom:1px solid #f0efe9; }
+  .cd-recap-row span:first-child { color:#8a8a86; }
+  .cd-recap-row span:last-child { font-weight:600; color:#1a1a1a; text-align:right; max-width:220px; }
+  .cd-actions { display:flex; gap:8px; margin-top:22px; }
+  .cd-actions .m-btn { flex:1; text-align:center; }
+
+  /* small campaign-link pills on the calendar */
+  .wk-event.has-campaign, .month-item.has-campaign { border-left: 3px solid #6a3fd1; border-radius: 0 6px 6px 0; }
+  .cal-camp-label { font-size: 9px; color: #6a3fd1; cursor: pointer; margin-top: 1px; }
+  .cal-camp-label:hover { text-decoration: underline; }
+  .list-row.has-campaign { border-left: 3px solid #6a3fd1; }
+  .lr-camp-label { font-size: 11px; color: #6a3fd1; cursor: pointer; }
+  .lr-camp-label:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -772,6 +903,7 @@
         <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
         <span id="viewTabMonth" onclick="switchView('month')">Month</span>
         <span id="viewTabList" onclick="switchView('list')">List</span>
+        <span id="viewTabCampaigns" onclick="switchView('campaigns')">Campaigns</span>
       </div>
       <span class="m-btn ghost" style="margin-left:12px;" onclick="startLandingTour()">✦ Take a tour</span>
     </div>
@@ -853,9 +985,13 @@
       <div id="weekView"></div>
       <div id="monthView" style="display:none; flex:1; display:none; flex-direction:column;"></div>
       <div id="listView" class="list-view" style="display:none;"></div>
+      <div id="campaignsView" class="campaigns-view" style="display:none;"></div>
 
       <div class="day-popover-backdrop" id="dpBackdrop" onclick="closeDayPopover()"></div>
       <div class="day-popover" id="dayPopover"></div>
+
+      <div class="camp-detail-scrim" id="campDetailScrim" onclick="closeCampaignDetail()"></div>
+      <div class="camp-detail-drawer" id="campDetailDrawer"></div>
     </div>
 
     <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
@@ -882,7 +1018,6 @@
             <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
             <div style="display:flex;border-bottom:0.5px solid #e4e2da;" id="cbFpTabs"></div>
             <div class="fp-search2">🔍 Search across filters...</div>
-            <div class="fp-source-row" id="cbFpSourceRow"><span class="fp-source-label">Source</span></div>
             <div class="fp-body">
               <div class="fp-groups" id="cbFpGroups"></div>
               <div class="fp-options" id="cbFpOptions"></div>
@@ -1061,7 +1196,7 @@
   Object.keys(audienceFilterGroups).forEach(k => selectedAudience[k] = new Set());
 
   const campContentFilterGroups = {
-    format: { label: 'Format', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
+    format: { label: 'Format', options: [ {label:'Static',count:1500}, {label:'Videos',count:1240}, {label:'Reels',count:700}, {label:'Carousel',count:860} ] },
     language: { label: 'Language', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
   };
   let selectedCampContent = {};
@@ -1072,9 +1207,12 @@
   function freshCampaignState() {
     return {
       channels: { instagram:true, linkedin:true, facebook:false, whatsapp:true, whatsapp_broadcast:false, paid_ads:false },
-      contentCat: 'market', selectedCards: new Set(),
-      cadence: { frequency:'daily', duration:30 },
-      screen: 'build', filtersTouched: false, manualAssignments: {}
+      channelTimes: { instagram:'16:00', linkedin:'16:00', facebook:'16:00', whatsapp:'16:00' },
+      defaultCaptions: { on:true, text:'Your SIP is about to get expired. Lets connect to keep your investments active.' },
+      defaultCta: { on:true, url:'www.thefinpedia.com' },
+      contentCat: 'education', selectedCards: new Set(),
+      cadence: { frequency:'daily', duration:30, startDate: TODAY_STR, endDate: addDaysToStr(TODAY_STR, 29) },
+      screen: 'build', filtersTouched: true, manualAssignments: {}
     };
   }
   let campaignState = null;
@@ -1115,6 +1253,7 @@
   }
   function camp2CtaClick() {
     if (campaignState.screen === 'build') goToScreen('schedule');
+    else if (campaignState.editingCampaignId) saveEditedCampaign();
     else runCampaign();
   }
 
@@ -1213,6 +1352,13 @@
     }
     renderCamp2();
   }
+  function setChannelTime(key, value) {
+    campaignState.channelTimes[key] = value;
+  }
+  function toggleDefaultCaptions() { campaignState.defaultCaptions.on = !campaignState.defaultCaptions.on; renderCamp2FilterCol(); }
+  function setDefaultCaptionText(v) { campaignState.defaultCaptions.text = v; }
+  function toggleDefaultCta() { campaignState.defaultCta.on = !campaignState.defaultCta.on; renderCamp2FilterCol(); }
+  function setDefaultCtaUrl(v) { campaignState.defaultCta.url = v; }
   function toggleCampAudienceOption(group, label) {
     const s = selectedAudience[group];
     if (s.has(label)) s.delete(label); else s.add(label);
@@ -1241,7 +1387,30 @@
   }
   function removeCampCard(id) { campaignState.selectedCards.delete(id); renderCamp2(); }
   function setCadenceFreq(f) { campaignState.cadence.frequency = f; renderCamp2(); }
-  function setCadenceDuration(d) { campaignState.cadence.duration = parseInt(d,10) || 30; renderCamp2(); }
+  function setCadenceDuration(d) {
+    d = parseInt(d,10) || 30;
+    campaignState.cadence.duration = d;
+    campaignState.cadence.endDate = addDaysToStr(campaignState.cadence.startDate, d - 1);
+    renderCamp2();
+  }
+  function syncCadenceDatesToDuration() {
+    const c = campaignState.cadence;
+    const [sy,sm,sd] = c.startDate.split('-').map(Number);
+    const [ey,em,ed] = c.endDate.split('-').map(Number);
+    const diff = Math.round((new Date(ey,em-1,ed) - new Date(sy,sm-1,sd)) / 86400000) + 1;
+    c.duration = diff > 0 ? diff : 1;
+  }
+  function setCadenceStart(v) {
+    campaignState.cadence.startDate = v;
+    if (campaignState.cadence.endDate < v) campaignState.cadence.endDate = v;
+    syncCadenceDatesToDuration();
+    renderCamp2();
+  }
+  function setCadenceEnd(v) {
+    campaignState.cadence.endDate = v;
+    syncCadenceDatesToDuration();
+    renderCamp2();
+  }
 
   function cardTitleById(id) {
     const [cat, idx] = id.split(':');
@@ -1256,8 +1425,9 @@
     document.getElementById('camp2SummaryCol').classList.toggle('camp2-screen-hidden', isBuild);
     document.getElementById('camp2Cal').classList.toggle('camp2-screen-hidden', isBuild);
     document.getElementById('camp2Back').style.display = isBuild ? 'none' : 'flex';
-    document.getElementById('camp2Title').textContent = isBuild ? 'Build campaign' : 'Review & schedule';
-    document.getElementById('camp2Cta').textContent = isBuild ? 'Continue to review →' : '▷ Schedule campaign';
+    const editing = !!campaignState.editingCampaignId;
+    document.getElementById('camp2Title').textContent = isBuild ? (editing ? 'Edit campaign' : 'Build campaign') : (editing ? 'Review changes' : 'Review & schedule');
+    document.getElementById('camp2Cta').textContent = isBuild ? 'Continue to review →' : (editing ? '✓ Save changes' : '▷ Schedule campaign');
 
     renderCamp2Strip();
     if (isBuild) { renderCamp2FilterCol(); renderCamp2ResultCol(); }
@@ -1289,12 +1459,30 @@
     let html = '';
 
     html += `<div id="tourChannels"><div class="camp2-group-label">Channels <span class="camp2-group-hint">organic — full reach</span></div>
-      <div class="camp2-chan-row">
+      <div class="camp2-chan-col">
         ${['instagram','linkedin','facebook','whatsapp'].map(k => `
-          <div class="camp2-chan-item" onclick="toggleChannel('${k}')">
-            <div class="camp2-check2 ${campaignState.channels[k]?'on':''}"></div>${k.charAt(0).toUpperCase()+k.slice(1)}
+          <div class="camp2-chan-line">
+            <div class="camp2-chan-item" onclick="toggleChannel('${k}')">
+              <div class="camp2-check2 ${campaignState.channels[k]?'on':''}"></div>${k.charAt(0).toUpperCase()+k.slice(1)}
+            </div>
+            ${campaignState.channels[k] ? `
+            <div class="camp2-chan-time" onclick="event.stopPropagation()">
+              🕐 <input type="time" value="${campaignState.channelTimes[k]}" onchange="setChannelTime('${k}', this.value)">
+            </div>` : ''}
           </div>`).join('')}
       </div>
+      <div class="camp2-group-label" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
+        <span>Default captions</span>
+        <div class="ep-toggle ${campaignState.defaultCaptions.on?'on':''}" onclick="toggleDefaultCaptions()"></div>
+      </div>
+      ${campaignState.defaultCaptions.on ? `<textarea class="camp2-caption-box" oninput="setDefaultCaptionText(this.value)">${campaignState.defaultCaptions.text}</textarea>` : ''}
+      <div class="camp2-group-label" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
+        <span>Default Call-To-Action button</span>
+        <div class="ep-toggle ${campaignState.defaultCta.on?'on':''}" onclick="toggleDefaultCta()"></div>
+      </div>
+      ${campaignState.defaultCta.on ? `
+      <input type="text" class="camp2-cta-input" value="${campaignState.defaultCta.url}" oninput="setDefaultCtaUrl(this.value)">
+      <div class="camp2-cta-learnmore">Learn more <span>▾</span></div>` : ''}
       <div class="camp2-group-label" style="margin-top:14px;">Direct / Paid <span class="camp2-group-hint">requires an audience</span></div>
       <div class="camp2-chan-row">
         <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
@@ -1318,11 +1506,9 @@
     }
 
     html += `<div id="tourFilters"><div class="camp2-group-label" style="margin-top:14px;">Category</div>
-      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>
-      <div class="camp2-group-label" style="margin-top:14px;">Source</div>
-      <div class="fp-source-row" id="camp2SourceRow" style="margin:0;"></div>`;
+      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>`;
 
-    Object.keys(campContentFilterGroups).forEach(g => {
+    Object.keys(campContentFilterGroups).filter(g => g !== 'language').forEach(g => {
       const grp = campContentFilterGroups[g];
       const n = selectedCampContent[g].size;
       html += `<div class="camp2-group-label" style="margin-top:14px;">${grp.label}${n ? ` (${n})` : ''}</div><div class="camp2-chan-row" style="gap:6px;">`;
@@ -1340,14 +1526,12 @@
         <div class="camp2-freq-opt ${campaignState.cadence.frequency==='every_other'?'active':''}" onclick="setCadenceFreq('every_other')">Every other day</div>
         <div class="camp2-freq-opt ${campaignState.cadence.frequency==='weekly'?'active':''}" onclick="setCadenceFreq('weekly')">Weekly</div>
       </div>
-      <select onchange="setCadenceDuration(this.value)" style="padding:8px 12px;border:1px solid #d8d6cf;border-radius:6px;font-size:12px;width:100%;">
-        <option value="7" ${campaignState.cadence.duration===7?'selected':''}>7 days</option>
-        <option value="14" ${campaignState.cadence.duration===14?'selected':''}>14 days</option>
-        <option value="30" ${campaignState.cadence.duration===30?'selected':''}>30 days</option>
-      </select>`;
+      <div class="camp2-date-row">
+        <input type="date" class="camp2-date-input" value="${campaignState.cadence.startDate}" onchange="setCadenceStart(this.value)">
+        <input type="date" class="camp2-date-input" value="${campaignState.cadence.endDate}" min="${campaignState.cadence.startDate}" onchange="setCadenceEnd(this.value)">
+      </div>`;
 
     col.innerHTML = html;
-    renderSourceRow('camp2SourceRow');
   }
 
   function renderCamp2ResultCol() {
@@ -1355,31 +1539,34 @@
     const cat = campaignState.contentCat;
     const cards = sampleCards[cat];
 
-    if (!campaignState.filtersTouched) {
-      col.innerHTML = `
-        <div class="camp2-result-topline">
-          <div class="camp2-result-count">0 posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
-            <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
+    const topline = `
+      <div class="camp2-result-topline">
+        <div class="camp2-result-count">${cards.length} posts generated</div>
+        <div class="camp2-add-dd">
+          <div class="camp2-add-btn" onclick="toggleAddContentMenu()">+ Add new content ▾</div>
+          <div class="camp2-add-menu" id="camp2AddMenu">
+            <div class="camp2-add-item" onclick="document.getElementById('camp2AddMenu').classList.remove('show');triggerUpload('campaign')">📤 Upload</div>
+            <div class="camp2-add-item" onclick="document.getElementById('camp2AddMenu').classList.remove('show');openBrowseModal()">📚 Add from library</div>
           </div>
         </div>
+      </div>
+      <div class="camp2-filter-row">
+        <div class="camp2-filter-chips" id="camp2FilterChips"></div>
+        <div class="camp2-filter-btn" id="camp2FilterBtn" onclick="toggleCbFilterPanel()">☰ Filter <span id="camp2FilterCountBadge"></span></div>
+      </div>`;
+
+    if (!cards.length) {
+      col.innerHTML = topline + `
         <div class="camp2-empty-state">
           <div class="camp2-empty-icon">🗂</div>
           <div class="camp2-empty-title">Nothing generated yet</div>
           <div class="camp2-empty-sub">Pick a category, format, or language on the left and matching content will show up here.</div>
         </div>`;
+      renderCamp2FilterChips();
       return;
     }
 
-    col.innerHTML = `
-      <div class="camp2-result-topline">
-        <div class="camp2-result-count">${campaignState.selectedCards.size} posts generated <span style="font-weight:400;color:#8a8a86;font-size:11.5px;">— updates as filters change</span></div>
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div class="upload-btn" title="Upload your own content" onclick="triggerUpload('campaign')">📤 Upload</div>
-          <div class="camp2-result-link" onclick="openBrowseModal()">+ Add from library</div>
-        </div>
-      </div>
+    col.innerHTML = topline + `
       <div class="camp2-cards-grid">${cards.map((c, idx) => {
         const id = cat + ':' + idx;
         const checked = campaignState.selectedCards.has(id);
@@ -1390,6 +1577,24 @@
           <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
         </div>`;
       }).join('')}</div>`;
+    renderCamp2FilterChips();
+  }
+  function toggleAddContentMenu() {
+    document.getElementById('camp2AddMenu').classList.toggle('show');
+  }
+  function renderCamp2FilterChips() {
+    const el = document.getElementById('camp2FilterChips');
+    if (!el) return;
+    let chips = [];
+    Object.keys(selected).forEach(k => selected[k].forEach(label => {
+      chips.push(`<div class="achip ${k==='segment'?'seg':''}${k==='concept'?'concept':''}">${k==='trending'?'🔥 ':''}${label}<span class="x" onclick="toggleOption('${label}');setActiveGroup('${k}')">✕</span></div>`);
+    }));
+    el.innerHTML = chips.length ? chips.join('') : `<span style="font-size:11.5px;color:#9a9a94;">No filters applied</span>`;
+    const total = Object.values(selected).reduce((a,s)=>a+s.size,0);
+    const btn = document.getElementById('camp2FilterBtn');
+    if (btn) btn.classList.toggle('active', total > 0);
+    const badge = document.getElementById('camp2FilterCountBadge');
+    if (badge) badge.textContent = total ? '('+total+')' : '';
   }
 
   function renderCamp2SummaryCol() {
@@ -1688,12 +1893,18 @@
   let activeGroup = 'trending';
   let selected = {};
   Object.keys(discoveryFilterGroups).forEach(k => selected[k] = new Set());
+  const CB_EXCLUDED_GROUPS = ['source','language','format','segment','platform'];
 
   function renderGroups() {
-    document.getElementById('fpGroups').innerHTML = Object.keys(discoveryFilterGroups).map(k => {
+    const keys = Object.keys(discoveryFilterGroups);
+    const itemHtml = k => {
       const g = discoveryFilterGroups[k]; const n = selected[k].size;
       return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
-    }).join('');
+    };
+    document.getElementById('fpGroups').innerHTML = keys.map(itemHtml).join('');
+    if (document.getElementById('cbFpGroups')) {
+      document.getElementById('cbFpGroups').innerHTML = keys.filter(k => !CB_EXCLUDED_GROUPS.includes(k)).map(itemHtml).join('');
+    }
   }
   function renderOptions() {
     const g = discoveryFilterGroups[activeGroup];
@@ -1707,6 +1918,7 @@
       </div>`;
     });
     document.getElementById('fpOptions').innerHTML = html;
+    if (document.getElementById('cbFpOptions')) document.getElementById('cbFpOptions').innerHTML = html;
   }
   function setActiveGroup(k) { activeGroup = k; renderGroups(); renderOptions(); }
   function toggleOption(label) {
@@ -1715,6 +1927,7 @@
     renderGroups(); renderOptions(); renderDiscoveryChips();
   }
   function clearFilters() { Object.keys(selected).forEach(k => selected[k].clear()); renderGroups(); renderOptions(); renderDiscoveryChips(); }
+  function clearCbFilters() { clearFilters(); }
   function renderDiscoveryChips() {
     let chips = [];
     Object.keys(selected).forEach(k => selected[k].forEach(label => {
@@ -1724,10 +1937,17 @@
     const total = Object.values(selected).reduce((a,s)=>a+s.size,0);
     document.getElementById('filterCountBadge').textContent = total ? '('+total+')' : '';
     document.getElementById('bmFiltersBtn').classList.toggle('active', total > 0);
+    renderCamp2FilterChips();
   }
   function toggleFilterPanel() {
     document.getElementById('fpBackdrop2').classList.toggle('show');
     document.getElementById('filterPanel2').classList.toggle('show');
+  }
+  function toggleCbFilterPanel() {
+    document.getElementById('cbFpBackdrop').classList.toggle('show');
+    document.getElementById('cbFpPanel').classList.toggle('show');
+    if (CB_EXCLUDED_GROUPS.includes(activeGroup)) activeGroup = 'trending';
+    renderGroups(); renderOptions();
   }
 
   renderDrawerPills(); renderDrawerGrid();
@@ -1750,13 +1970,319 @@
     { id:'e1', date:'2026-07-12', hour:11, minute:20, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'🖼️' },
     { id:'e2', date:'2026-07-12', hour:13, minute:23, title:'', caption:'test', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:null },
     { id:'e3', date:'2026-07-13', hour:8,  minute:0,  title:'SIP vs Lumpsum — Reel', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'🎬' },
-    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'posted', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈' },
-    { id:'e5', date:'2026-07-16', hour:10, minute:0,  title:'Client story — FIRE journey', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'✨' },
+    { id:'e4', date:'2026-07-14', hour:10, minute:0,  title:'Weekly market wrap', caption:'', status:'posted', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'📈', campaignId:'c1' },
+    { id:'e5', date:'2026-07-16', hour:10, minute:0,  title:'Client story — FIRE journey', caption:'', status:'scheduled', platform:'instagram', account:'thefinpedia', thumbnail:'✨', campaignId:'c5' },
     { id:'e6', date:'2026-07-18', hour:13, minute:0,  title:'Year-end portfolio CTA', caption:'', status:'draft', platform:'linkedin', account:'bhashwati-pyne-299058222', thumbnail:'▦' },
     { id:'e7', date:'2026-07-15', hour:9,  minute:0,  title:'Tax saving webinar invite', caption:'', status:'failed', platform:'instagram', account:'thefinpedia', thumbnail:'🎯',
-      failedPlatforms:['instagram'], failReason:'Instagram rejected the media file — the aspect ratio (4:3) isn\u2019t supported for Reels, which require 9:16.' },
+      failedPlatforms:['instagram'], failReason:'Instagram rejected the media file — the aspect ratio (4:3) isn\u2019t supported for Reels, which require 9:16.', campaignId:'c4' },
   ];
   let eventSeq = 100;
+
+  /* ================================================================
+     CAMPAIGNS HUB: single source of truth for every campaign ever run
+     ================================================================ */
+  let campaigns = [
+    { id:'c1', name:'Tax season push', category:'Market Updates', icon:'💰',
+      channels:['linkedin','instagram'], cadenceLabel:'Daily', cadenceFreq:'daily',
+      startDate:'2026-07-01', endDate:'2026-07-30', totalPosts:30, publishedPosts:12,
+      failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
+    { id:'c2', name:'Product launch — new SIP plan', category:'Trending', icon:'🚀',
+      channels:['instagram','facebook'], cadenceLabel:'Every other day', cadenceFreq:'every_other',
+      startDate:'2026-07-20', endDate:'2026-08-19', totalPosts:16, publishedPosts:0,
+      failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
+    { id:'c3', name:'Brand awareness starter pack', category:'Investor Education', icon:'▦',
+      channels:['linkedin'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
+      startDate:'2026-06-01', endDate:'2026-06-29', totalPosts:6, publishedPosts:6,
+      failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
+    { id:'c4', name:'Pre-retirees, age 45–60', category:'Targeted', icon:'🎯',
+      channels:['linkedin','facebook'], cadenceLabel:'Daily', cadenceFreq:'daily',
+      startDate:'2026-07-08', endDate:'2026-07-22', totalPosts:15, publishedPosts:4,
+      failedPosts:2, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
+    { id:'c5', name:'New investors, first SIP', category:'Targeted', icon:'🎯',
+      channels:['instagram'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
+      startDate:'2026-07-12', endDate:'2026-09-06', totalPosts:9, publishedPosts:1,
+      failedPosts:0, channelExpiring:false, pausedByUser:true, isDraft:false, archived:false },
+    { id:'c6', name:'Investment anniversary', category:'Personalisation', icon:'💍',
+      channels:['linkedin','instagram'], cadenceLabel:'Auto-sent', cadenceFreq:'weekly',
+      startDate:'2026-08-01', endDate:'2026-12-31', totalPosts:0, publishedPosts:0,
+      failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:true, archived:false },
+  ];
+  let campaignSeq = 100;
+
+  const CAMP_STATUS_META = {
+    draft:            { label:'Draft' },
+    upcoming:         { label:'Upcoming' },
+    active:           { label:'Active' },
+    needs_attention:  { label:'Needs attention' },
+    paused:           { label:'Paused' },
+    completed:        { label:'Completed' },
+  };
+  const CAMP_TAB_ORDER = ['all','active','needs_attention','upcoming','completed','paused','draft'];
+
+  function computeCampaignStatus(c) {
+    if (c.isDraft) return 'draft';
+    if (c.pausedByUser) return 'paused';
+    if (TODAY_STR < c.startDate) return 'upcoming';
+    if (TODAY_STR > c.endDate) return 'completed';
+    if (c.failedPosts > 0 || c.channelExpiring) return 'needs_attention';
+    return 'active';
+  }
+
+  function campaignNextPostDue(c) {
+    const status = computeCampaignStatus(c);
+    if (status === 'completed' || status === 'draft') return null;
+    const stepDays = c.cadenceFreq === 'weekly' ? 7 : c.cadenceFreq === 'every_other' ? 2 : 1;
+    let cursor = c.startDate > TODAY_STR ? c.startDate : TODAY_STR;
+    if (cursor > c.endDate) return null;
+    return cursor;
+  }
+
+  /* Reconstructs a lightweight per-post sequence for a campaign so the
+     detail drawer can show a color-coded mini timeline at a glance. */
+  function generateCampaignPosts(c) {
+    const stepDays = c.cadenceFreq === 'weekly' ? 7 : c.cadenceFreq === 'every_other' ? 2 : 1;
+    const posts = [];
+    let cursor = c.startDate;
+    let guard = 0;
+    while (cursor <= c.endDate && guard < 60) {
+      posts.push(cursor);
+      cursor = addDaysToStr(cursor, stepDays);
+      guard++;
+    }
+    return posts.map((date, i) => {
+      let status;
+      if (i < c.publishedPosts) status = (i >= c.publishedPosts - c.failedPosts) ? 'failed' : 'posted';
+      else if (date <= TODAY_STR) status = 'scheduled';
+      else status = 'upcoming';
+      return { date, status };
+    });
+  }
+
+  let campaignStatusFilter = 'all';
+  let campaignSearchQuery = '';
+  let openCampMenuId = null;
+  let activeCampaignId = null;
+
+  function campaignsForFilter(filterKey) {
+    return campaigns.filter(c => !c.archived && (filterKey === 'all' || computeCampaignStatus(c) === filterKey));
+  }
+
+  function setCampaignStatusFilter(f) {
+    campaignStatusFilter = f;
+    renderCampaignsView();
+  }
+  function onCampaignSearchInput(v) {
+    campaignSearchQuery = v.toLowerCase();
+    renderCampaignRows();
+  }
+
+  function renderCampaignsView() {
+    const tabsHtml = CAMP_TAB_ORDER.map(key => {
+      const label = key === 'all' ? 'All' : CAMP_STATUS_META[key].label;
+      const count = campaignsForFilter(key).length;
+      return `<div class="camp-tab ${campaignStatusFilter===key?'active':''}" onclick="setCampaignStatusFilter('${key}')">${label} <span class="cnt">${count}</span></div>`;
+    }).join('');
+
+    document.getElementById('campaignsView').innerHTML = `
+      <div class="camp-toolbar">
+        <div class="camp-tabs">${tabsHtml}</div>
+        <div class="camp-search-row">
+          <div class="camp-search">🔍 <input type="text" placeholder="Search campaigns…" oninput="onCampaignSearchInput(this.value)"></div>
+          <div class="lf-pill camp-sort-pill">Sort: Next post due ▾</div>
+          <div class="camp-new-btn" onclick="openModal()">+ New campaign</div>
+        </div>
+      </div>
+      <div class="camp-list" id="campListBody"></div>`;
+    renderCampaignRows();
+  }
+
+  function renderCampaignRows() {
+    const q = campaignSearchQuery;
+    const rows = campaignsForFilter(campaignStatusFilter).filter(c => !q || c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    const container = document.getElementById('campListBody');
+    if (!container) return;
+    if (!rows.length) {
+      container.innerHTML = `<div class="camp-empty">No campaigns match this filter.</div>`;
+      return;
+    }
+    const chanCls = { instagram:'ig', facebook:'fb', linkedin:'li', whatsapp_broadcast:'wab', paid_ads:'pad' };
+    const chanIcon = { instagram:'📷', facebook:'f', linkedin:'in', whatsapp_broadcast:'W', paid_ads:'$' };
+    container.innerHTML = rows.map(c => {
+      const status = computeCampaignStatus(c);
+      const pct = c.totalPosts ? Math.round((c.publishedPosts / c.totalPosts) * 100) : 0;
+      const next = campaignNextPostDue(c);
+      const dateRange = fmtDateShort(c.startDate) + ' – ' + fmtDateShort(c.endDate);
+      const menuId = 'campMenu_' + c.id;
+      return `
+        <div class="camp-row" onclick="openCampaignDetail('${c.id}')">
+          <div class="camp-row-top">
+            <div class="camp-icon">${c.icon}</div>
+            <div class="camp-name-wrap">
+              <div class="camp-name">${c.name}</div>
+              <div class="camp-cat">${c.category}</div>
+            </div>
+            <div class="camp-channels">${c.channels.map(k => `<div class="camp-chan-dot ${chanCls[k]}" title="${k}">${chanIcon[k]}</div>`).join('')}</div>
+            <span class="camp-badge st-${status}">${CAMP_STATUS_META[status].label}</span>
+            <div class="camp-progress-col">
+              <div class="camp-progress-label"><span>${c.publishedPosts}/${c.totalPosts || '—'} posts published</span><span>${c.totalPosts ? pct+'%' : ''}</span></div>
+              <div class="camp-progress-bar"><div class="camp-progress-fill ${status}" style="width:${pct}%"></div></div>
+            </div>
+            <div class="camp-dates-col">${dateRange}</div>
+            <div class="camp-next-col">Next post<b>${next ? fmtDateShort(next) : '—'}</b></div>
+            <div class="camp-menu-dd" onclick="event.stopPropagation()">
+              <div class="camp-menu-btn" onclick="toggleCampMenu('${c.id}')">⋯</div>
+              <div class="camp-menu ${openCampMenuId===c.id?'show':''}" id="${menuId}">
+                <div class="camp-menu-item" onclick="editCampaign('${c.id}')">✎ Edit &amp; reschedule</div>
+                <div class="camp-menu-item" onclick="toggleCampaignPause('${c.id}')">${c.pausedByUser ? '▷ Resume' : '⏸ Pause'}</div>
+                <div class="camp-menu-item" onclick="duplicateCampaign('${c.id}')">⧉ Duplicate</div>
+                <div class="camp-menu-item danger" onclick="archiveCampaign('${c.id}')">🗄 Archive</div>
+              </div>
+            </div>
+          </div>
+          ${status === 'needs_attention' ? `<div class="camp-row-warn">⚠ ${c.failedPosts} post${c.failedPosts===1?'':'s'} failed to publish — open the campaign to retry.</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function toggleCampMenu(id) {
+    openCampMenuId = openCampMenuId === id ? null : id;
+    renderCampaignRows();
+  }
+
+  function toggleCampaignPause(id) {
+    const c = campaigns.find(x => x.id === id);
+    if (c) c.pausedByUser = !c.pausedByUser;
+    openCampMenuId = null;
+    renderCampaignRows();
+    if (activeCampaignId === id) renderCampaignDetail();
+  }
+
+  function duplicateCampaign(id) {
+    const src = campaigns.find(x => x.id === id);
+    if (!src) return;
+    const copy = Object.assign({}, src, { id:'c' + (campaignSeq++), name: src.name + ' (copy)', publishedPosts:0, failedPosts:0, pausedByUser:false, isDraft:true });
+    campaigns.push(copy);
+    openCampMenuId = null;
+    renderCampaignsView();
+  }
+
+  function archiveCampaign(id) {
+    const c = campaigns.find(x => x.id === id);
+    if (!c) return;
+    if (!confirm(`Archive "${c.name}"? It will be removed from all campaign tabs.`)) return;
+    c.archived = true;
+    openCampMenuId = null;
+    if (activeCampaignId === id) closeCampaignDetail();
+    renderCampaignsView();
+  }
+
+  function openCampaignsAndDetail(id) {
+    switchView('campaigns');
+    setCampaignStatusFilter('all');
+    openCampaignDetail(id);
+  }
+
+  function openCampaignDetail(id) {
+    activeCampaignId = id;
+    renderCampaignDetail();
+    document.getElementById('campDetailDrawer').classList.add('show');
+    document.getElementById('campDetailScrim').classList.add('show');
+  }
+  function closeCampaignDetail() {
+    activeCampaignId = null;
+    document.getElementById('campDetailDrawer').classList.remove('show');
+    document.getElementById('campDetailScrim').classList.remove('show');
+  }
+
+  function renderCampaignDetail() {
+    const c = campaigns.find(x => x.id === activeCampaignId);
+    const drawer = document.getElementById('campDetailDrawer');
+    if (!c) { drawer.innerHTML = ''; return; }
+    const status = computeCampaignStatus(c);
+    const posts = generateCampaignPosts(c);
+    const scheduledCount = posts.filter(p => p.status==='scheduled' || p.status==='upcoming').length;
+    const failedCount = c.failedPosts;
+    const daysRemaining = c.endDate >= TODAY_STR ? Math.max(0, Math.round((new Date(c.endDate) - new Date(TODAY_STR)) / 86400000)) : 0;
+    const chanLabel = { instagram:'Instagram', facebook:'Facebook', linkedin:'LinkedIn', whatsapp_broadcast:'WhatsApp Broadcast', paid_ads:'Paid Ads' };
+
+    drawer.innerHTML = `
+      <div class="cd-head">
+        <div>
+          <div class="cd-head-title">${c.icon} ${c.name}</div>
+          <div class="cd-head-cat">${c.category} · ${c.cadenceLabel}</div>
+        </div>
+        <div class="cd-close" onclick="closeCampaignDetail()">✕</div>
+      </div>
+      <div class="cd-badge-row"><span class="camp-badge st-${status}">${CAMP_STATUS_META[status].label}</span></div>
+
+      <div class="cd-metrics">
+        <div class="cd-metric"><b>${c.publishedPosts}</b><span>Published</span></div>
+        <div class="cd-metric"><b>${scheduledCount}</b><span>Scheduled</span></div>
+        <div class="cd-metric"><b>${failedCount}</b><span>Failed</span></div>
+        <div class="cd-metric"><b>${daysRemaining}</b><span>Days left</span></div>
+      </div>
+
+      <div class="cd-section-title">Post timeline</div>
+      <div class="cd-timeline">${posts.map(p => `<div class="cd-dot ${p.status}" title="${fmtDateLong(p.date)} · ${p.status}"></div>`).join('')}</div>
+      <div class="cd-legend">
+        <span><span class="sw" style="background:#639922"></span>Posted</span>
+        <span><span class="sw" style="background:#378add"></span>Scheduled</span>
+        <span><span class="sw" style="background:#d84c4c"></span>Failed</span>
+        <span><span class="sw" style="background:#d8d6cf"></span>Upcoming</span>
+      </div>
+
+      <div class="cd-section-title">Campaign settings</div>
+      <div class="cd-recap-row"><span>Channels</span><span>${c.channels.map(k => chanLabel[k]).join(', ')}</span></div>
+      <div class="cd-recap-row"><span>Cadence</span><span>${c.cadenceLabel}</span></div>
+      <div class="cd-recap-row"><span>Date range</span><span>${fmtDateShort(c.startDate)} – ${fmtDateShort(c.endDate)}</span></div>
+      <div class="cd-recap-row"><span>Category</span><span>${c.category}</span></div>
+
+      <div class="cd-actions">
+        <div class="m-btn ghost" onclick="toggleCampaignPause('${c.id}')">${c.pausedByUser ? '▷ Resume' : '⏸ Pause'}</div>
+        <div class="m-btn primary" onclick="editCampaign('${c.id}')">✎ Edit campaign</div>
+      </div>`;
+  }
+
+  /* Reopens the existing Build Campaign modal, prefilled with the
+     campaign's current config, for edit + reschedule. */
+  const CAMP_CAT_TO_KEY = { 'Investor Education':'education', 'Financial Concepts':'concepts', 'Market Updates':'market', 'Trending':'trending', 'Risk Profiling':'risk' };
+  function editCampaign(id) {
+    const c = campaigns.find(x => x.id === id);
+    if (!c) return;
+    openCampMenuId = null;
+    closeCampaignDetail();
+    campaignState = freshCampaignState();
+    campaignState.editingCampaignId = c.id;
+    campaignState.editingPublishedCount = c.publishedPosts;
+    Object.keys(campaignState.channels).forEach(k => campaignState.channels[k] = c.channels.includes(k));
+    campaignState.contentCat = CAMP_CAT_TO_KEY[c.category] || 'education';
+    campaignState.cadence.frequency = c.cadenceFreq;
+    campaignState.cadence.startDate = c.startDate;
+    campaignState.cadence.endDate = c.endDate;
+    const days = Math.max(1, Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000) + 1);
+    campaignState.cadence.duration = days;
+    document.getElementById('modalBackdrop').classList.add('show');
+    renderCamp2();
+  }
+
+  function saveEditedCampaign() {
+    const c = campaigns.find(x => x.id === campaignState.editingCampaignId);
+    if (!c) { closeModal(); return; }
+    const published = campaignState.editingPublishedCount || 0;
+    const chanOn = Object.keys(campaignState.channels).filter(k => campaignState.channels[k]);
+    const newTotal = Math.max(published, campaignState.selectedCards.size || c.totalPosts);
+    const upcomingCount = Math.max(0, newTotal - published);
+    c.channels = chanOn;
+    c.cadenceFreq = campaignState.cadence.frequency;
+    c.cadenceLabel = campaignState.cadence.frequency === 'daily' ? 'Daily' : campaignState.cadence.frequency === 'weekly' ? 'Weekly' : 'Every other day';
+    c.startDate = campaignState.cadence.startDate;
+    c.endDate = campaignState.cadence.endDate;
+    c.totalPosts = newTotal;
+    c.category = Object.keys(CAMP_CAT_TO_KEY).find(k => CAMP_CAT_TO_KEY[k] === campaignState.contentCat) || c.category;
+    closeModal();
+    alert(`Campaign updated. ${published} published post${published===1?'':'s'} stay as-is · ${upcomingCount} upcoming post${upcomingCount===1?'':'s'} will shift to the new schedule.`);
+    if (currentView === 'campaigns') renderCampaignsView();
+  }
 
   const WEEK_START = new Date(2026, 6, 12);
   const TODAY_STR = '2026-07-12';
@@ -1766,6 +2292,7 @@
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function toDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
   function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+  function addDaysToStr(dateStr, n) { const [y,m,d] = dateStr.split('-').map(Number); return toDateStr(addDays(new Date(y, m-1, d), n)); }
   function hourLabel(h) { const ampm = h < 12 ? 'AM' : 'PM'; let hh = h % 12; if (hh===0) hh = 12; return hh + ' ' + ampm; }
   function fmtDateLong(dateStr) {
     const [y,m,d] = dateStr.split('-').map(Number);
@@ -1796,17 +2323,21 @@
   function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
   function switchView(v) {
     currentView = v;
-    updateTopbarDateLabel(v);
-    ['Week','Month','List'].forEach(name => {
+    if (v !== 'campaigns') updateTopbarDateLabel(v);
+    ['Week','Month','List','Campaigns'].forEach(name => {
       document.getElementById('viewTab'+name).classList.toggle('active', name.toLowerCase()===v);
     });
     document.getElementById('weekView').style.display = v==='week' ? 'block' : 'none';
     document.getElementById('monthView').style.display = v==='month' ? 'flex' : 'none';
     document.getElementById('listView').style.display = v==='list' ? 'block' : 'none';
+    document.getElementById('campaignsView').style.display = v==='campaigns' ? 'block' : 'none';
+    document.querySelector('.date-nav').style.visibility = v==='campaigns' ? 'hidden' : 'visible';
     closeDayPopover();
+    closeCampaignDetail();
     if (v==='week') renderWeekView();
     if (v==='month') renderMonthView();
     if (v==='list') renderListView();
+    if (v==='campaigns') renderCampaignsView();
   }
 
   const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
@@ -1849,9 +2380,11 @@
         const ev = events.find(e => e.date===dateStr && e.hour===h);
         if (ev) {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
+          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
           html += `<div class="wk-slot" style="padding:0">
-            <div class="wk-event st-${ev.status} ${dim}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+            <div class="wk-event st-${ev.status} ${dim} ${campName?'has-campaign':''}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
               <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
+              ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
               <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
             </div>
           </div>`;
@@ -1891,7 +2424,11 @@
         const first2 = dayEvents.slice(0,1);
         first2.forEach(ev => {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
-          inner += `<div class="month-item st-${ev.status} ${dim}">${ev.title || ev.caption || 'Untitled'}</div>`;
+          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
+          inner += `<div class="month-item st-${ev.status} ${dim} ${campName?'has-campaign':''}">
+            <div>${ev.title || ev.caption || 'Untitled'}</div>
+            ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
+          </div>`;
         });
         if (dayEvents.length > 1) {
           inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
@@ -1969,12 +2506,14 @@
     }
     sorted.forEach(ev => {
       const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
+      const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
       html += `
-        <div class="list-row">
+        <div class="list-row ${campName?'has-campaign':''}">
           <div class="lr-head">
             <div class="lr-avatar">${pm.icon}</div>
         <div><div class="lr-account">${ev.account}</div><div class="lr-platform">${pm.label}</div></div>
         <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
+        ${campName ? `<span class="lr-camp-label" onclick="openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</span>` : ''}
         <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
         <div class="lr-icons">
           <div class="lr-icon-btn" title="Duplicate">⧉</div>
@@ -2615,6 +3154,14 @@
     if (drpPop && drpPop.classList.contains('show') && !evt.target.closest('.list-filters')) {
       drpPop.classList.remove('show');
       if (drpPill) drpPill.classList.remove('open');
+    }
+    const addMenu = document.getElementById('camp2AddMenu');
+    if (addMenu && addMenu.classList.contains('show') && !evt.target.closest('.camp2-add-dd')) {
+      addMenu.classList.remove('show');
+    }
+    if (openCampMenuId && !evt.target.closest('.camp-menu-dd')) {
+      openCampMenuId = null;
+      renderCampaignRows();
     }
   });
 </script>
