@@ -54,7 +54,7 @@
 
   .layout { display: flex; height: 780px; position: relative; }
 
-  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; overflow-y: auto; }
+  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; }
   .btn { width: 100%; padding: 13px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: opacity .12s, transform .08s; }
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: #1a1a1a; color: #fff; }
@@ -874,39 +874,12 @@
   .cd-actions .m-btn { flex:1; text-align:center; }
 
   /* small campaign-link pills on the calendar */
-  .cal-camp-pill { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:#5a2ea6; background:#ede4fb; border:1px solid #d9cdf5; border-radius:999px; padding:1px 6px; margin-left:4px; cursor:pointer; }
-  .cal-camp-pill:hover { background:#e2d3fb; }
-  .cal-camp-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#8a5fd9; flex-shrink:0; }
-
-  /* ===== sidebar: channel connections ===== */
-  .sidebar-channels-list { display:flex; flex-direction:column; gap:6px; margin-top:2px; }
-  .sidebar-chan-row { display:flex; align-items:center; gap:8px; padding:7px 8px; border:1px solid #e4e2da; border-radius:8px; cursor:pointer; }
-  .sidebar-chan-row:hover { border-color:#c7c5bc; background:#fbfbfa; }
-  .sidebar-chan-icon { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; background:#1a1a1a; flex-shrink:0; }
-  .sidebar-chan-icon.connected.ig { background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
-  .sidebar-chan-icon.connected.fb { background:#1877f2; }
-  .sidebar-chan-icon.connected.li { background:#0a66c2; }
-  .sidebar-chan-icon.inactive { background:#eceae4; color:#b3b2ac; }
-  .sidebar-chan-info { flex:1; min-width:0; }
-  .sidebar-chan-name { font-size:11.5px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .sidebar-chan-status { font-size:9.5px; color:#9a9a94; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .sidebar-chan-action { font-size:10px; font-weight:700; color:#6a3fd1; cursor:pointer; white-space:nowrap; flex-shrink:0; }
-  .sidebar-chan-action:hover { text-decoration:underline; }
-
-  /* ===== calendar: campaign type / name multi-select filters ===== */
-  .cal-camp-filters { display:flex; gap:8px; margin-left:auto; }
-  .cf-dd { position:relative; }
-  .cf-pill { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#4a4a46; background:#fff; border:1px solid #d8d6cf; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; }
-  .cf-pill:hover { border-color:#b3b2ac; }
-  .cf-pill.active { border-color:#6a3fd1; color:#5a2ea6; background:#f6f1ff; }
-  .cf-menu { position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e2da; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,0.14); padding:8px; width:230px; display:none; z-index:12; max-height:280px; overflow-y:auto; }
-  .cf-menu.show { display:block; }
-  .cf-option { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:500; color:#3a3a36; padding:8px; border-radius:7px; cursor:pointer; }
-  .cf-option:hover { background:#f4f4f2; }
-  .cf-check { width:16px; height:16px; border-radius:4px; border:1.5px solid #d8d6cf; flex-shrink:0; position:relative; }
-  .cf-check.checked { background:#1a1a1a; border-color:#1a1a1a; }
-  .cf-check.checked::after { content:''; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
-  .cf-clear { text-align:center; font-size:11.5px; font-weight:600; color:#9c2b2b; padding:8px; cursor:pointer; border-top:1px solid #ececea; margin-top:4px; }
+  .wk-event.has-campaign, .month-item.has-campaign { border-left: 3px solid #6a3fd1; border-radius: 0 6px 6px 0; }
+  .cal-camp-label { font-size: 9px; color: #6a3fd1; cursor: pointer; margin-top: 1px; }
+  .cal-camp-label:hover { text-decoration: underline; }
+  .list-row.has-campaign { border-left: 3px solid #6a3fd1; }
+  .lr-camp-label { font-size: 11px; color: #6a3fd1; cursor: pointer; }
+  .lr-camp-label:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -914,8 +887,9 @@
 
 <div class="frame">
   <div class="topbar">
-    <div class="topbar-row topbar-row-top">
+    <div class="topbar-row topbar-row-top" style="justify-content:space-between;">
       <div class="breadcrumb">Marketing <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Schedule</span></div>
+      <div class="profile-row" id="profileRow"></div>
     </div>
     <div class="topbar-row topbar-row-bottom">
       <div class="topbar-sidebar-spacer"></div>
@@ -939,8 +913,7 @@
     <div class="sidebar">
       <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
       <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
-      <div class="section-label" style="margin-top:6px;" id="btnConnectChannel">Channel connections</div>
-      <div class="sidebar-channels-list" id="sidebarChannelsList"></div>
+      <div class="btn btn-tertiary" id="btnConnectChannel">🔗 Connect your channel</div>
     </div>
 
     <div class="scrim" id="scrim" onclick="closePanels()"></div>
@@ -2009,27 +1982,27 @@
      CAMPAIGNS HUB: single source of truth for every campaign ever run
      ================================================================ */
   let campaigns = [
-    { id:'c1', name:'Tax season push', category:'Market Updates', icon:'💰', type:'playlist',
+    { id:'c1', name:'Tax season push', category:'Market Updates', icon:'💰',
       channels:['linkedin','instagram'], cadenceLabel:'Daily', cadenceFreq:'daily',
       startDate:'2026-07-01', endDate:'2026-07-30', totalPosts:30, publishedPosts:12,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c2', name:'Product launch — new SIP plan', category:'Trending', icon:'🚀', type:'playlist',
+    { id:'c2', name:'Product launch — new SIP plan', category:'Trending', icon:'🚀',
       channels:['instagram','facebook'], cadenceLabel:'Every other day', cadenceFreq:'every_other',
       startDate:'2026-07-20', endDate:'2026-08-19', totalPosts:16, publishedPosts:0,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c3', name:'Brand awareness starter pack', category:'Investor Education', icon:'▦', type:'playlist',
+    { id:'c3', name:'Brand awareness starter pack', category:'Investor Education', icon:'▦',
       channels:['linkedin'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
       startDate:'2026-06-01', endDate:'2026-06-29', totalPosts:6, publishedPosts:6,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c4', name:'Pre-retirees, age 45–60', category:'Targeted', icon:'🎯', type:'targeted',
+    { id:'c4', name:'Pre-retirees, age 45–60', category:'Targeted', icon:'🎯',
       channels:['linkedin','facebook'], cadenceLabel:'Daily', cadenceFreq:'daily',
       startDate:'2026-07-08', endDate:'2026-07-22', totalPosts:15, publishedPosts:4,
       failedPosts:2, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c5', name:'New investors, first SIP', category:'Targeted', icon:'🎯', type:'targeted',
+    { id:'c5', name:'New investors, first SIP', category:'Targeted', icon:'🎯',
       channels:['instagram'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
       startDate:'2026-07-12', endDate:'2026-09-06', totalPosts:9, publishedPosts:1,
       failedPosts:0, channelExpiring:false, pausedByUser:true, isDraft:false, archived:false },
-    { id:'c6', name:'Investment anniversary', category:'Personalisation', icon:'💍', type:'personalized',
+    { id:'c6', name:'Investment anniversary', category:'Personalisation', icon:'💍',
       channels:['linkedin','instagram'], cadenceLabel:'Auto-sent', cadenceFreq:'weekly',
       startDate:'2026-08-01', endDate:'2026-12-31', totalPosts:0, publishedPosts:0,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:true, archived:false },
@@ -2370,83 +2343,13 @@
   const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
   const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
   let statusFilter = new Set(STATUS_LIST);
-
-  /* ---- multi-select filters: campaign type + campaign name (Week/Month/List) ---- */
-  const CAMP_TYPE_LABELS = { playlist:'Playlist', targeted:'Targeted', personalized:'Personalized' };
-  let campTypeFilter = new Set();
-  let campNameFilter = new Set();
-  let campTypeDropdownOpen = false;
-  let campNameDropdownOpen = false;
-
-  function rerenderCurrentCalView() {
-    if (currentView === 'week') renderWeekView();
-    if (currentView === 'month') renderMonthView();
-    if (currentView === 'list') renderListView();
-  }
-  function toggleCampFilterDD(which) {
-    if (which === 'type') { campTypeDropdownOpen = !campTypeDropdownOpen; campNameDropdownOpen = false; }
-    else { campNameDropdownOpen = !campNameDropdownOpen; campTypeDropdownOpen = false; }
-    rerenderCurrentCalView();
-  }
-  function toggleCampTypeFilter(k) {
-    if (campTypeFilter.has(k)) campTypeFilter.delete(k); else campTypeFilter.add(k);
-    rerenderCurrentCalView();
-  }
-  function toggleCampNameFilter(id) {
-    if (campNameFilter.has(id)) campNameFilter.delete(id); else campNameFilter.add(id);
-    rerenderCurrentCalView();
-  }
-  function clearCampTypeFilter() { campTypeFilter.clear(); rerenderCurrentCalView(); }
-  function clearCampNameFilter() { campNameFilter.clear(); rerenderCurrentCalView(); }
-
-  function eventPassesCampaignFilters(ev) {
-    if (!campTypeFilter.size && !campNameFilter.size) return true;
-    if (!ev.campaignId) return false;
-    const camp = campaigns.find(c => c.id === ev.campaignId);
-    if (!camp) return false;
-    if (campTypeFilter.size && !campTypeFilter.has(camp.type)) return false;
-    if (campNameFilter.size && !campNameFilter.has(camp.id)) return false;
-    return true;
-  }
-
-  function campaignFilterBarHTML() {
-    const typeCount = campTypeFilter.size;
-    const nameCount = campNameFilter.size;
-    const typeOptions = Object.keys(CAMP_TYPE_LABELS).map(k => `
-      <div class="cf-option" onclick="toggleCampTypeFilter('${k}')">
-        <div class="cf-check ${campTypeFilter.has(k)?'checked':''}"></div>${CAMP_TYPE_LABELS[k]}
-      </div>`).join('');
-    const namePool = campaigns.filter(c => !c.archived);
-    const nameOptions = namePool.map(c => `
-      <div class="cf-option" onclick="toggleCampNameFilter('${c.id}')">
-        <div class="cf-check ${campNameFilter.has(c.id)?'checked':''}"></div>${c.icon} ${c.name}
-      </div>`).join('');
-    return `
-      <div class="cal-camp-filters">
-        <div class="cf-dd">
-          <div class="cf-pill ${typeCount?'active':''}" onclick="toggleCampFilterDD('type')">🏷 Campaign type${typeCount?' ('+typeCount+')':''} <span>▾</span></div>
-          <div class="cf-menu ${campTypeDropdownOpen?'show':''}">
-            ${typeOptions}
-            ${typeCount ? `<div class="cf-clear" onclick="clearCampTypeFilter()">Clear</div>` : ''}
-          </div>
-        </div>
-        <div class="cf-dd">
-          <div class="cf-pill ${nameCount?'active':''}" onclick="toggleCampFilterDD('name')">📋 Campaign name${nameCount?' ('+nameCount+')':''} <span>▾</span></div>
-          <div class="cf-menu ${campNameDropdownOpen?'show':''}">
-            ${nameOptions}
-            ${nameCount ? `<div class="cf-clear" onclick="clearCampNameFilter()">Clear</div>` : ''}
-          </div>
-        </div>
-      </div>`;
-  }
-
   function legendHTML() {
     return '<div class="cal-legend" id="calLegend">' + STATUS_LIST.map(s => {
       const off = !statusFilter.has(s);
       return `<div class="legend-item ${s} ${off?'off':''}" onclick="toggleStatus('${s}')">
         <span class="legend-check"></span>${STATUS_LABEL[s]}
       </div>`;
-    }).join('') + campaignFilterBarHTML() + '</div>';
+    }).join('') + '</div>';
   }
   function toggleStatus(s) {
     if (statusFilter.has(s)) statusFilter.delete(s); else statusFilter.add(s);
@@ -2474,13 +2377,14 @@
       const dateStr = toDateStr(d);
       html += '<div class="day-col">';
       TIME_SLOTS.forEach(h => {
-        const ev = events.find(e => e.date===dateStr && e.hour===h && eventPassesCampaignFilters(e));
+        const ev = events.find(e => e.date===dateStr && e.hour===h);
         if (ev) {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
-          const campPill = ev.campaignId ? `<span class="cal-camp-pill" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">●</span>` : '';
+          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
           html += `<div class="wk-slot" style="padding:0">
-            <div class="wk-event st-${ev.status} ${dim}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
-              <div class="we-title">${ev.title || ev.caption || 'Untitled'}${campPill}</div>
+            <div class="wk-event st-${ev.status} ${dim} ${campName?'has-campaign':''}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+              <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
+              ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
               <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
             </div>
           </div>`;
@@ -2513,15 +2417,18 @@
       const dateStr = toDateStr(d);
       const outside = d.getMonth() !== month;
       const isToday = dateStr === TODAY_STR;
-      const dayEvents = events.filter(e => e.date === dateStr && eventPassesCampaignFilters(e)).sort((a,b)=>a.hour-b.hour);
+      const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
       let inner = `<div class="month-date">${d.getDate()}</div>`;
       inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">+</div>`;
       if (dayEvents.length) {
         const first2 = dayEvents.slice(0,1);
         first2.forEach(ev => {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
-          const campPill = ev.campaignId ? `<span class="cal-camp-pill" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">●</span>` : '';
-          inner += `<div class="month-item st-${ev.status} ${dim}">${ev.title || ev.caption || 'Untitled'}${campPill}</div>`;
+          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
+          inner += `<div class="month-item st-${ev.status} ${dim} ${campName?'has-campaign':''}">
+            <div>${ev.title || ev.caption || 'Untitled'}</div>
+            ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
+          </div>`;
         });
         if (dayEvents.length > 1) {
           inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
@@ -2534,7 +2441,7 @@
   }
 
   function openDayPopover(evt, dateStr) {
-    const dayEvents = events.filter(e => e.date === dateStr && eventPassesCampaignFilters(e)).sort((a,b)=>a.hour-b.hour);
+    const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
     if (!dayEvents.length) {
       openEditPost({mode:'create', date: dateStr, hour: 10});
       return;
@@ -2586,7 +2493,6 @@
     const sorted = [...events]
       .filter(e => statusFilter.has(e.status))
       .filter(e => e.date >= listDateRange.start && e.date <= listDateRange.end)
-      .filter(eventPassesCampaignFilters)
       .sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
     let html = `
       <div class="list-filters">
@@ -2596,17 +2502,18 @@
       </div>`;
     html += legendHTML();
     if (!sorted.length) {
-      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected filters.</div>`;
+      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected statuses.</div>`;
     }
     sorted.forEach(ev => {
       const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
+      const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
       html += `
-        <div class="list-row">
+        <div class="list-row ${campName?'has-campaign':''}">
           <div class="lr-head">
             <div class="lr-avatar">${pm.icon}</div>
         <div><div class="lr-account">${ev.account}</div><div class="lr-platform">${pm.label}</div></div>
         <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
-        ${ev.campaignId ? `<span class="cal-camp-pill" onclick="openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it"><span class="cal-camp-dot"></span>${(campaigns.find(c=>c.id===ev.campaignId)||{}).name || 'Campaign'}</span>` : ''}
+        ${campName ? `<span class="lr-camp-label" onclick="openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</span>` : ''}
         <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
         <div class="lr-icons">
           <div class="lr-icon-btn" title="Duplicate">⧉</div>
@@ -3205,40 +3112,31 @@
     tiktok:    { label: 'TikTok',    icon: '♪' },
     youtube:   { label: 'YouTube',   icon: '▶' },
   };
-  function renderChannelConnections() {
+  function renderProfileRow() {
     const connectedKeys = Object.keys(PLATFORM_META).filter(k => CONNECTED[k]);
     const ACCOUNT_NAME = { linkedin: 'bhashwati-pyne', facebook: 'thefinpedia', instagram: 'thefinpedia' };
     let html = '';
     connectedKeys.forEach(k => {
       const meta = PLATFORM_META[k];
       const name = ACCOUNT_NAME[k] || meta.label;
-      html += `<div class="sidebar-chan-row" onclick="alert('This would open ${meta.label} account settings.')">
-        <div class="sidebar-chan-icon connected ${meta.cls}">${meta.icon}</div>
-        <div class="sidebar-chan-info">
-          <div class="sidebar-chan-name">${meta.label}</div>
-          <div class="sidebar-chan-status">Connected · ${name}</div>
-        </div>
-        <span class="sidebar-chan-action">Manage</span>
+      html += `<div class="profile-avatar-wrap" title="${meta.label} — ${name}" onclick="alert('This would open ${meta.label} account settings.')">
+        <div class="profile-avatar connected ${meta.cls}">${meta.icon}</div>
+        <div class="profile-name">${name}</div>
       </div>`;
     });
     const inactive = Object.keys(PLATFORM_META).filter(k => !CONNECTED[k])
       .map(k => ({ label: PLATFORM_META[k].label, icon: PLATFORM_META[k].icon }))
       .concat(Object.values(EXTRA_INACTIVE_PLATFORMS));
     inactive.forEach(p => {
-      html += `<div class="sidebar-chan-row" onclick="alert('This would start the channel-connect flow for ${p.label}.')">
-        <div class="sidebar-chan-icon inactive">${p.icon}</div>
-        <div class="sidebar-chan-info">
-          <div class="sidebar-chan-name">${p.label}</div>
-          <div class="sidebar-chan-status">Not connected</div>
-        </div>
-        <span class="sidebar-chan-action">Connect</span>
+      html += `<div class="profile-avatar-wrap" title="Connect ${p.label}" onclick="alert('This would start the channel-connect flow for ${p.label}.')">
+        <div class="profile-avatar inactive">${p.icon}<span class="profile-badge">+</span></div>
       </div>`;
     });
-    document.getElementById('sidebarChannelsList').innerHTML = html;
+    document.getElementById('profileRow').innerHTML = html;
   }
 
   switchView('week');
-  renderChannelConnections();
+  renderProfileRow();
   setTimeout(startLandingTour, 400);
 
   document.addEventListener('click', function(evt) {
@@ -3264,11 +3162,6 @@
     if (openCampMenuId && !evt.target.closest('.camp-menu-dd')) {
       openCampMenuId = null;
       renderCampaignRows();
-    }
-    if ((campTypeDropdownOpen || campNameDropdownOpen) && !evt.target.closest('.cf-dd')) {
-      campTypeDropdownOpen = false;
-      campNameDropdownOpen = false;
-      rerenderCurrentCalView();
     }
   });
 </script>
