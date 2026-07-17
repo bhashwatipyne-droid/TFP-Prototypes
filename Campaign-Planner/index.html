@@ -278,13 +278,11 @@
 
   .wk-slot { height: 64px; border-bottom: 1px solid #ececea; position: relative; cursor: pointer; }
   .wk-slot:hover { background: #f7f8fc; }
-  .wk-slot-plus {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.7);
-    width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; color: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
-    opacity: 0; transition: opacity .12s ease, transform .12s ease; pointer-events: none; z-index: 2;
+  .wk-slot-actions {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    display: flex; gap: 4px; opacity: 0; pointer-events: none; transition: opacity .12s ease;
   }
-  .wk-slot:hover .wk-slot-plus { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  .wk-slot:hover .wk-slot-actions { opacity: 1; pointer-events: auto; }
   .wk-slot.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
   .month-cell.drag-over, .list-row.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
   .wk-event {
@@ -349,12 +347,16 @@
   .month-item.dimmed { opacity: 0.35; }
   .month-item.campaign-post { box-shadow: inset 3px 0 0 #6a3fd1; padding-left:9px; }
   .month-more { font-size: 10.5px; font-weight: 600; color: #0c447c; cursor: pointer; }
-  .month-cell-plus {
-    position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
-    background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .12s ease; cursor: pointer;
+  .month-cell-actions {
+    position: absolute; top: 8px; right: 8px; display: flex; gap: 5px;
+    opacity: 0; pointer-events: none; transition: opacity .12s ease;
   }
-  .month-cell:hover .month-cell-plus { opacity: 1; }
+  .month-cell:hover .month-cell-actions { opacity: 1; pointer-events: auto; }
+  .mca-btn {
+    display: flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; color: #4a4a46;
+    background: #fff; border: 1px dashed #d0cec5; border-radius: 7px; padding: 5px 8px; cursor: pointer; white-space: nowrap;
+  }
+  .mca-btn:hover { background: #f4f4f2; border-color: #b8b6ae; border-style: solid; }
   .sq-card.camp-card { position: relative; cursor: pointer; }
   .camp-card-plus {
     position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 6px;
@@ -1580,9 +1582,13 @@
   }
 
   let campaignTourSeen = false;
-  function openModal(mode) {
+  function openModal(mode, startDate) {
     closePanels();
     campaignState = freshCampaignState();
+    if (startDate) {
+      campaignState.cadence.startDate = startDate;
+      campaignState.cadence.endDate = addDaysToStr(startDate, campaignState.cadence.duration - 1);
+    }
     camp2LastSwap = null;
     camp2FlashDates = null;
     hideCamp2Toast();
@@ -3139,9 +3145,11 @@
           </div>`;
         } else {
           html += `<div class="wk-slot" data-date="${dateStr}" data-hour="${h}"
-            ondragover="onSlotDragOver(event)" ondragleave="onSlotDragLeave(event)" ondrop="onSlotDrop(event)"
-            onclick="openEditPost({mode:'create', date:'${dateStr}', hour:${h}})">
-            <div class="wk-slot-plus">+</div>
+            ondragover="onSlotDragOver(event)" ondragleave="onSlotDragLeave(event)" ondrop="onSlotDrop(event)">
+            <div class="wk-slot-actions">
+              <div class="mca-btn" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:${h}})">✎+ Post</div>
+              <div class="mca-btn" onclick="event.stopPropagation(); openModal('standard','${dateStr}')">🎯+ Campaign</div>
+            </div>
           </div>`;
         }
       });
@@ -3168,7 +3176,10 @@
       const isToday = dateStr === TODAY_STR;
       const dayEvents = events.filter(e => e.date === dateStr && eventPassesCampaignFilters(e)).sort((a,b)=>a.hour-b.hour);
       let inner = `<div class="month-date">${d.getDate()}</div>`;
-      inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">+</div>`;
+      inner += `<div class="month-cell-actions">
+        <div class="mca-btn" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">✎+ Post</div>
+        <div class="mca-btn" onclick="event.stopPropagation(); openModal('standard','${dateStr}')">🎯+ Campaign</div>
+      </div>`;
       if (dayEvents.length) {
         const first2 = dayEvents.slice(0,1);
         first2.forEach(ev => {
