@@ -962,6 +962,14 @@
   .cf-check { width:16px; height:16px; border-radius:4px; border:1.5px solid #d8d6cf; flex-shrink:0; position:relative; cursor:pointer; }
   .cf-check.checked { background:#1a1a1a; border-color:#1a1a1a; }
   .cf-check.checked::after { content:''; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+  .cf-check.st-scheduled.checked { background:#0c447c; border-color:#0c447c; }
+  .cf-check.st-posted.checked { background:#27500a; border-color:#27500a; }
+  .cf-check.st-draft.checked { background:#d4b106; border-color:#d4b106; }
+  .cf-check.st-failed.checked { background:#9c2b2b; border-color:#9c2b2b; }
+  .filter-option-label.st-scheduled { color:#0c447c; }
+  .filter-option-label.st-posted { color:#27500a; }
+  .filter-option-label.st-draft { color:#6b5900; }
+  .filter-option-label.st-failed { color:#9c2b2b; }
   .cf-clear { text-align:center; font-size:11.5px; font-weight:600; color:#9c2b2b; padding:8px; cursor:pointer; border-top:1px solid #ececea; margin-top:4px; }
 
   /* ===== main left nav rail ===== */
@@ -3043,7 +3051,7 @@
     return `<div class="filter-dd">
       <div class="filter-trigger" onclick="toggleHeaderFilter('status')"><span>${all ? 'All status' : statusFilter.size + ' status selected'}</span><span>⌄</span></div>
       <div class="filter-menu ${statusDropdownOpen?'show':''}">
-        ${STATUS_LIST.map(s => `<div class="filter-option" onclick="toggleStatus('${s}')"><span class="cf-check ${statusFilter.has(s)?'checked':''}"></span>${STATUS_LABEL[s]}</div>`).join('')}
+        ${STATUS_LIST.map(s => `<div class="filter-option" onclick="toggleStatus('${s}')"><span class="cf-check st-${s} ${statusFilter.has(s)?'checked':''}"></span><span class="filter-option-label st-${s}">${STATUS_LABEL[s]}</span></div>`).join('')}
       </div>
     </div>`;
   }
