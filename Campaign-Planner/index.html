@@ -286,6 +286,7 @@
   }
   .wk-slot:hover .wk-slot-plus { opacity: 1; transform: translate(-50%,-50%) scale(1); }
   .wk-slot.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
+  .month-cell.drag-over, .list-row.drag-over { background: #eaf1fb; outline: 2px dashed #0c447c; outline-offset: -2px; }
   .wk-event {
     position: absolute; inset: 3px; border-radius: 6px; padding: 5px 7px; font-size: 10.5px;
     cursor: pointer; overflow: hidden; z-index: 1;
@@ -631,6 +632,7 @@
   .ep-btn.primary { background: #1a1a1a; color: #fff; }
 
   .ep-fail-banner { background: #fbe4e4; border-bottom: 1px solid #f0b8b8; padding: 14px 26px; }
+  .ep-validation-banner { background: #fdf6e0; border-bottom: 1px solid #eadd9c; color: #6b5900; padding: 10px 26px; font-size: 12.5px; line-height: 1.5; }
   .ep-fail-title { color: #9c2b2b; font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
   .ep-fail-platforms { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
   .ep-fail-platform-chip { font-size: 11px; font-weight: 600; background: #fff; color: #9c2b2b; border: 1px solid #f0b8b8; padding: 3px 10px; border-radius: 999px; }
@@ -677,6 +679,21 @@
   .camp2-topbar { display:flex; align-items:center; gap:14px; padding:16px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
   .camp2-title { font-size:16px; font-weight:700; }
   .camp2-count-pill { font-size:11px; font-weight:600; color:#6a6a66; background:#f0ece2; padding:5px 12px; border-radius:999px; }
+  .camp2-toast { position:fixed; left:50%; bottom:28px; transform:translate(-50%,12px); background:#1a1a1a; color:#fff; font-size:12.5px; padding:11px 16px; border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.25); z-index:500; display:flex; align-items:center; gap:14px; opacity:0; pointer-events:none; transition:opacity .16s, transform .16s; }
+  .unsaved-backdrop { position:fixed; inset:0; background:rgba(20,20,18,0.5); z-index:600; display:none; align-items:center; justify-content:center; }
+  .unsaved-backdrop.show { display:flex; }
+  .unsaved-modal { background:#fff; border-radius:14px; padding:22px 24px; width:320px; box-shadow:0 20px 50px rgba(0,0,0,0.25); }
+  .unsaved-title { font-size:14.5px; font-weight:700; color:#1a1a1a; margin-bottom:6px; }
+  .unsaved-sub { font-size:12.5px; color:#6b6a64; line-height:1.5; margin-bottom:18px; }
+  .unsaved-actions { display:flex; flex-direction:column; gap:8px; }
+  .unsaved-btn { text-align:center; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+  .unsaved-btn.primary { background:#1a1a1a; color:#fff; }
+  .unsaved-btn.danger { background:#fbe4e4; color:#7a2020; }
+  .unsaved-btn.ghost { background:#f4f4f2; color:#4a4a46; }
+  .camp2-toast.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+  .camp2-toast a { color:#9ecbff; font-weight:700; cursor:pointer; text-decoration:underline; }
+  .drop-flash { animation: camp2DropFlash 1.1s ease; }
+  @keyframes camp2DropFlash { 0% { background:#eaf3de; } 100% { background:transparent; } }
   .camp2-strip { display:flex; align-items:center; gap:20px; padding:9px 22px; background:#fdf6e0; border-bottom:1px solid #eadd9c; font-size:11.5px; color:#6b5900; flex-shrink:0; }
   .camp2-strip.ok { background:#eaf3de; border-bottom-color:#cfe3b0; color:#3d6512; }
   .camp2-strip a { color:#0c447c; font-weight:600; cursor:pointer; text-decoration:underline; }
@@ -837,6 +854,7 @@
   .camp-search input { border:none; background:transparent; outline:none; font-size:13px; font-family:inherit; color:#1a1a1a; flex:1; }
   .camp-search input::placeholder { color:#9a9a94; }
   .camp-sort-pill { flex-shrink:0; }
+  .camp-date-filter-wrap { flex-shrink:0; }
   .camp-new-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; background:#1a1a1a; color:#fff; font-size:13px; font-weight:600; padding:9px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
   .camp-new-btn:hover { background:#333; }
 
@@ -1158,13 +1176,13 @@
 
     <div class="page-placeholder" id="pagePlaceholder" style="display:none;"></div>
 
-    <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) attemptCloseModal()">
       <div class="modal camp2-modal">
         <div class="camp2-topbar">
           <span class="camp2-back" id="camp2Back" onclick="goToScreen('build')" style="display:none;">←</span>
           <span class="camp2-title" id="camp2Title">Build campaign</span>
           <span class="camp2-count-pill" id="camp2CountPill"></span>
-          <span class="modal-close" style="margin-left:auto" onclick="closeModal()">✕</span>
+          <span class="modal-close" style="margin-left:auto" onclick="attemptCloseModal()">✕</span>
           <span class="m-btn ghost" onclick="camp2TakeTourClick()">✦ Take a tour</span>
           <span id="camp2ActionsArea" style="display:flex; align-items:center; gap:10px;"></span>
         </div>
@@ -1327,14 +1345,15 @@
       </div>
     </div>
 
-    <div class="ep-backdrop" id="epBackdrop" onclick="if(event.target===this) closeEditPost()">
+    <div class="ep-backdrop" id="epBackdrop" onclick="if(event.target===this) attemptCloseEditPost()">
       <div class="ep-modal">
         <div class="ep-head">
           <h2 id="epTitle">Edit post</h2>
           <span class="m-btn ghost" style="margin-left:auto;margin-right:10px;" onclick="startCreatePostTour()">✦ Take a tour</span>
-          <span class="ep-close" onclick="closeEditPost()">✕</span>
+          <span class="ep-close" onclick="attemptCloseEditPost()">✕</span>
         </div>
         <div id="epFailBanner"></div>
+        <div id="epValidationBanner"></div>
         <div class="ep-body">
           <div class="ep-col ep-col-platforms" id="epColPlatforms">
             <div class="ep-section-title">Select Platforms</div>
@@ -1415,6 +1434,18 @@
     </div>
 
   </div>
+  </div>
+</div>
+
+<div class="unsaved-backdrop" id="unsavedBackdrop">
+  <div class="unsaved-modal">
+    <div class="unsaved-title" id="unsavedTitle">You have unsaved changes</div>
+    <div class="unsaved-sub" id="unsavedSub">Save this as a draft, or discard your changes?</div>
+    <div class="unsaved-actions">
+      <div class="unsaved-btn ghost" onclick="unsavedPromptKeepEditing()">Keep editing</div>
+      <div class="unsaved-btn danger" onclick="unsavedPromptDiscard()">Discard</div>
+      <div class="unsaved-btn primary" onclick="unsavedPromptSaveDraft()">Save as Draft</div>
+    </div>
   </div>
 </div>
 
@@ -1516,6 +1547,14 @@
     };
   }
   let campaignState = null;
+  let campaignInitialSnapshot = null;
+  function campaignIsDirty() {
+    return !!campaignState && campaignInitialSnapshot !== null && snapshotStr(campaignState) !== campaignInitialSnapshot;
+  }
+  function attemptCloseModal() {
+    if (campaignIsDirty()) { openUnsavedPrompt('campaign'); }
+    else { closeModal(); }
+  }
 
   function audienceActive() {
     return campaignState.channels.whatsapp_broadcast || campaignState.channels.paid_ads;
@@ -1536,6 +1575,9 @@
   function openModal(mode) {
     closePanels();
     campaignState = freshCampaignState();
+    camp2LastSwap = null;
+    camp2FlashDates = null;
+    hideCamp2Toast();
     if (mode === 'personalisation') {
       campaignState.mode = 'personalisation';
       campaignState.contentCat = 'birthday';
@@ -1546,6 +1588,7 @@
       campaignState.selectedClients = new Set(PERSONAL_CLIENT_BOOK.slice(0,12).map(client => client.id));
     }
     Object.keys(selectedCampContent).forEach(k => selectedCampContent[k].clear());
+    campaignInitialSnapshot = snapshotStr(campaignState);
     document.getElementById('modalBackdrop').classList.add('show');
     renderCamp2();
     if (!campaignTourSeen) { campaignTourSeen = true; setTimeout(startCampaignTour, 300); }
@@ -1606,7 +1649,7 @@
     const allSelected = PERSONAL_CLIENT_BOOK.every(r => campaignState.selectedClients.has(r.id));
     document.getElementById('cpSelectAllCheck').classList.toggle('checked', allSelected);
   }
-  function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); endCampaignTour(); }
+  function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); hideCamp2Toast(); endCampaignTour(); }
 
   let campaignReviewTourSeen = false;
   function goToScreen(name) {
@@ -1618,8 +1661,11 @@
     }
   }
   function camp2CtaClick() {
-    if (campaignState.screen === 'build') goToScreen('schedule');
-    else if (campaignState.editingCampaignId) saveEditedCampaign();
+    if (campaignState.screen === 'build') { goToScreen('schedule'); return; }
+    const blocked = campaignState.selectedCards.size === 0 || !anyChannelSelected();
+    renderCamp2Strip();
+    if (blocked) return;
+    if (campaignState.editingCampaignId) saveEditedCampaign();
     else runCampaign();
   }
 
@@ -1896,11 +1942,17 @@
     alert('Campaign saved as a draft. You can resume it anytime from Campaigns.');
   }
 
+  function anyChannelSelected() {
+    return Object.values(campaignState.channels).some(Boolean);
+  }
   function renderCamp2Strip() {
     const pieces = campaignState.selectedCards.size;
     const days = cadenceDayCount();
     const el = document.getElementById('camp2Strip');
-    if (pieces === 0) {
+    if (!anyChannelSelected()) {
+      el.className = 'camp2-strip';
+      el.innerHTML = `⚠ No channels selected — this campaign has nowhere to send. Go back and pick at least one channel.`;
+    } else if (pieces === 0) {
       el.className = 'camp2-strip';
       el.innerHTML = `⚠ No content selected yet — pick some from the results on the right.`;
     } else if (pieces < days) {
@@ -1955,6 +2007,11 @@
       <input type="text" class="camp2-cta-input" value="${campaignState.defaultCta.url}" oninput="setDefaultCtaUrl(this.value)">
       <div class="camp2-cta-learnmore">Learn more <span>▾</span></div>` : ''}
       ${isPersonal ? `
+      <div class="camp2-selectclient-btn" onclick="openClientPickerModal()">
+        👤 ${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' client' + (campaignState.selectedClients.size>1?'s':'') + ' selected' : 'Select client'}
+        <span>▾</span>
+      </div>` : isTargeted ? `
+      <div class="camp2-hint-italic" style="margin-top:10px;">${campaignState.selectedClients.size} client${campaignState.selectedClients.size===1?'':'s'} matching this segment were pre-selected — review before sending.</div>
       <div class="camp2-selectclient-btn" onclick="openClientPickerModal()">
         👤 ${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' client' + (campaignState.selectedClients.size>1?'s':'') + ' selected' : 'Select client'}
         <span>▾</span>
@@ -2121,8 +2178,11 @@
   }
 
   let camp2DragSrcDate = null;
+  let camp2LastSwap = null;
+  let camp2FlashDates = null;
   function camp2DragStart(dateStr) { camp2DragSrcDate = dateStr; }
-  function camp2DragOver(evt) { evt.preventDefault(); }
+  function camp2DragOver(evt) { evt.preventDefault(); evt.currentTarget.classList.add('drag-over'); }
+  function camp2DragLeave(evt) { evt.currentTarget.classList.remove('drag-over'); }
   function camp2Drop(evt, targetDateStr) {
     evt.preventDefault();
     if (!camp2DragSrcDate || camp2DragSrcDate === targetDateStr) { camp2DragSrcDate = null; return; }
@@ -2132,9 +2192,44 @@
     const src = byDate[camp2DragSrcDate], tgt = byDate[targetDateStr];
     camp2DragSrcDate = null;
     if (!src || !tgt) return;
+    const prevSrcAssignment = Object.prototype.hasOwnProperty.call(campaignState.manualAssignments, src.dateStr) ? campaignState.manualAssignments[src.dateStr] : undefined;
+    const prevTgtAssignment = Object.prototype.hasOwnProperty.call(campaignState.manualAssignments, targetDateStr) ? campaignState.manualAssignments[targetDateStr] : undefined;
     campaignState.manualAssignments[targetDateStr] = src.id || null;
     campaignState.manualAssignments[src.dateStr] = tgt.id || null;
+    camp2LastSwap = { srcDate: src.dateStr, tgtDate: targetDateStr, prevSrcAssignment, prevTgtAssignment };
+    camp2FlashDates = [src.dateStr, targetDateStr];
     renderCamp2Cal();
+    const moved = !tgt.card;
+    showCamp2Toast(`${moved ? 'Moved' : 'Swapped'} ${fmtDateShort(src.dateStr)} ${moved ? '→' : '↔'} ${fmtDateShort(targetDateStr)}. <a onclick="camp2UndoSwap()">Undo</a>`);
+  }
+  function camp2UndoSwap() {
+    if (!camp2LastSwap) return;
+    const { srcDate, tgtDate, prevSrcAssignment, prevTgtAssignment } = camp2LastSwap;
+    if (prevSrcAssignment === undefined) delete campaignState.manualAssignments[srcDate];
+    else campaignState.manualAssignments[srcDate] = prevSrcAssignment;
+    if (prevTgtAssignment === undefined) delete campaignState.manualAssignments[tgtDate];
+    else campaignState.manualAssignments[tgtDate] = prevTgtAssignment;
+    camp2LastSwap = null;
+    camp2FlashDates = null;
+    hideCamp2Toast();
+    renderCamp2Cal();
+  }
+  function showCamp2Toast(html) {
+    let el = document.getElementById('camp2Toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'camp2Toast';
+      el.className = 'camp2-toast';
+      document.body.appendChild(el);
+    }
+    el.innerHTML = html;
+    el.classList.add('show');
+    clearTimeout(showCamp2Toast._t);
+    showCamp2Toast._t = setTimeout(() => el.classList.remove('show'), 6000);
+  }
+  function hideCamp2Toast() {
+    const el = document.getElementById('camp2Toast');
+    if (el) el.classList.remove('show');
   }
 
   function renderCamp2Cal() {
@@ -2170,8 +2265,9 @@
             ondragstart="event.stopPropagation(); camp2DragStart('${dateStr}')"
             onclick="event.stopPropagation(); openEditPost({mode:'campaign-edit', date:'${dateStr}', hour:10, campaignCardId:'${sch.id}', prefillCard:cardTitleById('${sch.id}')})">${sch.card.icon} ${sch.card.title}</div>`;
         }
-        html += `<div class="month-cell ${outside?'outside':''} ${sch?'':'no-schedule'}"
+        html += `<div class="month-cell ${outside?'outside':''} ${sch?'':'no-schedule'} ${camp2FlashDates && camp2FlashDates.includes(dateStr) ? 'drop-flash' : ''}" data-date="${dateStr}"
           ondragover="${sch ? 'camp2DragOver(event)' : ''}"
+          ondragleave="${sch ? 'camp2DragLeave(event)' : ''}"
           ondrop="${sch ? `camp2Drop(event,'${dateStr}')` : ''}">${inner}</div>`;
       });
       html += '</div>';
@@ -2182,10 +2278,11 @@
       schedule.forEach(s => {
         const dateLabel = s.date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
         html += `
-          <div class="list-row" draggable="true" style="cursor:${s.card?'pointer':'grab'};"
+          <div class="list-row ${camp2FlashDates && camp2FlashDates.includes(s.dateStr) ? 'drop-flash' : ''}" data-date="${s.dateStr}" draggable="true" style="cursor:${s.card?'pointer':'grab'};"
             ${s.card ? `onclick="openEditPost({mode:'campaign-edit', date:'${s.dateStr}', hour:10, campaignCardId:'${s.id}', prefillCard:cardTitleById('${s.id}')})"` : ''}
             ondragstart="camp2DragStart('${s.dateStr}')"
             ondragover="camp2DragOver(event)"
+            ondragleave="camp2DragLeave(event)"
             ondrop="camp2Drop(event,'${s.dateStr}')">
             <div class="lr-head">
               <div class="lr-avatar">${s.card ? s.card.icon : '📅'}</div>
@@ -2198,6 +2295,7 @@
       });
     }
     cal.innerHTML = html;
+    camp2FlashDates = null;
   }
 
   function runCampaign(){ closeModal(); alert('Campaign is ready to run across your selected channels.'); }
@@ -2558,6 +2656,10 @@
         <div class="camp-tabs">${tabsHtml}</div>
         <div class="camp-search-row">
           <div class="camp-search">🔍 <input type="text" placeholder="Search campaigns…" oninput="onCampaignSearchInput(this.value)"></div>
+          <div class="camp-date-filter-wrap" style="position:relative;">
+            <div class="lf-pill clickable" id="campDatePill" onclick="toggleDateRangePicker(event,'campaigns')">📅 ${campRangeLabel()} <span style="font-size:10px">▾</span></div>
+            <div class="drp-popover" id="drpPopoverCamp"></div>
+          </div>
           <div class="lf-pill camp-sort-pill">Sort: Next post due ▾</div>
           <div class="camp-new-btn" onclick="openModal()">+ New campaign</div>
         </div>
@@ -2566,9 +2668,15 @@
     renderCampaignRows();
   }
 
+  function campaignInDateRange(c) {
+    if (!campDateRange) return true;
+    return c.endDate >= campDateRange.start && c.startDate <= campDateRange.end;
+  }
   function renderCampaignRows() {
     const q = campaignSearchQuery;
-    const rows = campaignsForFilter(campaignStatusFilter).filter(c => !q || c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    const rows = campaignsForFilter(campaignStatusFilter)
+      .filter(c => !q || c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q))
+      .filter(campaignInDateRange);
     const container = document.getElementById('campListBody');
     if (!container) return;
     if (!rows.length) {
@@ -2731,6 +2839,7 @@
     campaignState.cadence.endDate = c.endDate;
     const days = Math.max(1, Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000) + 1);
     campaignState.cadence.duration = days;
+    campaignInitialSnapshot = snapshotStr(campaignState);
     document.getElementById('modalBackdrop').classList.add('show');
     renderCamp2();
   }
@@ -2754,7 +2863,8 @@
     if (currentView === 'campaigns') renderCampaignsView();
   }
 
-  const WEEK_START = new Date(2026, 6, 12);
+  let WEEK_START = new Date(2026, 6, 12);
+  let MONTH_CURSOR_YEAR = 2026, MONTH_CURSOR_MONTH = 6;
   const TODAY_STR = '2026-07-12';
   const TIME_SLOTS = [];
   for (let h = 7; h <= 20; h++) TIME_SLOTS.push(h);
@@ -2778,7 +2888,7 @@
   function updateTopbarDateLabel(v) {
     const el = document.getElementById('dateRangePill');
     if (v === 'month') {
-      el.textContent = MONTH_NAMES[6] + ' 2026';
+      el.textContent = MONTH_NAMES[MONTH_CURSOR_MONTH] + ' ' + MONTH_CURSOR_YEAR;
     } else {
       const start = WEEK_START, end = addDays(WEEK_START, 6);
       const sameMonth = start.getMonth() === end.getMonth();
@@ -2791,8 +2901,28 @@
   let currentView = 'week';
   let calendarPeriod = 'week';
   let lastPostsView = 'week';
-  function goToday() { alert('This would jump the calendar back to today\'s date.'); }
-  function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
+  function goToday() {
+    WEEK_START = new Date(2026, 6, 12);
+    MONTH_CURSOR_YEAR = 2026; MONTH_CURSOR_MONTH = 6;
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    updateTopbarDateLabel(currentView);
+  }
+  function navDate(dir) {
+    if (currentView === 'week') {
+      WEEK_START = addDays(WEEK_START, dir * 7);
+      renderWeekView();
+    } else if (currentView === 'month') {
+      let m = MONTH_CURSOR_MONTH + dir, y = MONTH_CURSOR_YEAR;
+      if (m < 0) { m = 11; y -= 1; }
+      if (m > 11) { m = 0; y += 1; }
+      MONTH_CURSOR_MONTH = m; MONTH_CURSOR_YEAR = y;
+      renderMonthView();
+    } else {
+      return;
+    }
+    updateTopbarDateLabel(currentView);
+  }
   function toggleScheduleMenu(event) {
     event.stopPropagation();
     document.getElementById('scheduleMenu').classList.toggle('show');
@@ -3014,7 +3144,7 @@
   }
 
   function renderMonthView() {
-    const year = 2026, month = 6;
+    const year = MONTH_CURSOR_YEAR, month = MONTH_CURSOR_MONTH;
     const first = new Date(year, month, 1);
     const startOffset = first.getDay();
     const gridStart = addDays(first, -startOffset);
@@ -3086,8 +3216,31 @@
   }
 
   let listDateRange = { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
+  let campDateRange = null;
+  let drpTarget = 'list';
+  let drpWorkingRange = { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
   let drpPendingStart = null;
   let drpMonthCursor = new Date(2026, 6, 1);
+  function drpPopoverEl() { return document.getElementById(drpTarget === 'campaigns' ? 'drpPopoverCamp' : 'drpPopover'); }
+  function drpPillEl() { return document.getElementById(drpTarget === 'campaigns' ? 'campDatePill' : 'lfDatePill'); }
+  function getDrpRange() { return drpTarget === 'campaigns' ? campDateRange : listDateRange; }
+  function setDrpRange(range) {
+    if (drpTarget === 'campaigns') campDateRange = range;
+    else listDateRange = range;
+  }
+  function commitDrpRangeAndRerender() {
+    if (drpTarget === 'campaigns') renderCampaignsView();
+    else renderListView();
+  }
+  function campRangeLabel() {
+    if (!campDateRange) return 'All dates';
+    return fmtDateShort(campDateRange.start) + ' – ' + fmtDateShort(campDateRange.end) + ', ' + campDateRange.start.slice(0,4);
+  }
+  function clearCampDateRange() {
+    campDateRange = null;
+    closeDateRangePicker();
+    renderCampaignsView();
+  }
 
   function fmtDateShort(dateStr) {
     const [y,m,d] = dateStr.split('-').map(Number);
@@ -3140,10 +3293,11 @@
     document.getElementById('listView').innerHTML = html;
   }
 
-  function toggleDateRangePicker(evt) {
+  function toggleDateRangePicker(evt, target) {
     evt.stopPropagation();
-    const pop = document.getElementById('drpPopover');
-    const pill = document.getElementById('lfDatePill');
+    drpTarget = target || 'list';
+    const pop = drpPopoverEl();
+    const pill = drpPillEl();
     const showing = pop.classList.contains('show');
     if (showing) {
       pop.classList.remove('show');
@@ -3152,13 +3306,14 @@
     }
     drpPendingStart = null;
     drpMonthCursor = new Date(2026, 6, 1);
+    drpWorkingRange = getDrpRange() || { start: toDateStr(WEEK_START), end: toDateStr(addDays(WEEK_START, 6)) };
     renderDrp();
     pop.classList.add('show');
     pill.classList.add('open');
   }
   function closeDateRangePicker() {
-    const pop = document.getElementById('drpPopover');
-    const pill = document.getElementById('lfDatePill');
+    const pop = drpPopoverEl();
+    const pill = drpPillEl();
     if (pop) pop.classList.remove('show');
     if (pill) pill.classList.remove('open');
   }
@@ -3172,15 +3327,20 @@
     { label: 'Next month', fn: () => ({ start: toDateStr(new Date(2026,7,1)), end: toDateStr(new Date(2026,7,31)) }) },
   ];
   function applyPreset(idx) {
-    listDateRange = PRESETS[idx].fn();
+    const range = PRESETS[idx].fn();
+    drpWorkingRange = range;
+    setDrpRange(range);
     closeDateRangePicker();
-    renderListView();
+    commitDrpRangeAndRerender();
   }
 
   const MONTH_SHORT = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   function renderDrp() {
-    const pop = document.getElementById('drpPopover');
+    const pop = drpPopoverEl();
     let html = '<div class="drp-presets">';
+    if (drpTarget === 'campaigns') {
+      html += `<div class="drp-preset-item" onclick="clearCampDateRange()">All dates</div>`;
+    }
     PRESETS.forEach((p, idx) => { html += `<div class="drp-preset-item" onclick="applyPreset(${idx})">${p.label}</div>`; });
     html += '</div><div class="drp-calendars">';
     html += drpMonthHTML(drpMonthCursor);
@@ -3199,9 +3359,9 @@
       if (d.getMonth() !== month && i >= 35) continue;
       const dateStr = toDateStr(d);
       const outside = d.getMonth() !== month;
-      const inRange = !outside && dateStr >= listDateRange.start && dateStr <= listDateRange.end;
-      const isStart = dateStr === listDateRange.start;
-      const isEnd = dateStr === listDateRange.end;
+      const inRange = !outside && dateStr >= drpWorkingRange.start && dateStr <= drpWorkingRange.end;
+      const isStart = dateStr === drpWorkingRange.start;
+      const isEnd = dateStr === drpWorkingRange.end;
       const cls = ['drp-day'];
       if (outside) cls.push('outside');
       if (inRange) cls.push('in-range');
@@ -3220,14 +3380,15 @@
   function pickDrpDay(dateStr) {
     if (!drpPendingStart) {
       drpPendingStart = dateStr;
-      listDateRange = { start: dateStr, end: dateStr };
+      drpWorkingRange = { start: dateStr, end: dateStr };
     } else {
       const start = drpPendingStart < dateStr ? drpPendingStart : dateStr;
       const end = drpPendingStart < dateStr ? dateStr : drpPendingStart;
-      listDateRange = { start, end };
+      drpWorkingRange = { start, end };
+      setDrpRange(drpWorkingRange);
       drpPendingStart = null;
       closeDateRangePicker();
-      renderListView();
+      commitDrpRangeAndRerender();
       return;
     }
     renderDrp();
@@ -3292,6 +3453,17 @@
   }
 
   let epState = null;
+  let epInitialSnapshot = null;
+  function snapshotStr(obj) {
+    return JSON.stringify(obj, (k, v) => v instanceof Set ? [...v] : v);
+  }
+  function epIsDirty() {
+    return !!epState && epInitialSnapshot !== null && snapshotStr(epState) !== epInitialSnapshot;
+  }
+  function attemptCloseEditPost() {
+    if (epIsDirty()) { openUnsavedPrompt('post'); }
+    else { closeEditPost(); }
+  }
 
   function cardKind(card) {
     return card && /reel/i.test(card.meta || '') ? 'video' : 'image';
@@ -3349,11 +3521,49 @@
     renderEpPlatformTabs();
     renderMusicNotice();
     renderEpFailBanner();
+    renderEpValidationBanner(null);
+    epInitialSnapshot = snapshotStr(epState);
     document.getElementById('epBackdrop').classList.add('show');
     if (!createPostTourSeen) { createPostTourSeen = true; setTimeout(startCreatePostTour, 300); }
   }
   let createPostTourSeen = false;
   function closeEditPost() { document.getElementById('epBackdrop').classList.remove('show'); endCampaignTour(); }
+
+  let unsavedPromptTarget = null;
+  function openUnsavedPrompt(target) {
+    unsavedPromptTarget = target;
+    const title = document.getElementById('unsavedTitle');
+    const sub = document.getElementById('unsavedSub');
+    if (target === 'campaign') {
+      title.textContent = 'You have unsaved campaign changes';
+      sub.textContent = 'Save this campaign as a draft, or discard your changes?';
+    } else {
+      title.textContent = 'You have unsaved changes';
+      sub.textContent = 'Save this post as a draft, or discard your changes?';
+    }
+    document.getElementById('unsavedBackdrop').classList.add('show');
+  }
+  function closeUnsavedPrompt() {
+    document.getElementById('unsavedBackdrop').classList.remove('show');
+  }
+  function unsavedPromptKeepEditing() {
+    closeUnsavedPrompt();
+  }
+  function unsavedPromptDiscard() {
+    const target = unsavedPromptTarget;
+    closeUnsavedPrompt();
+    if (target === 'campaign') closeModal();
+    else closeEditPost();
+  }
+  function unsavedPromptSaveDraft() {
+    const target = unsavedPromptTarget;
+    closeUnsavedPrompt();
+    if (target === 'campaign') {
+      saveCampaignAsDraftFromReview();
+    } else {
+      saveEditPost('draft');
+    }
+  }
 
   function renderEpFailBanner() {
     const el = document.getElementById('epFailBanner');
@@ -3674,7 +3884,27 @@
     saveEditPost(epSaveMode);
   }
 
+  function validateEpPost() {
+    const errors = [];
+    if (!(epState.caption || '').trim()) errors.push('Add a caption before scheduling.');
+    const hasPlatform = Object.keys(epState.platforms).some(k => CONNECTED[k] && epState.platforms[k].on);
+    if (!hasPlatform) errors.push('Select at least one platform to post to.');
+    if (!epState.thumbnail) errors.push('Add media for this post.');
+    return errors;
+  }
+  function renderEpValidationBanner(errors) {
+    const el = document.getElementById('epValidationBanner');
+    if (!el) return;
+    if (!errors || !errors.length) { el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="ep-validation-banner">⚠ ${errors.join(' · ')}</div>`;
+  }
+
   function saveEditPost(status) {
+    if (status === 'scheduled' && epState.mode !== 'campaign-edit') {
+      const errors = validateEpPost();
+      if (errors.length) { renderEpValidationBanner(errors); return; }
+    }
+    renderEpValidationBanner(null);
     const activeKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
     const platform = activeKeys[0] || 'linkedin';
     const st = epState.platforms[platform] || { hour: 10, minute: 0 };
@@ -3908,9 +4138,9 @@
     if (camp2BuildMenu && camp2BuildMenu.classList.contains('show') && !evt.target.closest('.ep-split-btn')) {
       camp2BuildMenu.classList.remove('show');
     }
-    const drpPop = document.getElementById('drpPopover');
-    const drpPill = document.getElementById('lfDatePill');
-    if (drpPop && drpPop.classList.contains('show') && !evt.target.closest('.list-filters')) {
+    const drpPop = drpPopoverEl();
+    const drpPill = drpPillEl();
+    if (drpPop && drpPop.classList.contains('show') && !evt.target.closest('.list-filters') && !evt.target.closest('.camp-date-filter-wrap')) {
       drpPop.classList.remove('show');
       if (drpPill) drpPill.classList.remove('open');
     }
