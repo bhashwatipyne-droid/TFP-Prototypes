@@ -19,19 +19,32 @@
   .frame {
     width: 1440px; max-width: 100%; margin: 0 auto;
     background: #ffffff; border: 1px solid #d8d6cf; border-radius: 10px; overflow: hidden;
+    display: flex; align-items: stretch;
   }
+  .app-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   .topbar { display: flex; flex-direction: column; border-bottom: 1px solid #e4e2da; }
   .topbar-row { display: flex; align-items: center; gap: 20px; padding: 12px 24px; }
+  .topbar-title-block { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; padding: 16px 24px 10px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #1a1a1a; }
   .topbar-row-top { justify-content: flex-end; padding-bottom: 8px; }
   .breadcrumb { font-size: 13px; color: #9a9a94; }
   .breadcrumb-sep { margin: 0 6px; color: #d8d6cf; }
   .breadcrumb-current { color: #1a1a1a; font-weight: 600; }
   .topbar-row-bottom { padding-top: 8px; }
-  .topbar-sidebar-spacer { width: 220px; flex-shrink: 0; }
+  .topbar-sidebar-spacer { display:none; }
   .pill { display: flex; align-items: center; gap: 6px; border: 1px solid #e4e2da; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #4a4a46; white-space: nowrap; }
   .view-toggle { display: flex; background: #f4f4f2; border-radius: 8px; padding: 3px; margin-left: auto; }
   .view-toggle span { font-size: 13px; padding: 6px 14px; border-radius: 6px; color: #8a8a86; cursor: pointer; }
   .view-toggle span.active { background: #ece5fb; color: #6a3fd1; font-weight: 600; }
+  .topbar-actions { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .schedule-dd, .period-dd { position:relative; }
+  .schedule-trigger { display:flex; align-items:center; gap:9px; background:#1a1a1a; color:#fff; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; }
+  .period-trigger { display:flex; align-items:center; gap:7px; border:1px solid #d8d6cf; border-radius:8px; padding:7px 11px; font-size:13px; font-weight:600; cursor:pointer; background:#fff; }
+  .action-menu { display:none; position:absolute; top:calc(100% + 7px); right:0; min-width:170px; padding:6px; background:#fff; border:1px solid #d8d6cf; border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.14); z-index:50; }
+  .period-dd .action-menu { left:0; right:auto; min-width:120px; }
+  .action-menu.show { display:block; }
+  .action-menu-item { padding:9px 10px; border-radius:7px; font-size:12.5px; cursor:pointer; white-space:nowrap; }
+  .action-menu-item:hover, .action-menu-item.selected { background:#f0ece8; font-weight:600; }
 
   .date-nav { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
   .today-link { font-size: 14px; font-weight: 600; color: #6a3fd1; cursor: pointer; }
@@ -54,7 +67,7 @@
 
   .layout { display: flex; height: 780px; position: relative; }
 
-  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; }
+  .sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #e4e2da; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; position: relative; z-index: 6; overflow-y: auto; }
   .btn { width: 100%; padding: 13px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid transparent; transition: opacity .12s, transform .08s; }
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: #1a1a1a; color: #fff; }
@@ -75,16 +88,23 @@
   .day-col { border-left: 1px solid #ececea; }
   .slot { height: 90px; border-bottom: 1px solid #ececea; }
 
-  .scrim { position: absolute; top:0; left:220px; right:0; bottom:0; background: rgba(20,20,18,0.03); z-index: 4; opacity:0; pointer-events:none; transition: opacity .15s; }
+  .scrim { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(20,20,18,0.03); z-index: 4; opacity:0; pointer-events:none; transition: opacity .15s; }
   .scrim.show { opacity: 1; pointer-events: auto; }
 
   .drawer {
-    position: absolute; top:0; left:220px; bottom:0; width: 360px;
+    position: absolute; top:0; left:0; bottom:0; width: 360px;
     background: #fff; border-right: 1px solid #d8d6cf; box-shadow: 10px 0 28px rgba(0,0,0,0.10);
     padding: 18px 20px; display: flex; flex-direction: column; z-index: 5;
     transform: translateX(-16px); opacity: 0; pointer-events: none; transition: transform .16s, opacity .16s;
   }
   .drawer.show { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .drawer.campaign-picker-modal {
+    top:50%; left:50%; bottom:auto; width:720px; max-width:calc(100% - 80px); height:680px; max-height:calc(100% - 80px);
+    border:1px solid #d8d6cf; border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,.28);
+    transform:translate(-50%,-50%) scale(.98); padding:22px 24px; z-index:8;
+  }
+  .drawer.campaign-picker-modal.show { transform:translate(-50%,-50%) scale(1); }
+  .drawer.campaign-picker-modal .sq-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
   .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .drawer-header .title { font-size: 15px; font-weight: 700; }
   .drawer-header .close { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #8a8a86; font-size: 14px; cursor: pointer; }
@@ -277,6 +297,7 @@
   .wk-event.st-posted { background: #eaf3de; color: #27500a; }
   .wk-event.st-failed { background: #fbe4e4; color: #9c2b2b; }
   .wk-event.dimmed { opacity: 0.35; }
+  .wk-event.campaign-post { box-shadow: inset 3px 0 0 #6a3fd1; padding-left:10px; }
 
   .cal-legend { display: flex; align-items: center; gap: 8px; padding: 8px 24px; border-bottom: 1px solid #e4e2da; background: #fbfbfa; }
   .legend-item {
@@ -299,6 +320,13 @@
     top: 50%; left: 50%; transform: translate(-50%,-50%);
   }
   .legend-item.off { color: #b3b2ac; }
+  .filter-dd { position:relative; }
+  .filter-dd:first-child { margin-left:auto; }
+  .filter-trigger { display:flex; align-items:center; gap:7px; min-width:135px; justify-content:space-between; padding:7px 11px; border:1px solid #d8d6cf; border-radius:8px; background:#fff; font-size:11.5px; font-weight:600; cursor:pointer; }
+  .filter-menu { display:none; position:absolute; top:calc(100% + 6px); right:0; min-width:190px; padding:6px; background:#fff; border:1px solid #d8d6cf; border-radius:10px; box-shadow:0 12px 28px rgba(0,0,0,.14); z-index:40; }
+  .filter-menu.show { display:block; }
+  .filter-option { display:flex; align-items:center; gap:9px; padding:8px 9px; border-radius:7px; font-size:12px; cursor:pointer; }
+  .filter-option:hover { background:#f4f4f2; }
 
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; }
   .month-head-row { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #e4e2da; }
@@ -318,6 +346,7 @@
   .month-item.st-posted { background: #eaf3de; color: #27500a; }
   .month-item.st-failed { background: #fbe4e4; color: #9c2b2b; }
   .month-item.dimmed { opacity: 0.35; }
+  .month-item.campaign-post { box-shadow: inset 3px 0 0 #6a3fd1; padding-left:9px; }
   .month-more { font-size: 10.5px; font-weight: 600; color: #0c447c; cursor: pointer; }
   .month-cell-plus {
     position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
@@ -459,6 +488,9 @@
   .ep-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .12s; }
   .ep-toggle.on { background: #1a1a1a; }
   .ep-toggle.on::after { transform: translateX(16px); }
+  .ep-toggle.camp2-compact-toggle { width:30px; height:18px; }
+  .ep-toggle.camp2-compact-toggle::after { width:14px; height:14px; }
+  .ep-toggle.camp2-compact-toggle.on::after { transform:translateX(12px); }
   .ep-connect-btn { font-size: 11.5px; font-weight: 600; color: #0c447c; cursor: pointer; flex-shrink: 0; }
   .ep-platform-failed-status { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #9c2b2b; background: #fbe4e4; border: 1px solid #f0b8b8; padding: 5px 10px; border-radius: 999px; flex-shrink: 0; cursor: default; }
   .ep-time-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 10px 44px; font-size: 12.5px; color: #4a4a46; }
@@ -674,13 +706,15 @@
   .camp2-caption-box { width:100%; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-family:inherit; color:#1a1a1a; resize:vertical; min-height:64px; box-sizing:border-box; }
   .camp2-cta-input { width:100%; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-family:inherit; color:#1a1a1a; box-sizing:border-box; }
   .camp2-cta-learnmore { display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; color:#4a4a46; cursor:pointer; }
+  .camp2-selectclient-btn { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding:9px 12px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-weight:600; color:#3a3a36; cursor:pointer; }
+  .camp2-selectclient-btn:hover { border-color:#b3b2ac; }
   .camp2-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   .camp2-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:#9a9a94; }
   .camp2-empty-icon { font-size:28px; margin-bottom:10px; opacity:0.6; }
   .camp2-empty-title { font-size:13.5px; font-weight:700; color:#6a6a66; margin-bottom:4px; }
   .camp2-empty-sub { font-size:12px; max-width:320px; line-height:1.6; }
 
-  .camp2-summary-col { width:340px; flex-shrink:0; border-right:1px solid #e4e2da; padding:18px 20px; overflow-y:auto; background:#fbfbfa; }
+  .camp2-summary-col { width:260px; flex-shrink:0; border-right:1px solid #e4e2da; padding:18px 16px; overflow-y:auto; background:#fbfbfa; }
   .camp2-sum-sec-title { font-size:12px; font-weight:700; color:#6a6a66; text-transform:uppercase; letter-spacing:.02em; margin:14px 0 8px; }
   .camp2-sum-sec-title:first-child { margin-top:0; }
   .camp2-sum-row { display:flex; justify-content:space-between; font-size:12px; padding:7px 0; border-bottom:1px solid #ececea; color:#4a4a46; }
@@ -737,6 +771,25 @@
 
   .camp2-audience-note { font-size:11px; color:#9a9a94; line-height:1.5; }
   .camp2-match-pill { display:inline-block; font-size:10px; font-weight:600; color:#4a4a46; background:#f0ece2; padding:5px 12px; border-radius:999px; margin-top:10px; }
+  .camp2-dp-col { display:flex; flex-direction:column; gap:12px; }
+  .camp2-dp-item { display:flex; flex-direction:column; gap:3px; }
+  .camp2-dp-sub { font-size:10.5px; color:#9a9a94; margin-left:26px; line-height:1.4; }
+  .camp2-aud-block { margin-top:14px; padding:12px; border:1px solid #e4e2da; border-radius:10px; background:#fbfaf7; }
+  .camp2-aud-block + .camp2-aud-block { margin-top:10px; }
+  .camp2-aud-head { display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; }
+  .camp2-aud-icon { font-size:15px; line-height:1.3; }
+  .camp2-aud-title { font-size:12.5px; font-weight:700; color:#1a1a1a; }
+  .camp2-aud-sub { font-size:10.5px; color:#8a8a86; line-height:1.4; margin-top:1px; }
+  .camp2-client-count { font-size:11px; font-weight:600; color:#4a4a46; margin-top:10px; }
+  .camp2-client-list { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+  .camp2-client-row { display:flex; align-items:center; gap:8px; padding:6px 8px; background:#fff; border:1px solid #ece9e1; border-radius:8px; font-size:11.5px; }
+  .camp2-client-avatar { width:22px; height:22px; border-radius:50%; background:#ede5ff; color:#5735bb; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .camp2-client-name { font-weight:600; color:#1a1a1a; flex:1; }
+  .camp2-client-phone { color:#9a9a94; font-size:10.5px; }
+  .camp2-client-optin { font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:999px; white-space:nowrap; }
+  .camp2-client-optin.yes { background:#e6f5e6; color:#1e7a35; }
+  .camp2-client-optin.no { background:#fdeee0; color:#b6560a; }
+  .camp2-client-more { font-size:10.5px; color:#8a8a86; text-align:center; padding-top:2px; }
 
   .camp2-content-summary { display:flex; align-items:center; justify-content:space-between; }
   .camp2-content-summary a { font-size:10.5px; color:#0c447c; text-decoration:underline; cursor:pointer; }
@@ -874,49 +927,158 @@
   .cd-actions .m-btn { flex:1; text-align:center; }
 
   /* small campaign-link pills on the calendar */
-  .wk-event.has-campaign, .month-item.has-campaign { border-left: 3px solid #6a3fd1; border-radius: 0 6px 6px 0; }
-  .cal-camp-label { font-size: 9px; color: #6a3fd1; cursor: pointer; margin-top: 1px; }
-  .cal-camp-label:hover { text-decoration: underline; }
-  .list-row.has-campaign { border-left: 3px solid #6a3fd1; }
-  .lr-camp-label { font-size: 11px; color: #6a3fd1; cursor: pointer; }
-  .lr-camp-label:hover { text-decoration: underline; }
+  .cal-camp-pill { display:flex; align-items:center; gap:4px; font-size:9.5px; font-weight:600; color:#5a2ea6; padding:0; margin:1px 0 2px; cursor:pointer; max-width:100%; }
+  .cal-camp-pill:hover { text-decoration:underline; }
+  .cal-camp-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#8a5fd9; flex-shrink:0; }
+
+  /* ===== calendar: campaign type / name multi-select filters ===== */
+  .cal-camp-filters { display:flex; gap:8px; margin-left:auto; }
+  .cf-dd { position:relative; }
+  .cf-pill { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#4a4a46; background:#fff; border:1px solid #d8d6cf; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; }
+  .cf-pill:hover { border-color:#b3b2ac; }
+  .cf-pill.active { border-color:#6a3fd1; color:#5a2ea6; background:#f6f1ff; }
+  .cf-menu { position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e2da; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,0.14); padding:8px; width:230px; display:none; z-index:12; max-height:280px; overflow-y:auto; }
+  .cf-menu.show { display:block; }
+  .cf-option { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:500; color:#3a3a36; padding:8px; border-radius:7px; cursor:pointer; }
+  .cf-option:hover { background:#f4f4f2; }
+  .cf-check { width:16px; height:16px; border-radius:4px; border:1.5px solid #d8d6cf; flex-shrink:0; position:relative; cursor:pointer; }
+  .cf-check.checked { background:#1a1a1a; border-color:#1a1a1a; }
+  .cf-check.checked::after { content:''; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+  .cf-clear { text-align:center; font-size:11.5px; font-weight:600; color:#9c2b2b; padding:8px; cursor:pointer; border-top:1px solid #ececea; margin-top:4px; }
+
+  /* ===== main left nav rail ===== */
+  .main-nav { width:196px; flex-shrink:0; border-right:1px solid #e4e2da; background:#fbfbfa; padding:18px 12px; display:flex; flex-direction:column; gap:3px; }
+  .mn-logo { font-size:14.5px; font-weight:800; color:#1a1a1a; padding:6px 10px 16px; letter-spacing:.01em; }
+  .mn-item { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:#4a4a46; padding:10px 10px; border-radius:8px; cursor:pointer; user-select:none; }
+  .mn-item:hover { background:#f0efe9; }
+  .mn-item.active { background:#1a1a1a; color:#fff; }
+  .mn-item .mn-chev { margin-left:auto; font-size:10px; transition:transform .15s; }
+  .mn-item.expanded .mn-chev { transform:rotate(180deg); }
+  .mn-submenu { display:flex; flex-direction:column; gap:1px; padding-left:30px; margin:2px 0 6px; }
+  .mn-submenu.collapsed { display:none; }
+  .mn-subitem { font-size:12.5px; font-weight:600; color:#8a8a86; padding:8px 10px; border-radius:7px; cursor:pointer; }
+  .mn-subitem:hover { background:#f0efe9; color:#1a1a1a; }
+  .mn-subitem.active { background:#ece5fb; color:#5a2ea6; }
+
+  .mn-submenu.mn-submenu-channels { padding-left:6px; gap:6px; }
+  .mn-chan-row { display:flex; align-items:center; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; }
+  .mn-chan-row:hover { background:#f0efe9; }
+  .mn-chan-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; background:#1a1a1a; flex-shrink:0; }
+  .mn-chan-icon.connected.ig { background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+  .mn-chan-icon.connected.fb { background:#1877f2; }
+  .mn-chan-icon.connected.li { background:#0a66c2; }
+  .mn-chan-icon.inactive { background:#e4e2da; color:#9a9a94; }
+  .mn-chan-info { flex:1; min-width:0; }
+  .mn-chan-name { font-size:11px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mn-chan-status { font-size:9px; color:#9a9a94; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mn-chan-action { font-size:9.5px; font-weight:700; color:#6a3fd1; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .mn-chan-action:hover { text-decoration:underline; }
+
+  /* ===== generic page placeholder (Home / Analytics) ===== */
+  .page-placeholder { flex:1; padding:32px; overflow-y:auto; }
+
+  /* schedule-screen split button opening downward from the topbar */
+  .ep-split-menu.open-down { top: 100%; bottom: auto; margin-bottom: 0; margin-top: 8px; }
+
+  /* personalisation: customize icon on a content card */
+  .sq-customize-btn { position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:6px; background:#fff; border:1px solid #d8d6cf; display:flex; align-items:center; justify-content:center; font-size:11px; color:#4a4a46; z-index:2; }
+  .sq-customize-btn:hover { border-color:#6a3fd1; color:#6a3fd1; }
+
+  /* ===== client picker modal (personalisation: select client & schedule date) ===== */
+  .client-picker-modal { width:min(1040px,94vw); max-height:88vh; display:flex; flex-direction:column; }
+  .cp-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
+  .cp-title { font-size:16px; font-weight:700; }
+  .cp-toolbar { display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:1px solid #e4e2da; flex-wrap:wrap; flex-shrink:0; }
+  .cp-search { flex:1; min-width:160px; display:flex; align-items:center; gap:8px; background:#f4f4f2; border-radius:8px; padding:8px 12px; }
+  .cp-search input { border:none; background:transparent; outline:none; font-size:13px; font-family:inherit; color:#1a1a1a; width:100%; }
+  .cp-addnew-btn { background:#1a1a1a; color:#fff; font-size:13px; font-weight:600; padding:8px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .cp-table-wrap { flex:1; overflow:auto; padding:0 22px; }
+  .cp-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .cp-table th { text-align:left; font-size:11px; font-weight:700; color:#8a8a86; text-transform:uppercase; letter-spacing:.02em; padding:10px 10px; border-bottom:1px solid #e4e2da; position:sticky; top:0; background:#fff; white-space:nowrap; }
+  .cp-table td { padding:10px 10px; border-bottom:1px solid #ececea; white-space:nowrap; color:#3a3a36; }
+  .cp-date-input { border:1px solid #d8d6cf; border-radius:7px; padding:6px 10px; font-size:12px; font-family:inherit; }
+  .cp-footer { display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-top:1px solid #e4e2da; font-size:12.5px; color:#4a4a46; flex-shrink:0; }
+  .cp-pagination { display:flex; align-items:center; gap:8px; }
+  .cp-page-arrow { width:26px; height:26px; border-radius:7px; border:1px solid #d8d6cf; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .cp-page-pill { min-width:26px; height:26px; border-radius:7px; background:#1a1a1a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
+  /* ===== personalize editor (sketch canvas) ===== */
+  .pz-modal { width:min(1200px,96vw); height:88vh; display:flex; flex-direction:column; padding:0; }
+  .pz-topbar { display:flex; align-items:center; gap:16px; padding:14px 20px; border-bottom:1px solid #e4e2da; flex-shrink:0; }
+  .pz-back { cursor:pointer; font-size:14px; font-weight:600; color:#4a4a46; }
+  .pz-crumb { font-size:13px; color:#9a9a94; }
+  .pz-crumb b { color:#1a1a1a; font-weight:600; }
+  .pz-body { flex:1; display:flex; overflow:hidden; }
+  .pz-col-left { width:230px; flex-shrink:0; border-right:1px solid #e4e2da; padding:16px; overflow-y:auto; }
+  .pz-col-canvas { flex:1; background:#f4f4f2; display:flex; align-items:center; justify-content:center; padding:24px; overflow:auto; }
+  .pz-col-right { width:280px; flex-shrink:0; border-left:1px solid #e4e2da; padding:16px; overflow-y:auto; }
+  .pz-accordion-head { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:700; color:#6a6a66; text-transform:uppercase; letter-spacing:.03em; padding:8px 0; cursor:pointer; }
+  .pz-field { border:1px solid #d8d6cf; border-radius:8px; padding:9px 12px; font-size:12.5px; font-family:inherit; width:100%; margin-bottom:8px; color:#3a3a36; }
+  .pz-addfield-link { font-size:12.5px; font-weight:600; color:#6a3fd1; cursor:pointer; margin-bottom:16px; }
+  .pz-layer-row { display:flex; align-items:center; gap:8px; padding:8px 6px; border-radius:7px; font-size:12.5px; color:#3a3a36; }
+  .pz-layer-row:hover { background:#f4f4f2; }
+  .pz-need-help { margin-top:20px; font-size:12.5px; color:#8a8a86; cursor:pointer; }
+  .pz-canvas-card { width:440px; height:280px; border-radius:10px; background:#2b3f8c; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px; text-align:center; color:#fff; }
+  .pz-canvas-title { font-family:'Brush Script MT',cursive; font-size:38px; line-height:1; }
+  .pz-canvas-photo { width:120px; height:120px; background:#fff; border-radius:2px; box-shadow:0 4px 10px rgba(0,0,0,0.25); }
+  .pz-canvas-sub { font-size:12.5px; line-height:1.5; max-width:320px; }
+  .pz-align-row { display:flex; gap:6px; margin-bottom:16px; }
+  .pz-align-btn { width:28px; height:28px; border:1px solid #d8d6cf; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
+  .pz-align-btn.active { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }
+  .pz-textarea { width:100%; min-height:70px; border:1px solid #d8d6cf; border-radius:8px; padding:10px; font-size:12.5px; font-family:inherit; resize:vertical; margin-bottom:14px; }
+  .pz-sizes-row { display:flex; gap:8px; }
+  .pz-sizes-row .pz-field { margin-bottom:0; }
 </style>
 </head>
 <body>
 
 
 <div class="frame">
+  <div class="main-nav" id="mainNav"></div>
+
+  <div class="app-body">
   <div class="topbar">
-    <div class="topbar-row topbar-row-top" style="justify-content:space-between;">
-      <div class="breadcrumb">Marketing <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Schedule</span></div>
-      <div class="profile-row" id="profileRow"></div>
+    <div class="topbar-title-block">
+      <div class="breadcrumb" id="breadcrumbText">Marketing <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Scheduler</span></div>
+      <div class="page-title" id="pageTitleText">Scheduler</div>
     </div>
-    <div class="topbar-row topbar-row-bottom">
+    <div class="topbar-row topbar-row-bottom" id="topbarBottomRow">
       <div class="topbar-sidebar-spacer"></div>
       <div class="date-nav">
-        <span class="today-link" onclick="goToday()">Today</span>
         <span class="nav-arrow" onclick="navDate(-1)">‹</span>
         <span class="nav-arrow" onclick="navDate(1)">›</span>
         <span class="date-range-text" id="dateRangePill">Jul 12 – 18, 2026</span>
+        <span class="today-link" onclick="goToday()">Today</span>
+        <div class="period-dd">
+          <div class="period-trigger" onclick="togglePeriodMenu(event)"><span id="periodLabel">Week</span>⌄</div>
+          <div class="action-menu" id="periodMenu">
+            <div class="action-menu-item selected" data-period="week" onclick="selectCalendarPeriod('week')">Week</div>
+            <div class="action-menu-item" data-period="month" onclick="selectCalendarPeriod('month')">Month</div>
+          </div>
+        </div>
       </div>
       <div class="view-toggle" id="viewToggleGroup">
-        <span class="active" id="viewTabWeek" onclick="switchView('week')">Week</span>
-        <span id="viewTabMonth" onclick="switchView('month')">Month</span>
+        <span class="active" id="viewTabCalendar" onclick="switchPrimaryView('calendar')">Calendar</span>
         <span id="viewTabList" onclick="switchView('list')">List</span>
-        <span id="viewTabCampaigns" onclick="switchView('campaigns')">Campaigns</span>
       </div>
-      <span class="m-btn ghost" style="margin-left:12px;" onclick="startLandingTour()">✦ Take a tour</span>
+      <div class="topbar-actions">
+        <span class="m-btn ghost" onclick="startLandingTour()">✦ Take a tour</span>
+        <div class="schedule-dd">
+          <div class="schedule-trigger" id="btnSchedule" onclick="toggleScheduleMenu(event)">＋ Schedule <span>⌄</span></div>
+          <div class="action-menu" id="scheduleMenu">
+            <div class="action-menu-item" onclick="chooseSchedule('post')">✎ Single post</div>
+            <div class="action-menu-item" onclick="chooseSchedule('campaign')">▦ Campaign</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="layout">
-    <div class="sidebar">
-      <div class="btn btn-primary" onclick="togglePanel('post')" id="btnPost">✎ Create post</div>
-      <div class="btn btn-secondary" onclick="togglePanel('campaign')" id="btnCampaign">▦ Create campaign</div>
-      <div class="btn btn-tertiary" id="btnConnectChannel">🔗 Connect your channel</div>
-    </div>
+    <div class="sidebar" id="sidebar" style="display:none;"></div>
 
     <div class="scrim" id="scrim" onclick="closePanels()"></div>
+
 
     <div class="drawer" id="postDrawer">
       <div class="drawer-header"><span class="title">Content sources</span><span class="close" onclick="closePanels()">✕</span></div>
@@ -936,7 +1098,7 @@
       </div>
     </div>
 
-    <div class="drawer" id="campaignDrawer">
+    <div class="drawer campaign-picker-modal" id="campaignDrawer">
       <div class="drawer-header"><span class="title">Build a campaign</span><span class="close" onclick="closePanels()">✕</span></div>
       <div class="drawer-scroll">
         <div class="tip-card" id="tipCard">
@@ -960,23 +1122,23 @@
 
         <div class="view-all-row">
           <span class="section-label">Targeted</span>
-          <span class="view-all-link" onclick="openModal('list','targeted')">View all</span>
+          <span class="view-all-link" onclick="openModal('targeted')">View all</span>
         </div>
         <div class="sq-grid">
-          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
-          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
+          <div class="sq-card camp-card" onclick="openModal('targeted')"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal('targeted')">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">Pre-retirees, age 45–60</div><div class="sq-meta">5 posts · retirement planning</div></div>
+          <div class="sq-card camp-card" onclick="openModal('targeted')"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal('targeted')">+</div><div class="sq-thumb targeted">🎯</div><div class="sq-tag">Targeted</div><div class="sq-title">New investors, first SIP</div><div class="sq-meta">6 posts · beginner education</div></div>
         </div>
 
         <div class="divider"></div>
 
         <div class="view-all-row">
           <span class="section-label">Personalisation</span>
-          <span class="view-all-link" onclick="openModal('list','personalisation')">View all</span>
+          <span class="view-all-link" onclick="openModal('personalisation')">View all</span>
         </div>
         <div class="sq-grid">
-          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">🎂</div><div class="sq-title">Client birthday greetings</div><div class="sq-meta">auto-sent · per client</div></div>
-          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">💍</div><div class="sq-title">Investment anniversary</div><div class="sq-meta">auto-sent · per client</div></div>
-          <div class="sq-card camp-card" onclick="openModal()"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal()">+</div><div class="sq-thumb">🏆</div><div class="sq-title">10-year SIP milestone</div><div class="sq-meta">auto-sent · per client</div></div>
+          <div class="sq-card camp-card" onclick="openModal('personalisation')"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal('personalisation')">+</div><div class="sq-thumb">🎂</div><div class="sq-title">Client birthday greetings</div><div class="sq-meta">auto-sent · per client</div></div>
+          <div class="sq-card camp-card" onclick="openModal('personalisation')"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal('personalisation')">+</div><div class="sq-thumb">💍</div><div class="sq-title">Investment anniversary</div><div class="sq-meta">auto-sent · per client</div></div>
+          <div class="sq-card camp-card" onclick="openModal('personalisation')"><div class="camp-card-plus" onclick="event.stopPropagation(); openModal('personalisation')">+</div><div class="sq-thumb">🏆</div><div class="sq-title">10-year SIP milestone</div><div class="sq-meta">auto-sent · per client</div></div>
         </div>
       </div>
     </div>
@@ -994,6 +1156,8 @@
       <div class="camp-detail-drawer" id="campDetailDrawer"></div>
     </div>
 
+    <div class="page-placeholder" id="pagePlaceholder" style="display:none;"></div>
+
     <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
       <div class="modal camp2-modal">
         <div class="camp2-topbar">
@@ -1001,9 +1165,8 @@
           <span class="camp2-title" id="camp2Title">Build campaign</span>
           <span class="camp2-count-pill" id="camp2CountPill"></span>
           <span class="modal-close" style="margin-left:auto" onclick="closeModal()">✕</span>
-          <span class="m-btn ghost" onclick="closeModal()">Save as draft</span>
           <span class="m-btn ghost" onclick="camp2TakeTourClick()">✦ Take a tour</span>
-          <span class="m-btn primary" id="camp2Cta" onclick="camp2CtaClick()">Continue to review →</span>
+          <span id="camp2ActionsArea" style="display:flex; align-items:center; gap:10px;"></span>
         </div>
         <div class="camp2-strip" id="camp2Strip"></div>
         <div class="camp2-body">
@@ -1016,7 +1179,6 @@
         <div class="fp-backdrop2" id="cbFpBackdrop" onclick="if(event.target===this) toggleCbFilterPanel()">
           <div class="filter-panel2" id="cbFpPanel">
             <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleCbFilterPanel()">✕</span></div>
-            <div style="display:flex;border-bottom:0.5px solid #e4e2da;" id="cbFpTabs"></div>
             <div class="fp-search2">🔍 Search across filters...</div>
             <div class="fp-body">
               <div class="fp-groups" id="cbFpGroups"></div>
@@ -1058,7 +1220,6 @@
           <div class="filter-panel2" id="filterPanel2">
             <div class="fp-head"><span class="fp-title">Filters</span><span class="fp-close" onclick="toggleFilterPanel()">✕</span></div>
             <div class="fp-search2">🔍 Search across filters...</div>
-            <div class="fp-source-row" id="fpSourceRow"><span class="fp-source-label">Source</span></div>
             <div class="fp-body">
               <div class="fp-groups" id="fpGroups"></div>
               <div class="fp-options" id="fpOptions"></div>
@@ -1066,6 +1227,100 @@
             <div class="fp-foot">
               <div class="fp-btn clear" onclick="clearFilters()">Clear filters</div>
               <div class="fp-btn apply" onclick="toggleFilterPanel()">Apply</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="clientPickerBackdrop" onclick="if(event.target===this) closeClientPickerModal()">
+      <div class="modal client-picker-modal">
+        <div class="cp-header">
+          <div class="cp-title">Select client &amp; scheduling date for each client</div>
+          <span class="modal-close" onclick="closeClientPickerModal()">✕</span>
+        </div>
+        <div class="cp-toolbar">
+          <div class="lf-pill clickable">☰ Filter</div>
+          <div class="lf-pill clickable">AUM Range: Any AUM ▾</div>
+          <div class="lf-pill clickable">DOB: is available ▾</div>
+          <div class="lf-pill clickable">Month: April ▾</div>
+          <div class="cp-search">🔍 <input type="text" id="cpSearchInput" placeholder="Search Client" oninput="renderClientPickerRows(this.value)"></div>
+          <div class="cp-addnew-btn" onclick="alert('This would let you add a new client to your contact book.')">+ Add new</div>
+        </div>
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th><div class="cf-check" id="cpSelectAllCheck" onclick="toggleAllClientPicker()"></div></th>
+                <th>ID</th><th>Client</th><th>Member Name</th><th>Relation with Client</th><th>Email</th><th>Mobile</th><th>Schedule Date</th>
+              </tr>
+            </thead>
+            <tbody id="cpTableBody"></tbody>
+          </table>
+        </div>
+        <div class="cp-footer">
+          <span>Recipients Selected: <b id="cpSelectedCount">0</b></span>
+          <div class="cp-pagination">
+            <div class="cp-page-arrow">‹</div>
+            <div class="cp-page-pill">1</div>
+            <span>of 12</span>
+            <div class="cp-page-arrow">›</div>
+          </div>
+          <div class="m-btn primary" onclick="closeClientPickerModal()">Save selection</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="pzEditorBackdrop" onclick="if(event.target===this) closePersonalizeEditor()">
+      <div class="modal pz-modal">
+        <div class="pz-topbar">
+          <span class="pz-back" onclick="closePersonalizeEditor()">‹ Back</span>
+          <span class="pz-crumb">Personalization / <b id="pzCrumbTitle">Birthday Balloons</b></span>
+          <span class="m-btn ghost" style="margin-left:auto;" onclick="closePersonalizeEditor()">Save as Draft</span>
+          <span class="m-btn ghost" onclick="alert('This would download the customized creative.')">⬇ Download</span>
+          <span class="m-btn primary" onclick="schedulePersonalizedCard()">Schedule</span>
+        </div>
+        <div class="pz-body">
+          <div class="pz-col-left">
+            <div class="pz-accordion-head">Logo <span>⌄</span></div>
+            <div class="pz-accordion-head">Details <span>⌄</span></div>
+            <input class="pz-field" value="Iwealth Corp" readonly>
+            <input class="pz-field" value="Email ID" readonly>
+            <input class="pz-field" value="58272" readonly>
+            <input class="pz-field" value="Mobile number" readonly>
+            <div class="pz-addfield-link" onclick="alert('This would add a custom field to the creative.')">+ Add field</div>
+            <div class="pz-accordion-head">Content <span>⌄</span></div>
+            <div class="pz-layer-row">🖼 Background</div>
+            <div class="pz-layer-row">🖼 Picture</div>
+            <div class="pz-layer-row">T Title</div>
+            <div class="pz-layer-row">🔗 Name</div>
+            <div class="pz-need-help">💬 Need Help?</div>
+          </div>
+          <div class="pz-col-canvas">
+            <div class="pz-canvas-card">
+              <div class="pz-canvas-title" id="pzCanvasTitle">Happy Birthday</div>
+              <div class="pz-canvas-photo"></div>
+              <div class="pz-canvas-sub" id="pzCanvasSub">Wishing you a year of joy, love and all the beautiful moments life has to offer</div>
+            </div>
+          </div>
+          <div class="pz-col-right">
+            <div class="camp2-group-label">Align</div>
+            <div class="pz-align-row">
+              <div class="pz-align-btn">⯇</div><div class="pz-align-btn active">☰</div><div class="pz-align-btn">⯈</div><div class="pz-align-btn">‖</div><div class="pz-align-btn">▬</div><div class="pz-align-btn">⬛</div>
+            </div>
+            <div class="camp2-group-label">Edit Text</div>
+            <textarea class="pz-textarea" id="pzEditTextArea" oninput="updatePersonalizeCanvasText(this.value)">Wishing you a year of joy, love and all the beautiful moments life has to offer</textarea>
+            <div class="camp2-group-label">Text</div>
+            <input class="pz-field" value="Helix" readonly>
+            <div class="pz-sizes-row" style="margin-bottom:8px;">
+              <input class="pz-field" value="SemiBold" readonly><input class="pz-field" value="14px" readonly>
+            </div>
+            <div class="pz-sizes-row" style="margin-bottom:14px;">
+              <input class="pz-field" value="#244CEC" readonly><input class="pz-field" value="20.5%" readonly>
+            </div>
+            <div class="camp2-group-label">Size</div>
+            <div class="pz-sizes-row">
+              <input class="pz-field" value="860 px" readonly><input class="pz-field" value="540 px" readonly>
             </div>
           </div>
         </div>
@@ -1160,6 +1415,7 @@
     </div>
 
   </div>
+  </div>
 </div>
 
 <script>
@@ -1171,16 +1427,14 @@
     document.getElementById('postDrawer').classList.toggle('show', which === 'post');
     document.getElementById('campaignDrawer').classList.toggle('show', which === 'campaign');
     document.getElementById('scrim').classList.add('show');
-    document.getElementById('btnPost').classList.toggle('on', which === 'post');
-    document.getElementById('btnCampaign').classList.toggle('on', which === 'campaign');
+    document.getElementById('btnSchedule')?.classList.add('on');
   }
   function closePanels() {
     openPanel = null;
     document.getElementById('postDrawer').classList.remove('show');
     document.getElementById('campaignDrawer').classList.remove('show');
     document.getElementById('scrim').classList.remove('show');
-    document.getElementById('btnPost').classList.remove('on');
-    document.getElementById('btnCampaign').classList.remove('on');
+    document.getElementById('btnSchedule')?.classList.remove('on');
   }
 
   /* ---------- campaign builder v4: build (filters + live content) -> review & schedule ---------- */
@@ -1195,6 +1449,43 @@
   let selectedAudience = {};
   Object.keys(audienceFilterGroups).forEach(k => selectedAudience[k] = new Set());
 
+  const CLIENT_BOOK = [
+    { name:'Aarav Mehta', phone:'•••• 42', segment:'New investor', risk:'Risk: moderate+', kyc:'KYC due in 30 days', optIn:true },
+    { name:'Priya Nair', phone:'•••• 17', segment:'Pre-retiree', risk:'Conservative', kyc:'Renewed recently', optIn:true },
+    { name:'Rohan Shah', phone:'•••• 88', segment:'HNI', risk:'Aggressive', kyc:'Renewed recently', optIn:false },
+    { name:'Sneha Iyer', phone:'•••• 03', segment:'New investor', risk:'Risk: moderate+', kyc:'KYC due in 30 days', optIn:true },
+    { name:'Vikram Desai', phone:'•••• 61', segment:'Lapsed clients', risk:'Conservative', kyc:'KYC due in 30 days', optIn:false },
+    { name:'Anjali Rao', phone:'•••• 29', segment:'Pre-retiree', risk:'Risk: moderate+', kyc:'Renewed recently', optIn:true },
+    { name:'Karan Malhotra', phone:'•••• 55', segment:'HNI', risk:'Aggressive', kyc:'Renewed recently', optIn:true },
+    { name:'Divya Menon', phone:'•••• 74', segment:'New investor', risk:'Conservative', kyc:'KYC due in 30 days', optIn:true },
+  ];
+  function filteredClientBook() {
+    return CLIENT_BOOK.filter(c => {
+      if (selectedAudience.segment.size && !selectedAudience.segment.has(c.segment)) return false;
+      if (selectedAudience.risk.size && !selectedAudience.risk.has(c.risk)) return false;
+      if (selectedAudience.kyc.size && !selectedAudience.kyc.has(c.kyc)) return false;
+      return true;
+    });
+  }
+
+  const adAudienceFilterGroups = {
+    age: { label: 'Age range', options: [ {label:'25–34',count:0}, {label:'35–44',count:0}, {label:'45–60',count:0}, {label:'60+',count:0} ] },
+    gender: { label: 'Gender', options: [ {label:'All',count:0}, {label:'Male',count:0}, {label:'Female',count:0} ] },
+    interests: { label: 'Interests', options: [ {label:'Mutual funds',count:0}, {label:'Retirement planning',count:0}, {label:'Tax saving',count:0}, {label:'Stock market',count:0} ] },
+  };
+  let selectedAdAudience = {};
+  Object.keys(adAudienceFilterGroups).forEach(k => selectedAdAudience[k] = new Set());
+  function toggleAdAudienceOption(group, label) {
+    const s = selectedAdAudience[group];
+    if (s.has(label)) s.delete(label); else s.add(label);
+    renderCamp2();
+  }
+  function estimatedAdReach() {
+    let any = false, base = 180000;
+    Object.keys(selectedAdAudience).forEach(g => { if (selectedAdAudience[g].size) { any = true; base = Math.round(base * (0.35 + 0.15 * selectedAdAudience[g].size)); } });
+    return any ? base : 180000;
+  }
+
   const campContentFilterGroups = {
     format: { label: 'Format', options: [ {label:'Static',count:1500}, {label:'Videos',count:1240}, {label:'Reels',count:700}, {label:'Carousel',count:860} ] },
     language: { label: 'Language', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
@@ -1203,6 +1494,14 @@
   Object.keys(campContentFilterGroups).forEach(k => selectedCampContent[k] = new Set());
 
   const CAMPAIGN_CATS = () => categories.filter(c => c.key !== 'templates');
+  const PERSONALISATION_CATS = [
+    {key:'birthday', label:'Birthday', icon:'🎂'},
+    {key:'anniversary', label:'Anniversary', icon:'💍'},
+    {key:'milestone', label:'Milestone achieved', icon:'🏆'},
+    {key:'investing_goals', label:'Investing Goals', icon:'🎯'},
+    {key:'marriage', label:'Marriage', icon:'💐'},
+    {key:'investing_journey', label:'Investing Journey', icon:'🧭'},
+  ];
 
   function freshCampaignState() {
     return {
@@ -1212,7 +1511,8 @@
       defaultCta: { on:true, url:'www.thefinpedia.com' },
       contentCat: 'education', selectedCards: new Set(),
       cadence: { frequency:'daily', duration:30, startDate: TODAY_STR, endDate: addDaysToStr(TODAY_STR, 29) },
-      screen: 'build', filtersTouched: true, manualAssignments: {}
+      screen: 'build', filtersTouched: true, manualAssignments: {},
+      mode: 'standard', selectedClients: new Set(), journeyStage: null
     };
   }
   let campaignState = null;
@@ -1233,12 +1533,78 @@
   }
 
   let campaignTourSeen = false;
-  function openModal() {
+  function openModal(mode) {
+    closePanels();
     campaignState = freshCampaignState();
+    if (mode === 'personalisation') {
+      campaignState.mode = 'personalisation';
+      campaignState.contentCat = 'birthday';
+      campaignState.channels = { instagram:false, linkedin:false, facebook:false, whatsapp:true, whatsapp_broadcast:false, paid_ads:false };
+    } else if (mode === 'targeted') {
+      campaignState.mode = 'targeted';
+      campaignState.channels = { instagram:false, linkedin:false, facebook:false, whatsapp:true, whatsapp_broadcast:false, paid_ads:false };
+      campaignState.selectedClients = new Set(PERSONAL_CLIENT_BOOK.slice(0,12).map(client => client.id));
+    }
     Object.keys(selectedCampContent).forEach(k => selectedCampContent[k].clear());
     document.getElementById('modalBackdrop').classList.add('show');
     renderCamp2();
     if (!campaignTourSeen) { campaignTourSeen = true; setTimeout(startCampaignTour, 300); }
+  }
+  const PERSONAL_CLIENT_BOOK = [
+    { id:'1001',   client:'Ishank Darekar',     member:'Ishank Darekar',    relation:'Self',   email:'ishank.checker@email.com',  mobile:'9999988888' },
+    { id:'1001-1', client:'Ishank Darekar',     member:'Riya Darekar',      relation:'Spouse',  email:'ishank.spouse@email.com',   mobile:'9999988888' },
+    { id:'1002',   client:'Deepesh Sharma',     member:'Deepesh Sharma',    relation:'Self',   email:'deepesh.checker@email.com', mobile:'9999988888' },
+    { id:'1003',   client:'Harsh Sakhiya',      member:'Harsh Sakhiya',     relation:'Self',   email:'harsh.checker@email.com',   mobile:'9999988888' },
+    { id:'1003-1', client:'Harsh Sakhiya',      member:'Neha Sakhiya',      relation:'Self',   email:'harsh.spouse@email.com',    mobile:'9999988888' },
+    { id:'1004',   client:'Nirav Panchal',      member:'Nirav Panchal',     relation:'Self',   email:'nirav.checker@email.com',   mobile:'9999988888' },
+    { id:'1005',   client:'Estaban Gonsalves',  member:'Estaban Gonsalves', relation:'Self',   email:'estaban.checker@email.com', mobile:'9999988888' },
+    { id:'1006',   client:'Ananya Mehta',        member:'Ananya Mehta',       relation:'Self',   email:'ananya.mehta@email.com',   mobile:'9999988888' },
+    { id:'1007',   client:'Rohan Kapoor',        member:'Rohan Kapoor',       relation:'Self',   email:'rohan.kapoor@email.com',   mobile:'9999988888' },
+    { id:'1008',   client:'Meera Iyer',          member:'Meera Iyer',         relation:'Self',   email:'meera.iyer@email.com',     mobile:'9999988888' },
+    { id:'1009',   client:'Arjun Nair',          member:'Arjun Nair',         relation:'Self',   email:'arjun.nair@email.com',     mobile:'9999988888' },
+    { id:'1010',   client:'Kavya Shah',          member:'Kavya Shah',         relation:'Self',   email:'kavya.shah@email.com',     mobile:'9999988888' },
+  ];
+  let clientPickerSchedule = {};
+
+  function openClientPickerModal() {
+    document.getElementById('clientPickerBackdrop').classList.add('show');
+    renderClientPickerRows('');
+  }
+  function closeClientPickerModal() {
+    document.getElementById('clientPickerBackdrop').classList.remove('show');
+    renderCamp2FilterCol();
+  }
+  function toggleClientPickerRow(id) {
+    if (campaignState.selectedClients.has(id)) campaignState.selectedClients.delete(id);
+    else campaignState.selectedClients.add(id);
+    const q = document.getElementById('cpSearchInput');
+    renderClientPickerRows(q ? q.value : '');
+  }
+  function toggleAllClientPicker() {
+    const allSelected = PERSONAL_CLIENT_BOOK.every(r => campaignState.selectedClients.has(r.id));
+    if (allSelected) PERSONAL_CLIENT_BOOK.forEach(r => campaignState.selectedClients.delete(r.id));
+    else PERSONAL_CLIENT_BOOK.forEach(r => campaignState.selectedClients.add(r.id));
+    const q = document.getElementById('cpSearchInput');
+    renderClientPickerRows(q ? q.value : '');
+  }
+  function setClientScheduleDate(id, val) { clientPickerSchedule[id] = val; }
+  function renderClientPickerRows(query) {
+    const q = (query || '').toLowerCase();
+    const rows = PERSONAL_CLIENT_BOOK.filter(r => !q || r.client.toLowerCase().includes(q) || r.member.toLowerCase().includes(q));
+    document.getElementById('cpTableBody').innerHTML = rows.map(r => `
+      <tr>
+        <td><div class="cf-check ${campaignState.selectedClients.has(r.id)?'checked':''}" onclick="toggleClientPickerRow('${r.id}')"></div></td>
+        <td>${r.id}</td>
+        <td>${r.client}</td>
+        <td>${r.member}</td>
+        <td>${r.relation}</td>
+        <td>${r.email}</td>
+        <td>${r.mobile}</td>
+        <td><input type="date" class="cp-date-input" value="${clientPickerSchedule[r.id] || campaignState.cadence.startDate}" onchange="setClientScheduleDate('${r.id}', this.value)"></td>
+      </tr>`).join('');
+    document.getElementById('cpSelectedCount').textContent = campaignState.selectedClients.size;
+    const allSelected = PERSONAL_CLIENT_BOOK.every(r => campaignState.selectedClients.has(r.id));
+    document.getElementById('cpSelectAllCheck').classList.toggle('checked', allSelected);
   }
   function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); endCampaignTour(); }
 
@@ -1259,8 +1625,7 @@
 
   const landingTourSteps = [
     { target: 'btnConnectChannel', title: 'Connect your channels first', text: 'Link your social accounts here so scheduled posts actually have somewhere to publish.' },
-    { target: 'btnPost', title: 'Create a single post', text: 'Pick platforms, add media and a caption, then schedule it for one specific time.' },
-    { target: 'btnCampaign', title: 'Or create a campaign', text: 'Same idea, but at volume — a whole set of posts generated and placed on a cadence automatically.' },
+    { target: 'btnSchedule', title: 'Schedule content', text: 'Use this menu to schedule either a single post or a complete campaign.' },
     { target: 'calendarRoot', title: 'Your calendar', text: 'Everything scheduled, posted, drafted, or failed shows up here, organized by day.' },
     { target: 'calLegend', title: 'Filter by status', text: 'Toggle these to show or hide scheduled, posted, draft, or failed posts.' },
     { target: 'viewToggleGroup', title: 'Switch views', text: 'Move between Week, Month, and List depending on how much you want to see at once.' }
@@ -1268,8 +1633,8 @@
   function startLandingTour() { startTour(landingTourSteps); }
 
   const campaignBuildTourSteps = [
-    { target: 'tourChannels', title: 'Start with channels', text: 'Organic channels reach everyone. Turn on WhatsApp Broadcast or Paid Ads to unlock audience targeting below.' },
-    { target: 'tourFilters', title: 'Narrow the content', text: 'Category, format and language shape which posts actually get generated on the right.' },
+    { target: 'tourChannels', title: 'Start with channels', text: 'Choose organic channels or turn on WhatsApp Broadcast to select clients and configure audience demographics.' },
+    { target: 'tourFilters', title: 'Choose a category', text: 'Start with a category, then use the shared Filters control to refine the generated posts.' },
     { target: 'camp2ResultCol', title: 'Review what\'s generated', text: 'Matching content shows up here automatically. Select, deselect, or add more from your library.' },
     { target: 'camp2Cta', title: 'Move to scheduling', text: 'Once your set looks right, continue to review everything and place it on the calendar.' }
   ];
@@ -1347,8 +1712,11 @@
   }
   function toggleChannel(key) {
     campaignState.channels[key] = !campaignState.channels[key];
-    if ((key === 'whatsapp_broadcast' || key === 'paid_ads') && !audienceActive()) {
+    if (key === 'whatsapp_broadcast' && !campaignState.channels.whatsapp_broadcast) {
       Object.keys(selectedAudience).forEach(k => selectedAudience[k].clear());
+    }
+    if (key === 'paid_ads' && !campaignState.channels.paid_ads) {
+      Object.keys(selectedAdAudience).forEach(k => selectedAdAudience[k].clear());
     }
     renderCamp2();
   }
@@ -1381,8 +1749,14 @@
   }
   function setCampaignCat(k) { campaignState.contentCat = k; campaignState.filtersTouched = true; renderCamp2(); }
   function toggleCardSelect(id) {
-    if (campaignState.selectedCards.has(id)) campaignState.selectedCards.delete(id);
-    else campaignState.selectedCards.add(id);
+    if (campaignState.mode === 'personalisation') {
+      const already = campaignState.selectedCards.has(id);
+      campaignState.selectedCards.clear();
+      if (!already) campaignState.selectedCards.add(id);
+    } else {
+      if (campaignState.selectedCards.has(id)) campaignState.selectedCards.delete(id);
+      else campaignState.selectedCards.add(id);
+    }
     renderCamp2();
   }
   function removeCampCard(id) { campaignState.selectedCards.delete(id); renderCamp2(); }
@@ -1418,6 +1792,31 @@
     return c ? c : { icon:'📝', title:'Untitled', meta:'' };
   }
 
+  let pzEditingCardId = null;
+  const pzCustomText = {};
+  function openPersonalizeEditor(id) {
+    pzEditingCardId = id;
+    const card = cardTitleById(id);
+    document.getElementById('pzCrumbTitle').textContent = card.title;
+    document.getElementById('pzCanvasTitle').textContent = card.title.length > 24 ? 'Happy Birthday' : card.title;
+    const text = pzCustomText[id] || card.meta || 'Wishing you a year of joy, love and all the beautiful moments life has to offer';
+    document.getElementById('pzCanvasSub').textContent = text;
+    document.getElementById('pzEditTextArea').value = text;
+    document.getElementById('pzEditorBackdrop').classList.add('show');
+  }
+  function closePersonalizeEditor() {
+    document.getElementById('pzEditorBackdrop').classList.remove('show');
+    pzEditingCardId = null;
+  }
+  function updatePersonalizeCanvasText(val) {
+    document.getElementById('pzCanvasSub').textContent = val;
+    if (pzEditingCardId) pzCustomText[pzEditingCardId] = val;
+  }
+  function schedulePersonalizedCard() {
+    closePersonalizeEditor();
+    alert('This customized creative is saved and will be used for the selected client(s).');
+  }
+
   function renderCamp2() {
     const isBuild = campaignState.screen === 'build';
     document.getElementById('camp2FilterCol').classList.toggle('camp2-screen-hidden', !isBuild);
@@ -1427,12 +1826,74 @@
     document.getElementById('camp2Back').style.display = isBuild ? 'none' : 'flex';
     const editing = !!campaignState.editingCampaignId;
     document.getElementById('camp2Title').textContent = isBuild ? (editing ? 'Edit campaign' : 'Build campaign') : (editing ? 'Review changes' : 'Review & schedule');
-    document.getElementById('camp2Cta').textContent = isBuild ? 'Continue to review →' : (editing ? '✓ Save changes' : '▷ Schedule campaign');
+    renderCamp2Actions();
 
     renderCamp2Strip();
     if (isBuild) { renderCamp2FilterCol(); renderCamp2ResultCol(); }
     else { renderCamp2SummaryCol(); renderCamp2Cal(); }
     document.getElementById('camp2CountPill').textContent = campaignState.selectedCards.size + ' pieces · ' + cadenceDayCount() + ' scheduled days';
+  }
+
+  function renderCamp2Actions() {
+    const isBuild = campaignState.screen === 'build';
+    const editing = !!campaignState.editingCampaignId;
+    const area = document.getElementById('camp2ActionsArea');
+    if (isBuild) {
+      area.innerHTML = `
+        <div class="ep-split-btn">
+          <div class="ep-split-menu open-down" id="camp2BuildMenu">
+            <div class="ep-split-option" onclick="closeCamp2BuildMenu();camp2CtaClick()">
+              <div class="ep-split-option-title">Review Campaign</div>
+              <div class="ep-split-option-sub">Review the selected content, clients and schedule.</div>
+            </div>
+            <div class="ep-split-option" onclick="closeCamp2BuildMenu();saveCampaignAsDraftFromReview()">
+              <div class="ep-split-option-title">✎ Save as Draft</div>
+              <div class="ep-split-option-sub">Save the campaign without continuing to review.</div>
+            </div>
+          </div>
+          <div class="ep-split-main" id="camp2Cta" onclick="camp2CtaClick()">Review Campaign</div>
+          <div class="ep-split-chevron" onclick="toggleCamp2BuildMenu()">▾</div>
+        </div>`;
+    } else {
+      const mainLabel = editing ? '✓ Save changes' : '▷ Schedule campaign';
+      const mainSub = editing ? 'Applies the updated schedule right away.' : 'Publishes according to your cadence, starting immediately.';
+      area.innerHTML = `
+        <div class="ep-split-btn">
+          <div class="ep-split-menu open-down" id="camp2ScheduleMenu">
+            <div class="ep-split-option" onclick="closeCamp2ScheduleMenu();camp2CtaClick()">
+              <div class="ep-split-option-title">${mainLabel}</div>
+              <div class="ep-split-option-sub">${mainSub}</div>
+            </div>
+            <div class="ep-split-option" onclick="saveCampaignAsDraftFromReview()">
+              <div class="ep-split-option-title">✎ Save as Draft</div>
+              <div class="ep-split-option-sub">Campaign is saved, but nothing publishes yet.</div>
+            </div>
+          </div>
+          <div class="ep-split-main" id="camp2Cta" onclick="camp2CtaClick()">${mainLabel}</div>
+          <div class="ep-split-chevron" onclick="toggleCamp2ScheduleMenu()">▾</div>
+        </div>`;
+    }
+  }
+  function toggleCamp2BuildMenu() {
+    const menu = document.getElementById('camp2BuildMenu');
+    if (menu) menu.classList.toggle('show');
+  }
+  function closeCamp2BuildMenu() {
+    const menu = document.getElementById('camp2BuildMenu');
+    if (menu) menu.classList.remove('show');
+  }
+  function toggleCamp2ScheduleMenu() {
+    const menu = document.getElementById('camp2ScheduleMenu');
+    if (menu) menu.classList.toggle('show');
+  }
+  function closeCamp2ScheduleMenu() {
+    const menu = document.getElementById('camp2ScheduleMenu');
+    if (menu) menu.classList.remove('show');
+  }
+  function saveCampaignAsDraftFromReview() {
+    closeCamp2ScheduleMenu();
+    closeModal();
+    alert('Campaign saved as a draft. You can resume it anytime from Campaigns.');
   }
 
   function renderCamp2Strip() {
@@ -1456,11 +1917,21 @@
   function renderCamp2FilterCol() {
     const col = document.getElementById('camp2FilterCol');
     const aActive = audienceActive();
+    const isPersonal = campaignState.mode === 'personalisation';
+    const isTargeted = campaignState.mode === 'targeted';
+    const isClientCampaign = isPersonal || isTargeted;
     let html = '';
 
-    html += `<div id="tourChannels"><div class="camp2-group-label">Channels <span class="camp2-group-hint">organic — full reach</span></div>
+    if (!isTargeted) html += `<div id="tourFilters">
+      <div class="camp2-group-label">Category</div>
+      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">
+        ${(isPersonal ? PERSONALISATION_CATS : CAMPAIGN_CATS()).map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}
+      </div>
+    </div>`;
+
+    html += `<div id="tourChannels"><div class="camp2-group-label" style="margin-top:14px;">Channels <span class="camp2-group-hint">organic — full reach</span></div>
       <div class="camp2-chan-col">
-        ${['instagram','linkedin','facebook','whatsapp'].map(k => `
+        ${(isClientCampaign ? ['whatsapp'] : ['instagram','linkedin','facebook','whatsapp']).map(k => `
           <div class="camp2-chan-line">
             <div class="camp2-chan-item" onclick="toggleChannel('${k}')">
               <div class="camp2-check2 ${campaignState.channels[k]?'on':''}"></div>${k.charAt(0).toUpperCase()+k.slice(1)}
@@ -1473,52 +1944,35 @@
       </div>
       <div class="camp2-group-label" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
         <span>Default captions</span>
-        <div class="ep-toggle ${campaignState.defaultCaptions.on?'on':''}" onclick="toggleDefaultCaptions()"></div>
+        <div class="ep-toggle camp2-compact-toggle ${campaignState.defaultCaptions.on?'on':''}" onclick="toggleDefaultCaptions()"></div>
       </div>
       ${campaignState.defaultCaptions.on ? `<textarea class="camp2-caption-box" oninput="setDefaultCaptionText(this.value)">${campaignState.defaultCaptions.text}</textarea>` : ''}
       <div class="camp2-group-label" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;">
         <span>Default Call-To-Action button</span>
-        <div class="ep-toggle ${campaignState.defaultCta.on?'on':''}" onclick="toggleDefaultCta()"></div>
+        <div class="ep-toggle camp2-compact-toggle ${campaignState.defaultCta.on?'on':''}" onclick="toggleDefaultCta()"></div>
       </div>
       ${campaignState.defaultCta.on ? `
       <input type="text" class="camp2-cta-input" value="${campaignState.defaultCta.url}" oninput="setDefaultCtaUrl(this.value)">
       <div class="camp2-cta-learnmore">Learn more <span>▾</span></div>` : ''}
+      ${isPersonal ? `
+      <div class="camp2-selectclient-btn" onclick="openClientPickerModal()">
+        👤 ${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' client' + (campaignState.selectedClients.size>1?'s':'') + ' selected' : 'Select client'}
+        <span>▾</span>
+      </div>` : `
       <div class="camp2-group-label" style="margin-top:14px;">Direct / Paid <span class="camp2-group-hint">requires an audience</span></div>
-      <div class="camp2-chan-row">
-        <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
-        <div class="camp2-chan-item" onclick="toggleChannel('paid_ads')"><div class="camp2-check2 ${campaignState.channels.paid_ads?'on':''}"></div>Paid Ads</div>
-      </div></div>`;
-
-    if (aActive) {
-      html += `<div class="camp2-group-label" style="margin-top:14px;">Audience <span class="camp2-group-hint">Broadcast / Ads leg only</span></div>`;
-      Object.keys(audienceFilterGroups).forEach(g => {
-        const grp = audienceFilterGroups[g];
-        html += `<div class="camp2-group-label" style="text-transform:none;font-weight:600;color:#4a4a46;">${grp.label}</div><div class="camp2-chan-row" style="gap:6px;">`;
-        grp.options.forEach(o => {
-          const checked = selectedAudience[g].has(o.label);
-          html += `<span class="cb-chip ${checked?'active':''}" onclick="toggleCampAudienceOption('${g}','${o.label}')">${o.label}</span>`;
-        });
-        html += `</div>`;
-      });
-      html += `<div class="camp2-match-pill">Matches ${audienceMatchCount()} clients</div>`;
-    } else {
-      html += `<div class="camp2-hint-italic" style="margin-top:8px;">Turn on WhatsApp Broadcast or Paid Ads to target a specific audience.</div>`;
-    }
-
-    html += `<div id="tourFilters"><div class="camp2-group-label" style="margin-top:14px;">Category</div>
-      <div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">${CAMPAIGN_CATS().map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}</div>`;
-
-    Object.keys(campContentFilterGroups).filter(g => g !== 'language').forEach(g => {
-      const grp = campContentFilterGroups[g];
-      const n = selectedCampContent[g].size;
-      html += `<div class="camp2-group-label" style="margin-top:14px;">${grp.label}${n ? ` (${n})` : ''}</div><div class="camp2-chan-row" style="gap:6px;">`;
-      grp.options.forEach(o => {
-        const checked = selectedCampContent[g].has(o.label);
-        html += `<span class="cb-chip ${checked?'active':''}" onclick="toggleCampContentOption('${g}','${o.label}')">${o.label}</span>`;
-      });
-      html += `</div>`;
-    });
-    html += `</div>`;
+      <div class="camp2-dp-col">
+        <div class="camp2-dp-item">
+          <div class="camp2-chan-item" onclick="toggleChannel('whatsapp_broadcast')"><div class="camp2-check2 ${campaignState.channels.whatsapp_broadcast?'on':''}"></div>WhatsApp Broadcast</div>
+          <div class="camp2-dp-sub">Send to clients from your contact book, using their saved number.</div>
+        </div>
+      </div>
+      ${campaignState.channels.whatsapp_broadcast ? `
+        <div class="camp2-hint-italic" style="margin-top:10px;">Note: select audience from the filter to configure demographics</div>
+        <div class="camp2-selectclient-btn" onclick="openClientPickerModal()">
+          👤 ${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' client' + (campaignState.selectedClients.size>1?'s':'') + ' selected' : 'Select client'}
+          <span>▾</span>
+        </div>` : ''}
+      `}</div>`;
 
     html += `<div class="camp2-group-label" style="margin-top:14px;">Duration &amp; cadence</div>
       <div class="camp2-cadence-row">
@@ -1530,30 +1984,47 @@
         <input type="date" class="camp2-date-input" value="${campaignState.cadence.startDate}" onchange="setCadenceStart(this.value)">
         <input type="date" class="camp2-date-input" value="${campaignState.cadence.endDate}" min="${campaignState.cadence.startDate}" onchange="setCadenceEnd(this.value)">
       </div>`;
-
     col.innerHTML = html;
+  }
+
+  function setJourneyStageFilter(stage) {
+    campaignState.journeyStage = campaignState.journeyStage === stage ? null : stage;
+    renderCamp2ResultCol();
   }
 
   function renderCamp2ResultCol() {
     const col = document.getElementById('camp2ResultCol');
     const cat = campaignState.contentCat;
-    const cards = sampleCards[cat];
+    const isPersonal = campaignState.mode === 'personalisation';
+    let cards = sampleCards[cat];
+    const isJourney = isPersonal && cat === 'investing_journey';
 
     const topline = `
       <div class="camp2-result-topline">
-        <div class="camp2-result-count">${cards.length} posts generated</div>
+        <div class="camp2-result-count">${campaignState.selectedCards.size} Post selected <span style="font-weight:400;color:#8a8a86;">out of 120</span></div>
+        ${isPersonal ? '' : `
         <div class="camp2-add-dd">
           <div class="camp2-add-btn" onclick="toggleAddContentMenu()">+ Add new content ▾</div>
           <div class="camp2-add-menu" id="camp2AddMenu">
             <div class="camp2-add-item" onclick="document.getElementById('camp2AddMenu').classList.remove('show');triggerUpload('campaign')">📤 Upload</div>
             <div class="camp2-add-item" onclick="document.getElementById('camp2AddMenu').classList.remove('show');openBrowseModal()">📚 Add from library</div>
           </div>
-        </div>
+        </div>`}
       </div>
+      ${isPersonal ? '' : `
       <div class="camp2-filter-row">
         <div class="camp2-filter-chips" id="camp2FilterChips"></div>
         <div class="camp2-filter-btn" id="camp2FilterBtn" onclick="toggleCbFilterPanel()">☰ Filter <span id="camp2FilterCountBadge"></span></div>
-      </div>`;
+      </div>`}
+      ${isJourney ? `
+      <div class="camp2-filter-row" style="margin-top:${isPersonal?'0':'10px'};">
+        <span class="cb-chip ${campaignState.journeyStage==='started'?'active':''}" onclick="setJourneyStageFilter('started')">Journey Started</span>
+        <span class="cb-chip ${campaignState.journeyStage==='ended'?'active':''}" onclick="setJourneyStageFilter('ended')">Journey Ended</span>
+      </div>` : ''}`;
+
+    if (isJourney && campaignState.journeyStage) {
+      cards = cards.filter(c => c.stage === campaignState.journeyStage);
+    }
 
     if (!cards.length) {
       col.innerHTML = topline + `
@@ -1562,22 +2033,24 @@
           <div class="camp2-empty-title">Nothing generated yet</div>
           <div class="camp2-empty-sub">Pick a category, format, or language on the left and matching content will show up here.</div>
         </div>`;
-      renderCamp2FilterChips();
+      if (!isPersonal) renderCamp2FilterChips();
       return;
     }
 
     col.innerHTML = topline + `
-      <div class="camp2-cards-grid">${cards.map((c, idx) => {
+      <div class="camp2-cards-grid">${cards.map((c) => {
+        const idx = sampleCards[cat].indexOf(c);
         const id = cat + ':' + idx;
         const checked = campaignState.selectedCards.has(id);
         return `<div class="sq-card" onclick="toggleCardSelect('${id}')" style="${checked ? 'border-color:#6a3fd1;box-shadow:0 0 0 2px #ede5ff;' : ''}">
           <div style="position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:4px;border:1px solid #b3b2ac;background:${checked?'#6a3fd1':'#fff'};color:#fff;font-size:11px;text-align:center;line-height:16px;z-index:1;">${checked?'✓':''}</div>
+          ${isPersonal ? `<div class="sq-customize-btn" title="Customize" onclick="event.stopPropagation();openPersonalizeEditor('${id}')">✎</div>` : ''}
           <div class="sq-thumb">${c.icon}</div>
           ${c.badge ? `<div class="sq-badge ${c.badge.type}">${c.badge.text}</div>` : ''}
           <div class="sq-title">${c.title}</div><div class="sq-meta">${c.meta}</div>
         </div>`;
       }).join('')}</div>`;
-    renderCamp2FilterChips();
+    if (!isPersonal) renderCamp2FilterChips();
   }
   function toggleAddContentMenu() {
     document.getElementById('camp2AddMenu').classList.toggle('show');
@@ -1605,9 +2078,14 @@
     let html = `<div class="camp2-sum-sec-title">Channels</div>
       <div class="camp2-sum-row"><span>Organic</span><b>${chanOnList.join(', ') || 'None'}</b></div>
       <div class="camp2-sum-row"><span>Direct / Paid</span><b>${directOnList.join(', ') || 'None'}</b></div>`;
-    if (audienceActive()) {
-      html += `<div class="camp2-sum-sec-title">Audience</div>
-        <div class="camp2-sum-row"><span>Matches</span><b>${audienceMatchCount()} clients</b></div>`;
+    if (campaignState.channels.whatsapp_broadcast || campaignState.channels.paid_ads) {
+      html += `<div class="camp2-sum-sec-title">Audience</div>`;
+      if (campaignState.channels.whatsapp_broadcast) {
+        html += `<div class="camp2-sum-row"><span>WhatsApp clients</span><b>${filteredClientBook().length} matched</b></div>`;
+      }
+      if (campaignState.channels.paid_ads) {
+        html += `<div class="camp2-sum-row"><span>Paid Ads reach</span><b>~${estimatedAdReach().toLocaleString()}</b></div>`;
+      }
     }
     html += `<div class="camp2-sum-sec-title">Content</div>
       <div class="camp2-sum-row"><span>Pieces selected</span><b>${campaignState.selectedCards.size}</b></div>
@@ -1659,15 +2137,6 @@
     renderCamp2Cal();
   }
 
-  function camp2LegendHTML() {
-    const aActive = audienceActive();
-    return '<div class="cal-legend">' +
-      '<div class="legend-item scheduled">' + '<span class="legend-check"></span>Organic — full reach</div>' +
-      (aActive ? '<div class="legend-item posted"><span class="legend-check"></span>WhatsApp Broadcast — ' + audienceMatchCount() + ' clients</div>' : '') +
-      '<div class="legend-item draft"><span class="legend-check"></span>Scheduled day, no content yet</div>' +
-      '</div>';
-  }
-
   function renderCamp2Cal() {
     const cal = document.getElementById('camp2Cal');
     const schedule = camp2ScheduleDays();
@@ -1675,7 +2144,7 @@
     schedule.forEach(s => { byDate[toDateStr(s.date)] = s; });
 
     let html = `<div class="camp2-cal-head">
-      <div><div class="camp2-cal-title">Schedule preview</div><div class="camp2-cal-sub">${audienceActive() ? 'Organic (full reach) + WhatsApp Broadcast (' + audienceMatchCount() + ' clients) overlaid' : 'Highlighted = will be scheduled by this campaign'}</div></div>
+      <div class="camp2-cal-title">Schedule preview</div>
       <div class="camp2-view-toggle">
         <span class="${camp2View==='month'?'active':''}" onclick="switchCamp2View('month')">Month</span>
         <span class="${camp2View==='list'?'active':''}" onclick="switchCamp2View('list')">List</span>
@@ -1689,7 +2158,6 @@
       const cells = [];
       for (let i=0;i<35;i++) cells.push(addDays(gridStart, i));
 
-      html += camp2LegendHTML();
       html += '<div class="month-head-row"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>';
       html += '<div class="month-grid">';
       cells.forEach(d => {
@@ -1700,10 +2168,7 @@
         if (sch && sch.card) {
           inner += `<div class="month-item st-scheduled" draggable="true"
             ondragstart="event.stopPropagation(); camp2DragStart('${dateStr}')"
-            onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10, prefillCard:cardTitleById('${sch.id}')})">${sch.card.icon} ${sch.card.title}</div>`;
-          inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:11})" title="Add another post on this day">+</div>`;
-        } else {
-          inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); goToScreen('build')">+</div>`;
+            onclick="event.stopPropagation(); openEditPost({mode:'campaign-edit', date:'${dateStr}', hour:10, campaignCardId:'${sch.id}', prefillCard:cardTitleById('${sch.id}')})">${sch.card.icon} ${sch.card.title}</div>`;
         }
         html += `<div class="month-cell ${outside?'outside':''} ${sch?'':'no-schedule'}"
           ondragover="${sch ? 'camp2DragOver(event)' : ''}"
@@ -1711,14 +2176,14 @@
       });
       html += '</div>';
     } else {
-      html += camp2LegendHTML();
       if (!schedule.length) {
         html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No scheduled days yet — set a cadence to preview the schedule.</div>`;
       }
       schedule.forEach(s => {
         const dateLabel = s.date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
         html += `
-          <div class="list-row" draggable="true" style="cursor:grab;"
+          <div class="list-row" draggable="true" style="cursor:${s.card?'pointer':'grab'};"
+            ${s.card ? `onclick="openEditPost({mode:'campaign-edit', date:'${s.dateStr}', hour:10, campaignCardId:'${s.id}', prefillCard:cardTitleById('${s.id}')})"` : ''}
             ondragstart="camp2DragStart('${s.dateStr}')"
             ondragover="camp2DragOver(event)"
             ondrop="camp2Drop(event,'${s.dateStr}')">
@@ -1786,32 +2251,34 @@
       {icon:'📦', title:'Onboarding kit', meta:'19 templates'},
       {icon:'📈', title:'Review deck', meta:'24 templates'},
     ],
+    birthday: [
+      {icon:'🎂', title:'Happy birthday, wishing you a great year ahead', meta:'Story · English'},
+      {icon:'🎉', title:'Birthday wishes with a savings tip', meta:'Post · Hindi'},
+    ],
+    anniversary: [
+      {icon:'💍', title:'Celebrating your investment anniversary', meta:'Story · English'},
+      {icon:'📆', title:'Another year of investing together', meta:'Post · Hindi'},
+    ],
+    milestone: [
+      {icon:'🏆', title:'Congrats on your 10-year SIP milestone', meta:'Story · English'},
+      {icon:'🎯', title:'You just hit a portfolio milestone', meta:'Post · English'},
+    ],
+    investing_goals: [
+      {icon:'🎯', title:'Checking in on your investing goal', meta:'Post · English'},
+      {icon:'📈', title:'You are closer to your goal than you think', meta:'Story · Hindi'},
+    ],
+    marriage: [
+      {icon:'💐', title:'Wishing you a happy married life', meta:'Story · English'},
+      {icon:'💑', title:'Planning finances together, a starter guide', meta:'Post · English'},
+    ],
+    investing_journey: [
+      {icon:'🧭', title:'A look back at your investing journey', meta:'Story · English', stage:'started'},
+      {icon:'🚀', title:'Your first year as an investor with us', meta:'Post · Hindi', stage:'ended'},
+    ],
   };
 
   let activeCat = 'education';
 
-  const SOURCE_LIST = [ {key:'all',label:'All sources'}, {key:'amfi',label:'AMFI'}, {key:'tfp',label:'Thefinpedia'}, {key:'amc',label:'AMC'} ];
-  let contentSource = 'all';
-  function renderSourceRow(containerId) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    const label = el.querySelector('.fp-source-label');
-    el.innerHTML = '';
-    if (label) el.appendChild(label);
-    SOURCE_LIST.forEach(s => {
-      const span = document.createElement('span');
-      span.className = 'cb-chip' + (s.key === contentSource ? ' active' : '');
-      span.textContent = s.label;
-      span.onclick = () => setContentSource(s.key);
-      el.appendChild(span);
-    });
-  }
-  function setContentSource(k) {
-    contentSource = k;
-    ['fpSourceRow','cbFpSourceRow','camp2SourceRow'].forEach(id => {
-      if (document.getElementById(id)) renderSourceRow(id);
-    });
-  }
   function renderDrawerPills() {
     document.getElementById('drawerPills').innerHTML = categories.map(c =>
       `<div class="cat-pill ${c.key==='trending'?'trend-pill':''} ${c.key===activeCat?'active':''}" onclick="setActiveCat('${c.key}')">${c.icon} ${c.label}</div>`
@@ -1876,24 +2343,27 @@
   const discoveryFilterGroups = {
     trending: { label: 'Trending', note: "Updates automatically based on what's currently active in the market.",
       options: [ {label:'Balanced Advantage Funds',count:48,flag:true}, {label:'Multi-Asset Funds',count:22,flag:true}, {label:'Gold ETFs',count:15,flag:true}, {label:'Small Cap correction commentary',count:19,flag:true} ] },
-    sentiment: { label: 'Market sentiment', note: 'Content matched to the current market mood — useful for reassuring or re-engaging investors depending on how markets are behaving.',
+    sentiment: { label: 'Market sentiments', note: 'Content matched to the current market mood — useful for reassuring or re-engaging investors depending on how markets are behaving.',
       options: [ {label:'Bearish / market correction',count:64}, {label:'Bullish / rally',count:88}, {label:'Volatile / uncertain',count:52}, {label:'Stay invested messaging',count:70}, {label:'Neutral / educational',count:210} ] },
-    concept: { label: 'Concept', note: 'The specific term or mechanism this content explains — cuts across every lifecycle category above.',
+    concept: { label: 'Concepts', note: 'The specific term or mechanism this content explains — cuts across every lifecycle category above.',
       options: [ {label:'SIP',count:420}, {label:'STP',count:110}, {label:'SWP',count:95}, {label:'NAV',count:180}, {label:'Lumpsum',count:150}, {label:'XIRR',count:60}, {label:'Expense Ratio',count:75}, {label:'Exit Load',count:40}, {label:'CAGR',count:55}, {label:'Asset Allocation',count:130}, {label:'Compounding',count:140}, {label:'Tax Harvesting',count:35} ] },
-    segment: { label: 'Client segment', note: 'Which client this content suits best — independent of category.',
-      options: [ {label:'New investors',count:310}, {label:'Pre-retirees',count:210}, {label:'HNI',count:95}, {label:'Lapsed clients',count:60} ] },
-    format: { label: 'Format', note: '', options: [ {label:'Reel',count:1240}, {label:'Carousel',count:860}, {label:'Post',count:1500}, {label:'Story',count:600} ] },
+    format: { label: 'Formats', note: '', options: [ {label:'Static',count:1500}, {label:'Videos',count:1240}, {label:'Reels',count:700}, {label:'Carousel',count:860} ] },
     language: { label: 'Language', note: '', options: [ {label:'English',count:2100}, {label:'Hindi',count:1400}, {label:'Tamil',count:320}, {label:'Telugu',count:280}, {label:'Marathi',count:100} ] },
-    platform: { label: 'Platform', note: '', options: [ {label:'Instagram',count:2400}, {label:'LinkedIn',count:1300}, {label:'WhatsApp Status',count:500} ] },
     source: { label: 'Content source', note: 'Who originally produced this piece.',
       options: [ {label:'AMFI',count:900}, {label:'Thefinpedia',count:2200}, {label:'AMC',count:800} ] },
-    complexity: { label: 'Complexity level', note: '', options: [ {label:'Beginner',count:1800}, {label:'Intermediate',count:1500}, {label:'Advanced',count:900} ] },
-    fundtype: { label: 'Fund type', note: '', options: [ {label:'Equity',count:1100}, {label:'Debt',count:700}, {label:'Hybrid',count:520}, {label:'ELSS',count:340}, {label:'International',count:180} ] }
+    complexity: { label: 'Financial Understanding', note: '', options: [ {label:'Beginner',count:1800}, {label:'Intermediate',count:1500}, {label:'Advanced',count:900} ] },
+    fundtype: { label: 'Fund Type', note: '', options: [ {label:'Equity',count:1100}, {label:'Debt',count:700}, {label:'Hybrid',count:520}, {label:'ELSS',count:340}, {label:'International',count:180} ] },
+    audience: { label: 'Audience', note: 'Configure campaign demographics for client targeting.', options: [
+      {label:'Age: 18–25',count:180}, {label:'Age: 26–35',count:420}, {label:'Age: 36–50',count:390}, {label:'Age: 51+',count:240},
+      {label:'Gender: Female',count:610}, {label:'Gender: Male',count:620},
+      {label:'Income: Below ₹5L',count:260}, {label:'Income: ₹5L–₹15L',count:540}, {label:'Income: Above ₹15L',count:430},
+      {label:'Marital status: Single',count:350}, {label:'Marital status: Married',count:780}
+    ] }
   };
   let activeGroup = 'trending';
   let selected = {};
   Object.keys(discoveryFilterGroups).forEach(k => selected[k] = new Set());
-  const CB_EXCLUDED_GROUPS = ['source','language','format','segment','platform'];
+  const CB_EXCLUDED_GROUPS = [];
 
   function renderGroups() {
     const keys = Object.keys(discoveryFilterGroups);
@@ -1901,9 +2371,10 @@
       const g = discoveryFilterGroups[k]; const n = selected[k].size;
       return `<div class="fp-group-item ${k===activeGroup?'active':''}" onclick="setActiveGroup('${k}')">${g.label}${n?' ('+n+')':''}</div>`;
     };
-    document.getElementById('fpGroups').innerHTML = keys.map(itemHtml).join('');
+    document.getElementById('fpGroups').innerHTML = keys.filter(k => k !== 'audience').map(itemHtml).join('');
     if (document.getElementById('cbFpGroups')) {
-      document.getElementById('cbFpGroups').innerHTML = keys.filter(k => !CB_EXCLUDED_GROUPS.includes(k)).map(itemHtml).join('');
+      const buildKeys = keys.filter(k => !CB_EXCLUDED_GROUPS.includes(k) && !(campaignState && campaignState.mode === 'personalisation' && k === 'audience'));
+      document.getElementById('cbFpGroups').innerHTML = buildKeys.map(itemHtml).join('');
     }
   }
   function renderOptions() {
@@ -1946,13 +2417,12 @@
   function toggleCbFilterPanel() {
     document.getElementById('cbFpBackdrop').classList.toggle('show');
     document.getElementById('cbFpPanel').classList.toggle('show');
-    if (CB_EXCLUDED_GROUPS.includes(activeGroup)) activeGroup = 'trending';
+    if (CB_EXCLUDED_GROUPS.includes(activeGroup) || (campaignState.mode === 'personalisation' && activeGroup === 'audience')) activeGroup = 'trending';
     renderGroups(); renderOptions();
   }
 
   renderDrawerPills(); renderDrawerGrid();
   renderGroups(); renderOptions(); renderDiscoveryChips();
-  renderSourceRow('fpSourceRow');
 
   /* ================================================================
      CALENDAR: shared data model + three views + drag-drop + Edit Post
@@ -1982,27 +2452,27 @@
      CAMPAIGNS HUB: single source of truth for every campaign ever run
      ================================================================ */
   let campaigns = [
-    { id:'c1', name:'Tax season push', category:'Market Updates', icon:'💰',
+    { id:'c1', name:'Tax season push', category:'Market Updates', icon:'💰', type:'playlist',
       channels:['linkedin','instagram'], cadenceLabel:'Daily', cadenceFreq:'daily',
       startDate:'2026-07-01', endDate:'2026-07-30', totalPosts:30, publishedPosts:12,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c2', name:'Product launch — new SIP plan', category:'Trending', icon:'🚀',
+    { id:'c2', name:'Product launch — new SIP plan', category:'Trending', icon:'🚀', type:'playlist',
       channels:['instagram','facebook'], cadenceLabel:'Every other day', cadenceFreq:'every_other',
       startDate:'2026-07-20', endDate:'2026-08-19', totalPosts:16, publishedPosts:0,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c3', name:'Brand awareness starter pack', category:'Investor Education', icon:'▦',
+    { id:'c3', name:'Brand awareness starter pack', category:'Investor Education', icon:'▦', type:'playlist',
       channels:['linkedin'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
       startDate:'2026-06-01', endDate:'2026-06-29', totalPosts:6, publishedPosts:6,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c4', name:'Pre-retirees, age 45–60', category:'Targeted', icon:'🎯',
+    { id:'c4', name:'Pre-retirees, age 45–60', category:'Targeted', icon:'🎯', type:'targeted',
       channels:['linkedin','facebook'], cadenceLabel:'Daily', cadenceFreq:'daily',
       startDate:'2026-07-08', endDate:'2026-07-22', totalPosts:15, publishedPosts:4,
       failedPosts:2, channelExpiring:false, pausedByUser:false, isDraft:false, archived:false },
-    { id:'c5', name:'New investors, first SIP', category:'Targeted', icon:'🎯',
+    { id:'c5', name:'New investors, first SIP', category:'Targeted', icon:'🎯', type:'targeted',
       channels:['instagram'], cadenceLabel:'Weekly', cadenceFreq:'weekly',
       startDate:'2026-07-12', endDate:'2026-09-06', totalPosts:9, publishedPosts:1,
       failedPosts:0, channelExpiring:false, pausedByUser:true, isDraft:false, archived:false },
-    { id:'c6', name:'Investment anniversary', category:'Personalisation', icon:'💍',
+    { id:'c6', name:'Investment anniversary', category:'Personalisation', icon:'💍', type:'personalized',
       channels:['linkedin','instagram'], cadenceLabel:'Auto-sent', cadenceFreq:'weekly',
       startDate:'2026-08-01', endDate:'2026-12-31', totalPosts:0, publishedPosts:0,
       failedPosts:0, channelExpiring:false, pausedByUser:false, isDraft:true, archived:false },
@@ -2177,7 +2647,7 @@
   }
 
   function openCampaignsAndDetail(id) {
-    switchView('campaigns');
+    navigateTo('campaigns');
     setCampaignStatusFilter('all');
     openCampaignDetail(id);
   }
@@ -2319,14 +2789,55 @@
   }
 
   let currentView = 'week';
+  let calendarPeriod = 'week';
+  let lastPostsView = 'week';
   function goToday() { alert('This would jump the calendar back to today\'s date.'); }
   function navDate(dir) { alert('This would move the ' + currentView + ' view ' + (dir < 0 ? 'back' : 'forward') + '.'); }
+  function toggleScheduleMenu(event) {
+    event.stopPropagation();
+    document.getElementById('scheduleMenu').classList.toggle('show');
+    document.getElementById('periodMenu').classList.remove('show');
+  }
+  function chooseSchedule(kind) {
+    document.getElementById('scheduleMenu').classList.remove('show');
+    closePanels();
+
+    if (kind === 'post') {
+      openEditPost({
+        mode: 'create',
+        date: TODAY_STR,
+        hour: 10
+      });
+      return;
+    }
+
+    if (kind === 'campaign') {
+      togglePanel('campaign');
+    }
+  }
+  function togglePeriodMenu(event) {
+    event.stopPropagation();
+    document.getElementById('periodMenu').classList.toggle('show');
+    document.getElementById('scheduleMenu').classList.remove('show');
+  }
+  function selectCalendarPeriod(period) {
+    calendarPeriod = period;
+    document.getElementById('periodLabel').textContent = period === 'week' ? 'Week' : 'Month';
+    document.querySelectorAll('#periodMenu .action-menu-item').forEach(item => item.classList.toggle('selected', item.dataset.period === period));
+    document.getElementById('periodMenu').classList.remove('show');
+    switchView(period);
+  }
+  function switchPrimaryView(view) {
+    if (view === 'calendar') switchView(calendarPeriod);
+    else switchView('list');
+  }
   function switchView(v) {
     currentView = v;
-    if (v !== 'campaigns') updateTopbarDateLabel(v);
-    ['Week','Month','List','Campaigns'].forEach(name => {
-      document.getElementById('viewTab'+name).classList.toggle('active', name.toLowerCase()===v);
-    });
+    if (v !== 'campaigns') { updateTopbarDateLabel(v); lastPostsView = v; }
+    const calendarTab = document.getElementById('viewTabCalendar');
+    const listTab = document.getElementById('viewTabList');
+    if (calendarTab) calendarTab.classList.toggle('active', v === 'week' || v === 'month');
+    if (listTab) listTab.classList.toggle('active', v === 'list');
     document.getElementById('weekView').style.display = v==='week' ? 'block' : 'none';
     document.getElementById('monthView').style.display = v==='month' ? 'flex' : 'none';
     document.getElementById('listView').style.display = v==='list' ? 'block' : 'none';
@@ -2343,13 +2854,112 @@
   const STATUS_LIST = ['scheduled', 'posted', 'draft', 'failed'];
   const STATUS_LABEL = { scheduled: 'Scheduled', posted: 'Posted', draft: 'Draft', failed: 'Failed' };
   let statusFilter = new Set(STATUS_LIST);
-  function legendHTML() {
-    return '<div class="cal-legend" id="calLegend">' + STATUS_LIST.map(s => {
-      const off = !statusFilter.has(s);
-      return `<div class="legend-item ${s} ${off?'off':''}" onclick="toggleStatus('${s}')">
-        <span class="legend-check"></span>${STATUS_LABEL[s]}
+  const CHANNEL_LIST = ['instagram', 'facebook', 'linkedin'];
+  const CHANNEL_LABEL = { instagram:'Instagram', facebook:'Facebook', linkedin:'LinkedIn' };
+  let channelFilter = new Set(CHANNEL_LIST);
+  let statusDropdownOpen = false;
+  let channelDropdownOpen = false;
+
+  /* ---- multi-select filters: campaign type + campaign name (Week/Month/List) ---- */
+  const CAMP_TYPE_LABELS = { playlist:'Playlist', targeted:'Targeted', personalized:'Personalized' };
+  let campTypeFilter = new Set();
+  let campNameFilter = new Set();
+  let campTypeDropdownOpen = false;
+  let campNameDropdownOpen = false;
+
+  function rerenderCurrentCalView() {
+    if (currentView === 'week') renderWeekView();
+    if (currentView === 'month') renderMonthView();
+    if (currentView === 'list') renderListView();
+  }
+  function toggleCampFilterDD(which) {
+    if (which === 'type') { campTypeDropdownOpen = !campTypeDropdownOpen; campNameDropdownOpen = false; }
+    else { campNameDropdownOpen = !campNameDropdownOpen; campTypeDropdownOpen = false; }
+    rerenderCurrentCalView();
+  }
+  function toggleCampTypeFilter(k) {
+    if (campTypeFilter.has(k)) campTypeFilter.delete(k); else campTypeFilter.add(k);
+    rerenderCurrentCalView();
+  }
+  function toggleCampNameFilter(id) {
+    if (campNameFilter.has(id)) campNameFilter.delete(id); else campNameFilter.add(id);
+    rerenderCurrentCalView();
+  }
+  function clearCampTypeFilter() { campTypeFilter.clear(); rerenderCurrentCalView(); }
+  function clearCampNameFilter() { campNameFilter.clear(); rerenderCurrentCalView(); }
+
+  function eventPassesCampaignFilters(ev) {
+    if (!channelFilter.has(ev.platform)) return false;
+    if (!campTypeFilter.size && !campNameFilter.size) return true;
+    if (!ev.campaignId) return false;
+    const camp = campaigns.find(c => c.id === ev.campaignId);
+    if (!camp) return false;
+    if (campTypeFilter.size && !campTypeFilter.has(camp.type)) return false;
+    if (campNameFilter.size && !campNameFilter.has(camp.id)) return false;
+    return true;
+  }
+
+  function toggleHeaderFilter(which) {
+    if (which === 'status') { statusDropdownOpen = !statusDropdownOpen; channelDropdownOpen = false; }
+    else { channelDropdownOpen = !channelDropdownOpen; statusDropdownOpen = false; }
+    rerenderCurrentCalView();
+  }
+  function toggleChannel(channel) {
+    if (channelFilter.has(channel)) channelFilter.delete(channel); else channelFilter.add(channel);
+    rerenderCurrentCalView();
+  }
+  function statusFilterHTML() {
+    const all = statusFilter.size === STATUS_LIST.length;
+    return `<div class="filter-dd">
+      <div class="filter-trigger" onclick="toggleHeaderFilter('status')"><span>${all ? 'All status' : statusFilter.size + ' status selected'}</span><span>⌄</span></div>
+      <div class="filter-menu ${statusDropdownOpen?'show':''}">
+        ${STATUS_LIST.map(s => `<div class="filter-option" onclick="toggleStatus('${s}')"><span class="cf-check ${statusFilter.has(s)?'checked':''}"></span>${STATUS_LABEL[s]}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+  function channelFilterHTML() {
+    const all = channelFilter.size === CHANNEL_LIST.length;
+    return `<div class="filter-dd">
+      <div class="filter-trigger" onclick="toggleHeaderFilter('channel')"><span>◉ ${all ? 'All Channels' : channelFilter.size + ' Channels'}</span><span>⌄</span></div>
+      <div class="filter-menu ${channelDropdownOpen?'show':''}">
+        ${CHANNEL_LIST.map(c => `<div class="filter-option" onclick="toggleChannel('${c}')"><span class="cf-check ${channelFilter.has(c)?'checked':''}"></span>${CHANNEL_LABEL[c]}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  function campaignFilterBarHTML() {
+    const typeCount = campTypeFilter.size;
+    const nameCount = campNameFilter.size;
+    const typeOptions = Object.keys(CAMP_TYPE_LABELS).map(k => `
+      <div class="cf-option" onclick="toggleCampTypeFilter('${k}')">
+        <div class="cf-check ${campTypeFilter.has(k)?'checked':''}"></div>${CAMP_TYPE_LABELS[k]}
+      </div>`).join('');
+    const namePool = campaigns.filter(c => !c.archived);
+    const nameOptions = namePool.map(c => `
+      <div class="cf-option" onclick="toggleCampNameFilter('${c.id}')">
+        <div class="cf-check ${campNameFilter.has(c.id)?'checked':''}"></div>${c.icon} ${c.name}
+      </div>`).join('');
+    return `
+      <div class="cal-camp-filters">
+        <div class="cf-dd">
+          <div class="cf-pill ${typeCount?'active':''}" onclick="toggleCampFilterDD('type')">🏷 Campaign type${typeCount?' ('+typeCount+')':''} <span>▾</span></div>
+          <div class="cf-menu ${campTypeDropdownOpen?'show':''}">
+            ${typeOptions}
+            ${typeCount ? `<div class="cf-clear" onclick="clearCampTypeFilter()">Clear</div>` : ''}
+          </div>
+        </div>
+        <div class="cf-dd">
+          <div class="cf-pill ${nameCount?'active':''}" onclick="toggleCampFilterDD('name')">📋 Campaign name${nameCount?' ('+nameCount+')':''} <span>▾</span></div>
+          <div class="cf-menu ${campNameDropdownOpen?'show':''}">
+            ${nameOptions}
+            ${nameCount ? `<div class="cf-clear" onclick="clearCampNameFilter()">Clear</div>` : ''}
+          </div>
+        </div>
       </div>`;
-    }).join('') + '</div>';
+  }
+
+  function legendHTML() {
+    return '<div class="cal-legend" id="calLegend">' + campaignFilterBarHTML() + channelFilterHTML() + statusFilterHTML() + '</div>';
   }
   function toggleStatus(s) {
     if (statusFilter.has(s)) statusFilter.delete(s); else statusFilter.add(s);
@@ -2377,14 +2987,15 @@
       const dateStr = toDateStr(d);
       html += '<div class="day-col">';
       TIME_SLOTS.forEach(h => {
-        const ev = events.find(e => e.date===dateStr && e.hour===h);
+        const ev = events.find(e => e.date===dateStr && e.hour===h && eventPassesCampaignFilters(e));
         if (ev) {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
-          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
+          const campName = ev.campaignId ? ((campaigns.find(c=>c.id===ev.campaignId)||{}).name || 'Campaign') : '';
+          const campPill = ev.campaignId ? `<span class="cal-camp-pill" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it"><span class="cal-camp-dot"></span>${campName}</span>` : '';
           html += `<div class="wk-slot" style="padding:0">
-            <div class="wk-event st-${ev.status} ${dim} ${campName?'has-campaign':''}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
+            <div class="wk-event st-${ev.status} ${ev.campaignId?'campaign-post':''} ${dim}" onclick="openEditPost({mode:'edit', eventId:'${ev.id}'})">
               <div class="we-title">${ev.title || ev.caption || 'Untitled'}</div>
-              ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
+              ${campPill}
               <div class="we-status">${fmtTime12(ev.hour,ev.minute)} · ${ev.status}</div>
             </div>
           </div>`;
@@ -2417,18 +3028,15 @@
       const dateStr = toDateStr(d);
       const outside = d.getMonth() !== month;
       const isToday = dateStr === TODAY_STR;
-      const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+      const dayEvents = events.filter(e => e.date === dateStr && eventPassesCampaignFilters(e)).sort((a,b)=>a.hour-b.hour);
       let inner = `<div class="month-date">${d.getDate()}</div>`;
       inner += `<div class="month-cell-plus" onclick="event.stopPropagation(); openEditPost({mode:'create', date:'${dateStr}', hour:10})">+</div>`;
       if (dayEvents.length) {
         const first2 = dayEvents.slice(0,1);
         first2.forEach(ev => {
           const dim = !statusFilter.has(ev.status) ? 'dimmed' : '';
-          const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
-          inner += `<div class="month-item st-${ev.status} ${dim} ${campName?'has-campaign':''}">
-            <div>${ev.title || ev.caption || 'Untitled'}</div>
-            ${campName ? `<div class="cal-camp-label" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</div>` : ''}
-          </div>`;
+          const campPill = ev.campaignId ? `<span class="cal-camp-pill" onclick="event.stopPropagation(); openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it"><span class="cal-camp-dot"></span>${(campaigns.find(c=>c.id===ev.campaignId)||{}).name || 'Campaign'}</span>` : '';
+          inner += `<div class="month-item st-${ev.status} ${ev.campaignId?'campaign-post':''} ${dim}">${ev.title || ev.caption || 'Untitled'}${campPill}</div>`;
         });
         if (dayEvents.length > 1) {
           inner += `<div class="month-more">+${dayEvents.length-1} MORE</div>`;
@@ -2441,7 +3049,7 @@
   }
 
   function openDayPopover(evt, dateStr) {
-    const dayEvents = events.filter(e => e.date === dateStr).sort((a,b)=>a.hour-b.hour);
+    const dayEvents = events.filter(e => e.date === dateStr && eventPassesCampaignFilters(e)).sort((a,b)=>a.hour-b.hour);
     if (!dayEvents.length) {
       openEditPost({mode:'create', date: dateStr, hour: 10});
       return;
@@ -2493,6 +3101,7 @@
     const sorted = [...events]
       .filter(e => statusFilter.has(e.status))
       .filter(e => e.date >= listDateRange.start && e.date <= listDateRange.end)
+      .filter(eventPassesCampaignFilters)
       .sort((a,b) => (b.date+b.hour).localeCompare(a.date+a.hour));
     let html = `
       <div class="list-filters">
@@ -2502,18 +3111,17 @@
       </div>`;
     html += legendHTML();
     if (!sorted.length) {
-      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected statuses.</div>`;
+      html += `<div style="text-align:center;color:#b3b2ac;font-size:13px;padding:40px 0;">No posts in this range match the selected filters.</div>`;
     }
     sorted.forEach(ev => {
       const pm = PLATFORM_META[ev.platform] || PLATFORM_META.linkedin;
-      const campName = ev.campaignId ? (campaigns.find(c=>c.id===ev.campaignId)||{}).name : '';
       html += `
-        <div class="list-row ${campName?'has-campaign':''}">
+        <div class="list-row">
           <div class="lr-head">
             <div class="lr-avatar">${pm.icon}</div>
         <div><div class="lr-account">${ev.account}</div><div class="lr-platform">${pm.label}</div></div>
         <span class="lr-badge st-${ev.status}">${ev.status.charAt(0).toUpperCase()+ev.status.slice(1)}</span>
-        ${campName ? `<span class="lr-camp-label" onclick="openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it">${campName}</span>` : ''}
+        ${ev.campaignId ? `<span class="cal-camp-pill" onclick="openCampaignsAndDetail('${ev.campaignId}')" title="Part of a campaign — click to manage it"><span class="cal-camp-dot"></span>${(campaigns.find(c=>c.id===ev.campaignId)||{}).name || 'Campaign'}</span>` : ''}
         <div class="lr-time">⚡ Selected time: ${fmtDateLong(ev.date)} - ${fmtTime12(ev.hour,ev.minute)}</div>
         <div class="lr-icons">
           <div class="lr-icon-btn" title="Duplicate">⧉</div>
@@ -2705,7 +3313,9 @@
       });
     } else {
       epState = {
-        mode: 'create', date: opts.date,
+        mode: opts.mode === 'campaign-edit' ? 'campaign-edit' : 'create',
+        campaignCardId: opts.campaignCardId || null,
+        date: opts.date,
         caption: opts.prefillCard ? opts.prefillCard.title : '',
         thumbnail: opts.prefillCard ? opts.prefillCard.icon : null,
         mediaKind: opts.prefillCard ? cardKind(opts.prefillCard) : 'image',
@@ -2721,7 +3331,7 @@
     epState.musicAdded = false;
     epState.retrying = false;
 
-    document.getElementById('epTitle').textContent = epState.mode === 'edit' ? 'Edit post' : 'Create post';
+    document.getElementById('epTitle').textContent = epState.mode === 'create' ? 'Create post' : 'Edit post';
     renderEpDatePill();
     document.getElementById('epCaption').value = epState.caption;
     epPreviewPlatform = 'instagram';
@@ -3048,7 +3658,8 @@
 
   function initEpCta() {
     epSaveMode = epState.failInfo ? 'retry' : 'scheduled';
-    document.getElementById('epSplitMainBtn').textContent = epState.failInfo ? 'Retry' : 'Schedule Post';
+    document.getElementById('epSplitMainBtn').textContent = epState.mode === 'campaign-edit' ? 'Save changes' : (epState.failInfo ? 'Retry' : 'Schedule Post');
+    document.querySelector('.ep-split-chevron').style.display = epState.mode === 'campaign-edit' ? 'none' : 'flex';
     document.getElementById('epOptSchedule').classList.remove('active');
     document.getElementById('epOptDraft').classList.remove('active');
     document.getElementById('epOptRetry').classList.toggle('active', !!epState.failInfo);
@@ -3067,6 +3678,15 @@
     const activeKeys = Object.keys(epState.platforms).filter(k => CONNECTED[k] && epState.platforms[k].on);
     const platform = activeKeys[0] || 'linkedin';
     const st = epState.platforms[platform] || { hour: 10, minute: 0 };
+
+    if (epState.mode === 'campaign-edit') {
+      const campaignCard = cardTitleById(epState.campaignCardId);
+      campaignCard.title = epState.caption;
+      campaignCard.icon = epState.thumbnail || campaignCard.icon;
+      closeEditPost();
+      renderCamp2Cal();
+      return;
+    }
 
     if (status === 'duplicate' || status === 'retry') {
       events.push({
@@ -3112,31 +3732,162 @@
     tiktok:    { label: 'TikTok',    icon: '♪' },
     youtube:   { label: 'YouTube',   icon: '▶' },
   };
-  function renderProfileRow() {
+  function renderMainNavChannels() {
     const connectedKeys = Object.keys(PLATFORM_META).filter(k => CONNECTED[k]);
     const ACCOUNT_NAME = { linkedin: 'bhashwati-pyne', facebook: 'thefinpedia', instagram: 'thefinpedia' };
     let html = '';
     connectedKeys.forEach(k => {
       const meta = PLATFORM_META[k];
       const name = ACCOUNT_NAME[k] || meta.label;
-      html += `<div class="profile-avatar-wrap" title="${meta.label} — ${name}" onclick="alert('This would open ${meta.label} account settings.')">
-        <div class="profile-avatar connected ${meta.cls}">${meta.icon}</div>
-        <div class="profile-name">${name}</div>
+      html += `<div class="mn-chan-row" onclick="event.stopPropagation(); alert('This would open ${meta.label} account settings.')">
+        <div class="mn-chan-icon connected ${meta.cls}">${meta.icon}</div>
+        <div class="mn-chan-info">
+          <div class="mn-chan-name">${meta.label}</div>
+          <div class="mn-chan-status">Connected · ${name}</div>
+        </div>
+        <span class="mn-chan-action">Manage</span>
       </div>`;
     });
     const inactive = Object.keys(PLATFORM_META).filter(k => !CONNECTED[k])
       .map(k => ({ label: PLATFORM_META[k].label, icon: PLATFORM_META[k].icon }))
       .concat(Object.values(EXTRA_INACTIVE_PLATFORMS));
     inactive.forEach(p => {
-      html += `<div class="profile-avatar-wrap" title="Connect ${p.label}" onclick="alert('This would start the channel-connect flow for ${p.label}.')">
-        <div class="profile-avatar inactive">${p.icon}<span class="profile-badge">+</span></div>
+      html += `<div class="mn-chan-row" onclick="event.stopPropagation(); alert('This would start the channel-connect flow for ${p.label}.')">
+        <div class="mn-chan-icon inactive">${p.icon}</div>
+        <div class="mn-chan-info">
+          <div class="mn-chan-name">${p.label}</div>
+          <div class="mn-chan-status">Not connected</div>
+        </div>
+        <span class="mn-chan-action">Connect</span>
       </div>`;
     });
-    document.getElementById('profileRow').innerHTML = html;
+    document.getElementById('mnSocialChannels').innerHTML = html;
   }
 
-  switchView('week');
-  renderProfileRow();
+  /* ================================================================
+     MAIN LEFT NAV: Home / Scheduler (Campaigns, Analytics) / Social connections
+     ================================================================ */
+  let currentPage = 'posts';
+  let campaignPlannerExpanded = true;
+  let socialConnectionsExpanded = false;
+
+  const PAGE_META = {
+    home:      { title: 'Home',       crumb: 'Marketing / Home' },
+    campaigns: { title: 'Campaigns',  crumb: 'Marketing / Scheduler / Campaigns' },
+    posts:     { title: 'Scheduler',  crumb: 'Marketing / Scheduler' },
+    analytics: { title: 'Analytics',  crumb: 'Marketing / Scheduler / Analytics' },
+  };
+
+  function renderMainNav() {
+    const plannerPages = ['campaigns','posts','analytics'];
+    const plannerActive = plannerPages.includes(currentPage);
+    document.getElementById('mainNav').innerHTML = `
+      <div class="mn-logo">✦ Scheduler</div>
+      <div class="mn-item ${currentPage==='home'?'active':''}" onclick="navigateTo('home')">🏠 <span>Home</span></div>
+      <div class="mn-item ${plannerActive?'active':''} ${campaignPlannerExpanded?'expanded':''}" onclick="openSchedulerMenu()">
+        🗓️ <span>Scheduler</span><span class="mn-chev">▾</span>
+      </div>
+      <div class="mn-submenu ${campaignPlannerExpanded?'':'collapsed'}">
+        <div class="mn-subitem ${currentPage==='campaigns'?'active':''}" onclick="navigateTo('campaigns')">Campaigns</div>
+        <div class="mn-subitem ${currentPage==='analytics'?'active':''}" onclick="navigateTo('analytics')">Analytics</div>
+      </div>
+      <div class="mn-item ${socialConnectionsExpanded?'expanded':''}" id="btnConnectChannel" onclick="toggleSocialConnectionsMenu()">
+        🔗 <span>Social Connections</span><span class="mn-chev">▾</span>
+      </div>
+      <div class="mn-submenu mn-submenu-channels ${socialConnectionsExpanded?'':'collapsed'}" id="mnSocialChannels"></div>`;
+    if (socialConnectionsExpanded) renderMainNavChannels();
+  }
+
+  function toggleCampaignPlannerMenu() {
+    campaignPlannerExpanded = !campaignPlannerExpanded;
+    renderMainNav();
+  }
+
+  function openSchedulerMenu() {
+    campaignPlannerExpanded = true;
+    navigateTo('posts');
+  }
+
+  function toggleSocialConnectionsMenu() {
+    socialConnectionsExpanded = !socialConnectionsExpanded;
+    renderMainNav();
+  }
+
+  function navigateTo(page) {
+    currentPage = page;
+    if (['campaigns','posts','analytics'].includes(page)) campaignPlannerExpanded = true;
+    renderMainNav();
+
+    const meta = PAGE_META[page];
+    document.getElementById('pageTitleText').textContent = meta.title;
+    const crumbParts = meta.crumb.split(' / ');
+    document.getElementById('breadcrumbText').innerHTML = crumbParts
+      .map((p,i) => i===crumbParts.length-1 ? `<span class="breadcrumb-current">${p}</span>` : p)
+      .join(' <span class="breadcrumb-sep">/</span> ');
+
+    document.getElementById('topbarBottomRow').style.display = page==='posts' ? 'flex' : 'none';
+
+    if (page === 'posts' || page === 'campaigns') {
+      document.getElementById('calendarRoot').style.display = 'flex';
+      document.getElementById('pagePlaceholder').style.display = 'none';
+      if (page === 'posts') {
+        renderSidebarForPage();
+        switchView(lastPostsView);
+      } else {
+        document.getElementById('sidebar').style.display = 'none';
+        switchView('campaigns');
+      }
+    } else {
+      document.getElementById('calendarRoot').style.display = 'none';
+      document.getElementById('sidebar').style.display = 'none';
+      document.getElementById('pagePlaceholder').style.display = 'block';
+      renderPagePlaceholder(page);
+    }
+  }
+
+  function renderSidebarForPage() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.display = 'none';
+    sidebar.innerHTML = '';
+  }
+
+  function renderPagePlaceholder(page) {
+    const el = document.getElementById('pagePlaceholder');
+    if (page === 'home') {
+      const links = [
+        { action:"navigateTo('posts')", icon:'🗓️', title:'Go to Scheduler', sub:'View and schedule content on the calendar' },
+        { action:"navigateTo('campaigns')", icon:'🗂️', title:'Go to Campaigns', sub:'Track active, upcoming, and completed campaigns' },
+        { action:"if(!socialConnectionsExpanded) toggleSocialConnectionsMenu();", icon:'🔗', title:'Manage Social Connections', sub:'Connect or manage your channels from the left menu' },
+      ];
+      el.innerHTML = `
+        <div style="max-width:640px;">
+          <h2 style="font-size:22px;margin:0 0 8px;">Welcome back 👋</h2>
+          <p style="color:#6a6a66;font-size:14px;line-height:1.6;margin:0 0 24px;">Jump into your posts calendar, manage running campaigns, or check your channels — all from the menu on the left.</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            ${links.map(l => `
+              <div class="camp-row" onclick="${l.action}">
+                <div class="camp-row-top">
+                  <div class="camp-icon">${l.icon}</div>
+                  <div class="camp-name-wrap" style="width:auto;">
+                    <div class="camp-name">${l.title}</div>
+                    <div class="camp-cat">${l.sub}</div>
+                  </div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    } else if (page === 'analytics') {
+      el.innerHTML = `
+        <div style="max-width:520px; text-align:center; margin:60px auto; color:#9a9a94;">
+          <div style="font-size:40px; margin-bottom:14px;">📊</div>
+          <div style="font-size:16px; font-weight:700; color:#4a4a46; margin-bottom:6px;">Analytics is coming soon</div>
+          <div style="font-size:13px; line-height:1.6;">Reach, engagement, and campaign performance reporting will live here.</div>
+        </div>`;
+    }
+  }
+
+  renderMainNav();
+  navigateTo('posts');
   setTimeout(startLandingTour, 400);
 
   document.addEventListener('click', function(evt) {
@@ -3148,6 +3899,14 @@
     const splitBtn = document.querySelector('.ep-split-btn');
     if (splitMenu && splitMenu.classList.contains('show') && splitBtn && !splitBtn.contains(evt.target)) {
       splitMenu.classList.remove('show');
+    }
+    const camp2SchedMenu = document.getElementById('camp2ScheduleMenu');
+    if (camp2SchedMenu && camp2SchedMenu.classList.contains('show') && !evt.target.closest('.ep-split-btn')) {
+      camp2SchedMenu.classList.remove('show');
+    }
+    const camp2BuildMenu = document.getElementById('camp2BuildMenu');
+    if (camp2BuildMenu && camp2BuildMenu.classList.contains('show') && !evt.target.closest('.ep-split-btn')) {
+      camp2BuildMenu.classList.remove('show');
     }
     const drpPop = document.getElementById('drpPopover');
     const drpPill = document.getElementById('lfDatePill');
@@ -3163,6 +3922,18 @@
       openCampMenuId = null;
       renderCampaignRows();
     }
+    if ((campTypeDropdownOpen || campNameDropdownOpen) && !evt.target.closest('.cf-dd')) {
+      campTypeDropdownOpen = false;
+      campNameDropdownOpen = false;
+      rerenderCurrentCalView();
+    }
+    if ((statusDropdownOpen || channelDropdownOpen) && !evt.target.closest('.filter-dd')) {
+      statusDropdownOpen = false;
+      channelDropdownOpen = false;
+      rerenderCurrentCalView();
+    }
+    if (!evt.target.closest('.schedule-dd')) document.getElementById('scheduleMenu')?.classList.remove('show');
+    if (!evt.target.closest('.period-dd')) document.getElementById('periodMenu')?.classList.remove('show');
   });
 </script>
 
