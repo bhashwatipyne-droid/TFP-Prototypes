@@ -740,6 +740,10 @@
   .camp2-result-count { font-size:14px; font-weight:700; }
   .camp2-result-link { font-size:11.5px; font-weight:600; color:#0c447c; cursor:pointer; }
   .camp2-filter-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 14px; }
+  .cb-content-picker { background:#fbfbfa; border:1px solid #ececea; border-radius:12px; padding:16px; margin-bottom:14px; }
+  .cb-content-picker .cat-pills { margin-bottom:0; }
+  .cb-filter-subset { margin:14px 0 0 10px; padding:10px 0 0 14px; border-left:2px solid #d9cdf5; }
+  .cb-filter-subset-label { font-size:10px; color:#8a5fd9; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em; }
   .camp2-filter-chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
   .camp2-filter-btn { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#4a4a46; background:#fff; border:1px solid #d8d6cf; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
   .camp2-filter-btn.active { border-color:#6a3fd1; color:#5a2ea6; background:#f6f1ff; }
@@ -2284,23 +2288,34 @@
     let catPillsHtml = '';
     if (!isTargeted) {
       const cats = isPersonal ? PERSONALISATION_CATS : CAMPAIGN_CATS();
-      catPillsHtml = `<div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;margin-bottom:14px;">
+      const activeCatLabel = (cats.find(c => c.key === campaignState.contentCat) || {}).label || '';
+      const catPillsInner = `<div class="cat-pills" style="flex-wrap:wrap;overflow-x:visible;">
         ${cats.map(c => `<div class="cat-pill ${c.key===campaignState.contentCat?'active':''}" onclick="setCampaignCat('${c.key}')">${c.icon} ${c.label}</div>`).join('')}
         ${isPersonal ? '' : `<div class="cat-pill" onclick="triggerUpload('campaign')">⬆ Upload content</div>`}
       </div>`;
+      const filterSubsetInner = isPersonal ? '' : `
+      <div class="cb-filter-subset">
+        <div class="cb-filter-subset-label">↳ Narrowing within ${activeCatLabel}</div>
+        <div class="camp2-filter-row" style="margin:0;">
+          <div class="camp2-filter-chips" id="camp2FilterChips"></div>
+          <div class="camp2-filter-btn" id="camp2FilterBtn" onclick="toggleCbFilterPanel()">☰ Filter <span id="camp2FilterCountBadge"></span></div>
+        </div>
+      </div>`;
+      const journeyInner = isJourney ? `
+      <div class="cb-filter-subset" style="margin-top:${isPersonal?'0':'10px'};">
+        <div class="cb-filter-subset-label">↳ Narrowing within ${activeCatLabel}</div>
+        <span class="cb-chip ${campaignState.journeyStage==='started'?'active':''}" onclick="setJourneyStageFilter('started')">Journey Started</span>
+        <span class="cb-chip ${campaignState.journeyStage==='ended'?'active':''}" onclick="setJourneyStageFilter('ended')">Journey Ended</span>
+      </div>` : '';
+      catPillsHtml = `<div class="cb-content-picker">${catPillsInner}${filterSubsetInner}${journeyInner}</div>`;
     }
 
     const topline = `
       <div class="cb-resources-hint" style="margin-bottom:12px;">${campaignState.selectedCards.size ? campaignState.selectedCards.size + ' piece' + (campaignState.selectedCards.size>1?'s':'') + ' selected' : 'No content selected yet'} <span style="color:#c7c5bc;">out of 120</span></div>
-      ${isPersonal ? '' : `
+      ${isTargeted ? `
       <div class="camp2-filter-row">
         <div class="camp2-filter-chips" id="camp2FilterChips"></div>
         <div class="camp2-filter-btn" id="camp2FilterBtn" onclick="toggleCbFilterPanel()">☰ Filter <span id="camp2FilterCountBadge"></span></div>
-      </div>`}
-      ${isJourney ? `
-      <div class="camp2-filter-row" style="margin-top:${isPersonal?'0':'10px'};">
-        <span class="cb-chip ${campaignState.journeyStage==='started'?'active':''}" onclick="setJourneyStageFilter('started')">Journey Started</span>
-        <span class="cb-chip ${campaignState.journeyStage==='ended'?'active':''}" onclick="setJourneyStageFilter('ended')">Journey Ended</span>
       </div>` : ''}`;
 
     if (isJourney && campaignState.journeyStage) {
