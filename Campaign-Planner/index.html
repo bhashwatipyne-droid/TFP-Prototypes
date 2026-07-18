@@ -727,7 +727,9 @@
   .cb-accordion-check { width:20px; height:20px; border-radius:50%; border:1.5px solid #d8d6cf; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; transition:background .15s, border-color .15s; }
   .cb-accordion-check.done { background:#27500a; border-color:#27500a; }
   .cb-accordion-title { font-size:13.5px; font-weight:700; color:#1a1a1a; }
-  .cb-accordion-summary { font-size:12px; color:#8a8a86; margin-left:auto; text-align:right; }
+  .cb-accordion-summary { display:none; padding:0 20px 16px; }
+  .cb-accordion-summary.show { display:block; }
+  .cb-accordion-summary .cd-recap-row:last-child { border-bottom:none; }
   .cb-accordion-body { padding:18px 20px; max-height:3000px; opacity:1; transition:max-height .28s ease, opacity .2s ease, padding .28s ease; overflow:hidden; }
   .cb-accordion-body.collapsed { max-height:0 !important; opacity:0; padding-top:0; padding-bottom:0; }
   .cb-continue-row { display:flex; justify-content:flex-end; margin-top:18px; }
@@ -1175,10 +1177,11 @@
             <div class="cb-accordion-head" onclick="unlockConfigureSection()">
               <div class="cb-accordion-check" id="cbConfigureCheck"></div>
               <div class="cb-accordion-title">Configure</div>
-              <div class="cb-accordion-summary" id="cbConfigureSummary"></div>
             </div>
+            <div class="cb-accordion-summary" id="cbConfigureSummary"></div>
             <div class="cb-accordion-body" id="cbAccordionConfigureBody">
               <div class="cb-strip" id="cbStrip"></div>
+              <div class="camp2-strip" id="camp2Strip" style="border-radius:8px; margin:16px 0;"></div>
               <div class="cb-sec-title">Resources</div>
               <div id="camp2ResultCol"></div>
               <div class="cb-continue-row">
@@ -1191,7 +1194,6 @@
               <div class="cb-accordion-title">Review</div>
             </div>
             <div class="cb-accordion-body" id="cbAccordionReviewBody">
-              <div class="camp2-strip" id="camp2Strip" style="border-radius:8px; margin-bottom:16px;"></div>
               <div id="camp2Cal"></div>
             </div>
           </div>
@@ -1914,9 +1916,25 @@
     if (locked) {
       const chanOnList = Object.entries({instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
       const cadenceLabelMap = { daily:'Daily', weekly:'Weekly', every_other:'Every other day' };
-      summary.textContent = chanOnList.join(', ') + ' · ' + campaignState.selectedCards.size + ' piece' + (campaignState.selectedCards.size===1?'':'s') + ' · ' + cadenceLabelMap[campaignState.cadence.frequency];
+      const isPersonal = campaignState.mode === 'personalisation';
+      const isTargeted = campaignState.mode === 'targeted';
+      const aActive = audienceActive() || isPersonal || isTargeted;
+      const playlistTypeLabelMap = { general:'General', targeted:'Targeted', personalised:'Personalised' };
+      const contentLabel = campaignState.contentSource === 'playlist'
+        ? 'Playlist · ' + (playlistTypeLabelMap[campaignState.playlistType] || '—')
+        : 'Custom · ' + campaignState.selectedCards.size + ' piece' + (campaignState.selectedCards.size===1?'':'s');
+      let rows = `
+        <div class="cd-recap-row"><span>Channels</span><span>${chanOnList.join(', ') || 'None'}</span></div>
+        <div class="cd-recap-row"><span>Content</span><span>${contentLabel}</span></div>
+        <div class="cd-recap-row"><span>Schedule</span><span>${cadenceLabelMap[campaignState.cadence.frequency]} · ${fmtDateShort(campaignState.cadence.startDate)} – ${fmtDateShort(campaignState.cadence.endDate)}</span></div>`;
+      if (aActive) {
+        rows += `<div class="cd-recap-row"><span>Audience</span><span>${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' clients' : 'None selected'}</span></div>`;
+      }
+      summary.innerHTML = rows;
+      summary.classList.add('show');
     } else {
-      summary.textContent = '';
+      summary.innerHTML = '';
+      summary.classList.remove('show');
     }
 
     if (continueBtn) continueBtn.classList.toggle('disabled', !cbConfigureComplete());
@@ -2018,9 +2036,9 @@
     }
   }
 
-  const CB_CHIP_TYPES = ['channels', 'duration', 'cadence', 'audience', 'source'];
+  const CB_CHIP_TYPES = ['channels', 'schedule', 'audience', 'source'];
   function cbChannelsSet() { return campaignState.touched.channels && anyChannelSelected(); }
-  function cbDurCadUnlocked() { return cbChannelsSet(); }
+  function cbScheduleUnlocked() { return cbChannelsSet(); }
   function cbAudienceUnlocked() { return !!campaignState.channels.whatsapp; }
   function cbSourceUnlocked() { return cbChannelsSet() && campaignState.touched.duration && campaignState.touched.cadence; }
   function cbResourcesUnlocked() { return cbSourceUnlocked() && !!campaignState.contentSource; }
@@ -2036,13 +2054,11 @@
     const channelsLabel = campaignState.touched.channels && chanOnList.length
       ? '📣 ' + chanOnList.slice(0,2).join(', ') + (chanOnList.length > 2 ? ' +' + (chanOnList.length - 2) : '')
       : '📣 Channels';
-    const durationLabel = campaignState.touched.duration
-      ? '📅 ' + fmtDateShort(campaignState.cadence.startDate) + ' – ' + fmtDateShort(campaignState.cadence.endDate)
-      : '📅 Duration';
     const cadenceLabelMap = { daily:'Daily', weekly:'Weekly', every_other:'Every other day' };
-    const cadenceLabel = campaignState.touched.cadence
-      ? '🔁 ' + cadenceLabelMap[campaignState.cadence.frequency]
-      : '🔁 Cadence';
+    const scheduleFilled = campaignState.touched.duration && campaignState.touched.cadence;
+    const scheduleLabel = scheduleFilled
+      ? '📅 ' + fmtDateShort(campaignState.cadence.startDate) + ' – ' + fmtDateShort(campaignState.cadence.endDate) + ' · ' + cadenceLabelMap[campaignState.cadence.frequency]
+      : '📅 Schedule';
     const audienceLabel = aActive && campaignState.selectedClients.size
       ? '👤 ' + campaignState.selectedClients.size + ' client' + (campaignState.selectedClients.size>1?'s':'')
       : '👤 Audience';
@@ -2056,12 +2072,11 @@
     const chip = (type, label, filled, extraClass) => `
       <div class="cb-chip-wrap">
         <div class="cbs-chip ${filled ? '' : 'muted'} ${extraClass||''}" onclick="toggleCbChip('${type}', event)">${label}</div>
-        <div class="cb-popover ${type==='channels'?'wide':''}" id="cbPopover-${type}"></div>
+        <div class="cb-popover ${type==='channels'||type==='schedule'?'wide':''}" id="cbPopover-${type}"></div>
       </div>`;
 
     let html = chip('channels', channelsLabel, campaignState.touched.channels && chanOnList.length);
-    html += chip('duration', durationLabel, campaignState.touched.duration, cbDurCadUnlocked() ? '' : 'disabled');
-    html += chip('cadence', cadenceLabel, campaignState.touched.cadence, cbDurCadUnlocked() ? '' : 'disabled');
+    html += chip('schedule', scheduleLabel, scheduleFilled, cbScheduleUnlocked() ? '' : 'disabled');
     html += cbAudienceUnlocked()
       ? chip('audience', audienceLabel, campaignState.selectedClients.size > 0)
       : chip('audience', '👤 Audience', false, 'disabled');
@@ -2076,8 +2091,7 @@
   let cbOpenChip = null;
   function toggleCbChip(type, evt) {
     if (evt) evt.stopPropagation();
-    if (type === 'duration' && !cbDurCadUnlocked()) return;
-    if (type === 'cadence' && !cbDurCadUnlocked()) return;
+    if (type === 'schedule' && !cbScheduleUnlocked()) return;
     if (type === 'audience' && !cbAudienceUnlocked()) return;
     if (type === 'source' && !cbSourceUnlocked()) return;
     const wasOpen = cbOpenChip === type;
@@ -2099,8 +2113,7 @@
     const pop = document.getElementById('cbPopover-' + type);
     if (!pop) return;
     if (type === 'channels') pop.innerHTML = cbPopoverChannelsHTML();
-    else if (type === 'duration') pop.innerHTML = cbPopoverDurationHTML();
-    else if (type === 'cadence') pop.innerHTML = cbPopoverCadenceHTML();
+    else if (type === 'schedule') pop.innerHTML = cbPopoverScheduleHTML();
     else if (type === 'audience') pop.innerHTML = cbPopoverAudienceHTML();
     else if (type === 'source') pop.innerHTML = cbPopoverSourceHTML();
   }
@@ -2127,17 +2140,14 @@
     return html;
   }
 
-  function cbPopoverDurationHTML() {
+  function cbPopoverScheduleHTML() {
     return `<div class="camp2-group-label" style="margin-top:0;">Duration</div>
       <div class="camp2-date-row">
         <input type="date" class="camp2-date-input" value="${campaignState.cadence.startDate}" onchange="setCadenceStart(this.value);reRenderOpenCbPopover();renderCbStrip()">
         <input type="date" class="camp2-date-input" value="${campaignState.cadence.endDate}" min="${campaignState.cadence.startDate}" onchange="setCadenceEnd(this.value);reRenderOpenCbPopover();renderCbStrip()">
       </div>
-      <div class="camp2-hint-italic" style="margin-top:10px;">${campaignState.cadence.duration} day${campaignState.cadence.duration===1?'':'s'} total.</div>`;
-  }
-
-  function cbPopoverCadenceHTML() {
-    return `<div class="camp2-group-label" style="margin-top:0;">Cadence</div>
+      <div class="camp2-hint-italic" style="margin:8px 0 14px;">${campaignState.cadence.duration} day${campaignState.cadence.duration===1?'':'s'} total.</div>
+      <div class="camp2-group-label" style="margin-top:0;">Cadence</div>
       <div class="camp2-cadence-row">
         <div class="camp2-freq-opt ${campaignState.cadence.frequency==='daily'?'active':''}" onclick="setCadenceFreq('daily');reRenderOpenCbPopover();renderCbStrip()">Daily</div>
         <div class="camp2-freq-opt ${campaignState.cadence.frequency==='every_other'?'active':''}" onclick="setCadenceFreq('every_other');reRenderOpenCbPopover();renderCbStrip()">Every other day</div>
