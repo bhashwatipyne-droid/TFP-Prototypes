@@ -721,11 +721,16 @@
   .cb-resources-hint { font-size:12.5px; color:#8a8a86; }
   .cb-preview-placeholder { border:1px dashed #e4e2da; border-radius:10px; padding:34px 20px; text-align:center; font-size:12.5px; color:#9a9a94; }
   .cb-footer { display:flex; justify-content:flex-end; align-items:center; gap:10px; padding:16px 32px; border-top:1px solid #ececea; background:#fbfbfa; flex-shrink:0; }
+  .cb-footer-status { font-size:12px; color:#9a9a94; margin-right:auto; }
   .cb-accordion-section { border:1px solid #e4e2da; border-radius:12px; margin-bottom:16px; overflow:hidden; }
   .cb-accordion-head { display:flex; align-items:center; gap:10px; padding:14px 20px; cursor:pointer; background:#fbfbfa; }
   .cb-accordion-head-static { cursor:default; }
-  .cb-accordion-check { width:20px; height:20px; border-radius:50%; border:1.5px solid #d8d6cf; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; transition:background .15s, border-color .15s; }
-  .cb-accordion-check.done { background:#27500a; border-color:#27500a; }
+  .cb-accordion-check { width:22px; height:22px; border-radius:50%; border:1.5px solid #d8d6cf; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#9a9a94; background:#fff; transition:background .15s, border-color .15s, color .15s; }
+  .cb-accordion-check.current { background:#1a1a1a; border-color:#1a1a1a; color:#fff; }
+  .cb-accordion-check.done { background:#27500a; border-color:#27500a; color:#fff; }
+  .cb-accordion-subtitle { font-size:11.5px; color:#9a9a94; margin-top:1px; }
+  .cb-name-row { margin-bottom:18px; }
+  .cb-name-input { width:100%; padding:10px 12px; border:1px solid #d8d6cf; border-radius:8px; font-size:13px; font-family:inherit; color:#1a1a1a; box-sizing:border-box; }
   .cb-accordion-title { font-size:13.5px; font-weight:700; color:#1a1a1a; }
   .cb-accordion-summary { display:none; padding:0 20px 16px; }
   .cb-accordion-summary.show { display:block; }
@@ -754,6 +759,16 @@
   .camp2-cta-learnmore { display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding:9px 10px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; color:#4a4a46; cursor:pointer; }
   .camp2-selectclient-btn { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding:9px 12px; border:1px solid #d8d6cf; border-radius:8px; font-size:12px; font-weight:600; color:#3a3a36; cursor:pointer; }
   .camp2-selectclient-btn:hover { border-color:#b3b2ac; }
+  .cb-footer-row { display:flex; align-items:center; gap:8px; }
+  .cb-info-icon { font-size:11px; color:#9a9a94; cursor:help; }
+  .cb-footer-select { width:100%; margin:6px 0 0; padding:8px 10px; border:1px solid #d8d6cf; border-radius:6px; font-size:12px; font-family:inherit; color:#1a1a1a; background:#fff; }
+  .cb-footer-unset { color:#c7c5bc; cursor:default; }
+  .cb-footer-unset-tag { font-size:9.5px; color:#c7c5bc; font-weight:400; margin-left:4px; }
+  .cb-caption-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  .cb-preview-box { background:#fbfbfa; border:1px solid #e4e2da; border-radius:10px; padding:16px; font-size:12px; line-height:1.7; color:#3a3a36; }
+  .cb-preview-line { margin-bottom:2px; }
+  .cb-preview-line.muted { color:#9a9a94; font-style:italic; }
+  .cb-preview-hr { border:none; border-top:1px solid #e4e2da; margin:10px 0; }
   .camp2-cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   .camp2-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:#9a9a94; }
   .camp2-empty-icon { font-size:28px; margin-bottom:10px; opacity:0.6; }
@@ -1002,12 +1017,19 @@
   .filter-option-label.st-failed { color:#9c2b2b; }
   .cf-clear { text-align:center; font-size:11.5px; font-weight:600; color:#9c2b2b; padding:8px; cursor:pointer; border-top:1px solid #ececea; margin-top:4px; }
 
-  /* ===== main left nav rail ===== */
-  .main-nav { width:196px; flex-shrink:0; border-right:1px solid #e4e2da; background:#fbfbfa; padding:18px 12px; display:flex; flex-direction:column; gap:3px; }
+  /* ===== main left nav rail — full app shell ===== */
+  .main-nav { width:236px; flex-shrink:0; border-right:1px solid #e4e2da; background:#fbfbfa; padding:18px 14px; display:flex; flex-direction:column; gap:3px; }
+  .mn-workspace { display:flex; align-items:center; gap:10px; padding:4px 6px 18px; }
+  .mn-ws-icon { width:32px; height:32px; border-radius:9px; background:#6a3fd1; color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .mn-ws-name { font-size:13.5px; font-weight:700; color:#1a1a1a; line-height:1.25; }
+  .mn-ws-sub { font-size:11px; color:#9a9a94; line-height:1.3; }
+  .mn-section-label { font-size:10px; font-weight:700; color:#9a9a94; text-transform:uppercase; letter-spacing:.05em; padding:14px 10px 6px; }
   .mn-logo { font-size:14.5px; font-weight:800; color:#1a1a1a; padding:6px 10px 16px; letter-spacing:.01em; }
-  .mn-item { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:#4a4a46; padding:10px 10px; border-radius:8px; cursor:pointer; user-select:none; }
+  .mn-item { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:#4a4a46; padding:9px 10px; border-radius:8px; cursor:pointer; user-select:none; }
   .mn-item:hover { background:#f0efe9; }
-  .mn-item.active { background:#1a1a1a; color:#fff; }
+  .mn-item.active { background:#ece5fb; color:#5a2ea6; }
+  .mn-item.static { color:#6a6a66; cursor:default; }
+  .mn-item.static:hover { background:transparent; }
   .mn-item .mn-chev { margin-left:auto; font-size:10px; transition:transform .15s; }
   .mn-item.expanded .mn-chev { transform:rotate(180deg); }
   .mn-submenu { display:flex; flex-direction:column; gap:1px; padding-left:30px; margin:2px 0 6px; }
@@ -1015,6 +1037,10 @@
   .mn-subitem { font-size:12.5px; font-weight:600; color:#8a8a86; padding:8px 10px; border-radius:7px; cursor:pointer; }
   .mn-subitem:hover { background:#f0efe9; color:#1a1a1a; }
   .mn-subitem.active { background:#ece5fb; color:#5a2ea6; }
+  .mn-nav-divider { height:1px; background:#e4e2da; margin:10px 6px; }
+  .mn-footer { margin-top:auto; padding-top:12px; border-top:1px solid #e4e2da; }
+  .mn-status-row { display:flex; align-items:center; gap:7px; font-size:11.5px; color:#8a8a86; padding:8px 10px 4px; }
+  .mn-status-dot { width:6px; height:6px; border-radius:50%; background:#639922; flex-shrink:0; }
 
   .mn-submenu.mn-submenu-channels { padding-left:6px; gap:6px; }
   .mn-chan-row { display:flex; align-items:center; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; }
@@ -1179,11 +1205,18 @@
         <div class="cb-body">
           <div class="cb-accordion-section" id="cbAccordionConfigure">
             <div class="cb-accordion-head" onclick="unlockConfigureSection()">
-              <div class="cb-accordion-check" id="cbConfigureCheck"></div>
-              <div class="cb-accordion-title">Configure</div>
+              <div class="cb-accordion-check" id="cbConfigureCheck">1</div>
+              <div>
+                <div class="cb-accordion-title">Configure campaign</div>
+                <div class="cb-accordion-subtitle">Name, cadence, channels, and content</div>
+              </div>
             </div>
             <div class="cb-accordion-summary" id="cbConfigureSummary"></div>
             <div class="cb-accordion-body" id="cbAccordionConfigureBody">
+              <div class="cb-name-row">
+                <div class="cb-sec-title" style="margin-bottom:8px;">Name</div>
+                <input type="text" class="cb-name-input" id="cbNameInput" placeholder="e.g. SIP awareness — July push" value="" oninput="setCampaignName(this.value)">
+              </div>
               <div class="cb-strip" id="cbStrip"></div>
               <div class="camp2-strip" id="camp2Strip" style="border-radius:8px; margin:16px 0;"></div>
               <div class="cb-sec-title">Resources</div>
@@ -1193,9 +1226,29 @@
               </div>
             </div>
           </div>
+          <div class="cb-accordion-section" id="cbAccordionCaption">
+            <div class="cb-accordion-head" onclick="unlockCaptionSection()">
+              <div class="cb-accordion-check" id="cbCaptionCheck">2</div>
+              <div>
+                <div class="cb-accordion-title">Caption &amp; branding</div>
+                <div class="cb-accordion-subtitle">Add CTAs, contact, signature, and hashtags</div>
+              </div>
+            </div>
+            <div class="cb-accordion-summary" id="cbCaptionSummary"></div>
+            <div class="cb-accordion-body" id="cbAccordionCaptionBody">
+              <div id="cbFooterEditor"></div>
+              <div class="cb-continue-row">
+                <div class="m-btn primary" id="cbCaptionContinueBtn" onclick="lockCaptionSection()">Continue</div>
+              </div>
+            </div>
+          </div>
           <div class="cb-accordion-section" id="cbAccordionReview">
             <div class="cb-accordion-head cb-accordion-head-static">
-              <div class="cb-accordion-title">Review</div>
+              <div class="cb-accordion-check" id="cbReviewCheck">3</div>
+              <div>
+                <div class="cb-accordion-title">Review &amp; schedule</div>
+                <div class="cb-accordion-subtitle">Final preview and audience</div>
+              </div>
             </div>
             <div class="cb-accordion-body" id="cbAccordionReviewBody">
               <div id="camp2Cal"></div>
@@ -1203,6 +1256,7 @@
           </div>
         </div>
         <div class="cb-footer">
+          <div class="cb-footer-status" id="cbFooterStatus">0 channels · 0 posts</div>
           <div class="m-btn ghost" onclick="attemptCloseModal()">Cancel</div>
           <span id="camp2ActionsArea"></span>
         </div>
@@ -1553,11 +1607,38 @@
       contentSource: null, playlistType: null, selectedPlaylistId: null,
       cadence: { frequency:'daily', duration:30, startDate: TODAY_STR, endDate: addDaysToStr(TODAY_STR, 29) },
       touched: { channels:false, duration:false, cadence:false },
-      name: '', externalEntry: false, configureLocked: false,
+      name: '', externalEntry: false, configureLocked: false, captionLocked: false,
+      footer: {
+        cta: { on:true, id:'cta0' },
+        contact: { on:true, methods:{ phone:true, whatsapp:true, website:false, gbp:false, meeting:false, custom:false } },
+        signature: { on:true },
+        disclaimer: { on:true },
+        hashtags: { on:true, id:'hs0' },
+      },
       screen: 'build', filtersTouched: true, manualAssignments: {},
       mode: 'standard', selectedClients: new Set(), journeyStage: null
     };
   }
+
+  // Stand-in for what would normally live in Profile Settings — configured once, reused everywhere.
+  const CTA_LIBRARY = [
+    { id:'cta0', text:'Interested in learning more? Feel free to reach out.' },
+    { id:'cta1', text:'DM me to get started with your first SIP.' },
+    { id:'cta2', text:'Book a free consultation — link in bio.' },
+  ];
+  const HASHTAG_LIBRARY = [
+    { id:'hs0', label:'Investor Education', tags:['#MutualFunds','#SIP','#FinancialPlanning'] },
+    { id:'hs1', label:'Market Updates', tags:['#MarketUpdate','#Nifty50'] },
+  ];
+  const CONTACT_METHOD_META = {
+    phone: { icon:'📞', label:'Phone', value:'+91 98765 43210' },
+    whatsapp: { icon:'💬', label:'WhatsApp', value:'+91 98765 43210' },
+    website: { icon:'🌐', label:'Website', value:'www.abcwealth.com' },
+    gbp: { icon:'📍', label:'Google Business Profile', value:null },
+    meeting: { icon:'📅', label:'Meeting Link', value:null },
+    custom: { icon:'🔗', label:'Custom Link', value:null },
+  };
+
   let campaignState = null;
   let campaignInitialSnapshot = null;
   function campaignIsDirty() {
@@ -1613,6 +1694,7 @@
     Object.keys(selectedCampContent).forEach(k => selectedCampContent[k].clear());
     campaignInitialSnapshot = snapshotStr(campaignState);
     document.getElementById('modalBackdrop').classList.add('show');
+    document.getElementById('cbNameInput').value = campaignState.name || '';
     renderCamp2();
     if (!campaignTourSeen) { campaignTourSeen = true; setTimeout(startCampaignTour, 300); }
   }
@@ -1898,6 +1980,8 @@
     renderCamp2Cal();
     renderCamp2Actions();
     renderCbAccordion();
+    const chanCount = Object.values(campaignState.channels).filter(Boolean).length;
+    document.getElementById('cbFooterStatus').textContent = chanCount + ' channel' + (chanCount===1?'':'s') + ' · ' + campaignState.selectedCards.size + ' post' + (campaignState.selectedCards.size===1?'':'s');
   }
 
   function cbConfigureComplete() {
@@ -1906,18 +1990,34 @@
 
   function renderCbAccordion() {
     const configureBody = document.getElementById('cbAccordionConfigureBody');
+    const captionBody = document.getElementById('cbAccordionCaptionBody');
     const reviewBody = document.getElementById('cbAccordionReviewBody');
-    const check = document.getElementById('cbConfigureCheck');
-    const summary = document.getElementById('cbConfigureSummary');
+    const configCheck = document.getElementById('cbConfigureCheck');
+    const captionCheck = document.getElementById('cbCaptionCheck');
+    const reviewCheck = document.getElementById('cbReviewCheck');
+    const configSummary = document.getElementById('cbConfigureSummary');
+    const captionSummary = document.getElementById('cbCaptionSummary');
     const continueBtn = document.getElementById('cbContinueBtn');
-    const locked = campaignState.configureLocked;
+    const captionContinueBtn = document.getElementById('cbCaptionContinueBtn');
+    const configLocked = campaignState.configureLocked;
+    const captionLocked = configLocked && campaignState.captionLocked;
 
-    configureBody.classList.toggle('collapsed', locked);
-    reviewBody.classList.toggle('collapsed', !locked);
-    check.classList.toggle('done', locked);
-    check.textContent = locked ? '✓' : '';
+    configureBody.classList.toggle('collapsed', configLocked);
+    captionBody.classList.toggle('collapsed', !configLocked || captionLocked);
+    reviewBody.classList.toggle('collapsed', !captionLocked);
 
-    if (locked) {
+    configCheck.classList.toggle('done', configLocked);
+    configCheck.classList.toggle('current', !configLocked);
+    configCheck.textContent = configLocked ? '✓' : '1';
+    captionCheck.classList.toggle('done', captionLocked);
+    captionCheck.classList.toggle('current', configLocked && !captionLocked);
+    captionCheck.textContent = captionLocked ? '✓' : '2';
+    if (reviewCheck) {
+      reviewCheck.classList.toggle('current', captionLocked);
+      reviewCheck.textContent = '3';
+    }
+
+    if (configLocked) {
       const chanOnList = Object.entries({instagram:'Instagram',linkedin:'LinkedIn',facebook:'Facebook',whatsapp:'WhatsApp'}).filter(([k])=>campaignState.channels[k]).map(([,v])=>v);
       const cadenceLabelMap = { daily:'Daily', weekly:'Weekly', every_other:'Every other day' };
       const isPersonal = campaignState.mode === 'personalisation';
@@ -1934,14 +2034,28 @@
       if (aActive) {
         rows += `<div class="cd-recap-row"><span>Audience</span><span>${campaignState.selectedClients.size ? campaignState.selectedClients.size + ' clients' : 'None selected'}</span></div>`;
       }
-      summary.innerHTML = rows;
-      summary.classList.add('show');
+      configSummary.innerHTML = rows;
+      configSummary.classList.add('show');
     } else {
-      summary.innerHTML = '';
-      summary.classList.remove('show');
+      configSummary.innerHTML = '';
+      configSummary.classList.remove('show');
+    }
+
+    if (configLocked && !captionLocked) renderFooterEditor();
+
+    if (captionLocked) {
+      const f = campaignState.footer;
+      const onBlocks = ['cta','contact','signature','disclaimer','hashtags'].filter(k => f[k].on);
+      const blockLabelMap = { cta:'CTA', contact:'Contact Block', signature:'Signature', disclaimer:'Disclaimer', hashtags:'Hashtags' };
+      captionSummary.innerHTML = `<div class="cd-recap-row"><span>Included</span><span>${onBlocks.length ? onBlocks.map(k=>blockLabelMap[k]).join(', ') : 'None'}</span></div>`;
+      captionSummary.classList.add('show');
+    } else {
+      captionSummary.innerHTML = '';
+      captionSummary.classList.remove('show');
     }
 
     if (continueBtn) continueBtn.classList.toggle('disabled', !cbConfigureComplete());
+    if (captionContinueBtn) captionContinueBtn.classList.remove('disabled');
   }
 
   function lockConfigureSection() {
@@ -1953,6 +2067,16 @@
   function unlockConfigureSection() {
     if (!campaignState.configureLocked) return;
     campaignState.configureLocked = false;
+    campaignState.captionLocked = false;
+    renderCbAccordion();
+  }
+  function lockCaptionSection() {
+    campaignState.captionLocked = true;
+    renderCbAccordion();
+  }
+  function unlockCaptionSection() {
+    if (!campaignState.configureLocked || !campaignState.captionLocked) return;
+    campaignState.captionLocked = false;
     renderCbAccordion();
   }
 
@@ -2223,6 +2347,113 @@
     }
     renderCamp2();
   }
+
+  function renderFooterEditor() {
+    const el = document.getElementById('cbFooterEditor');
+    if (!el) return;
+    const f = campaignState.footer;
+    const tip = 'title="Saved CTAs and hashtag sets are managed in Profile Settings — this just chooses which to use here."';
+    const infoIcon = `<span class="cb-info-icon" ${tip}>ⓘ</span>`;
+
+    let editorHtml = '';
+
+    // CTA
+    editorHtml += `<div class="cb-footer-row">
+      <div class="camp2-chan-item" onclick="toggleFooterBlock('cta')"><div class="camp2-check2 ${f.cta.on?'on':''}"></div>CTA</div>
+      ${infoIcon}
+    </div>`;
+    if (f.cta.on) {
+      editorHtml += `<select class="cb-footer-select" onchange="setFooterCta(this.value)">
+        ${CTA_LIBRARY.map(c => `<option value="${c.id}" ${f.cta.id===c.id?'selected':''}>${c.text}</option>`).join('')}
+      </select>`;
+    }
+
+    // Contact Block
+    editorHtml += `<div class="cb-footer-row" style="margin-top:14px;">
+      <div class="camp2-chan-item" onclick="toggleFooterBlock('contact')"><div class="camp2-check2 ${f.contact.on?'on':''}"></div>Contact Block</div>
+    </div>`;
+    if (f.contact.on) {
+      editorHtml += `<div class="camp2-chan-col" style="margin:6px 0 0 24px;">
+        ${Object.keys(CONTACT_METHOD_META).map(k => {
+          const meta = CONTACT_METHOD_META[k];
+          const configured = !!meta.value;
+          return `<div class="camp2-chan-line">
+            <div class="camp2-chan-item ${configured?'':'cb-footer-unset'}" onclick="${configured ? `toggleFooterContactMethod('${k}')` : ''}">
+              <div class="camp2-check2 ${f.contact.methods[k]?'on':''}"></div>${meta.icon} ${meta.label}${configured ? '' : ' <span class=\'cb-footer-unset-tag\'>not set</span>'}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    // Signature
+    editorHtml += `<div class="cb-footer-row" style="margin-top:14px;">
+      <div class="camp2-chan-item" onclick="toggleFooterBlock('signature')"><div class="camp2-check2 ${f.signature.on?'on':''}"></div>Signature</div>
+    </div>`;
+
+    // Disclaimer
+    editorHtml += `<div class="cb-footer-row" style="margin-top:10px;">
+      <div class="camp2-chan-item" onclick="toggleFooterBlock('disclaimer')"><div class="camp2-check2 ${f.disclaimer.on?'on':''}"></div>Disclaimer</div>
+    </div>`;
+
+    // Hashtags
+    editorHtml += `<div class="cb-footer-row" style="margin-top:10px;">
+      <div class="camp2-chan-item" onclick="toggleFooterBlock('hashtags')"><div class="camp2-check2 ${f.hashtags.on?'on':''}"></div>Hashtags</div>
+      ${infoIcon}
+    </div>`;
+    if (f.hashtags.on) {
+      editorHtml += `<select class="cb-footer-select" onchange="setFooterHashtags(this.value)">
+        ${HASHTAG_LIBRARY.map(h => `<option value="${h.id}" ${f.hashtags.id===h.id?'selected':''}>${h.label} — ${h.tags.join(' ')}</option>`).join('')}
+      </select>`;
+    }
+
+    editorHtml += `<div class="camp2-hint-italic" style="margin-top:14px;">Manage saved CTAs, hashtag sets and contact details in Profile Settings.</div>`;
+
+    // --- Live preview ---
+    const firstId = Array.from(campaignState.selectedCards)[0];
+    const sampleCard = firstId ? cardTitleById(firstId) : null;
+    const sampleCaption = sampleCard ? sampleCard.title : 'Your caption will appear here once content is selected…';
+    let previewLines = [`<div class="cb-preview-line ${sampleCard?'':'muted'}">${sampleCaption}</div>`];
+    const hasAnyFooterLine = f.cta.on || f.contact.on || f.signature.on || f.hashtags.on || f.disclaimer.on;
+    if (hasAnyFooterLine) previewLines.push(`<hr class="cb-preview-hr">`);
+    if (f.contact.on) {
+      const onMethods = Object.keys(CONTACT_METHOD_META).filter(k => f.contact.methods[k] && CONTACT_METHOD_META[k].value);
+      if (onMethods.length) previewLines.push(`<div class="cb-preview-line">${onMethods.map(k => CONTACT_METHOD_META[k].icon + ' ' + CONTACT_METHOD_META[k].value).join('  ·  ')}</div>`);
+    }
+    if (f.cta.on) {
+      const cta = CTA_LIBRARY.find(c => c.id === f.cta.id);
+      if (cta) previewLines.push(`<div class="cb-preview-line">${cta.text}</div>`);
+    }
+    if (f.signature.on) {
+      previewLines.push(`<div class="cb-preview-line">—</div><div class="cb-preview-line">Bhashwati Pyne</div><div class="cb-preview-line">ABC Wealth Advisors</div>`);
+    }
+    if (f.hashtags.on) {
+      const hs = HASHTAG_LIBRARY.find(h => h.id === f.hashtags.id);
+      if (hs) previewLines.push(`<div class="cb-preview-line" style="margin-top:6px;">${hs.tags.join(' ')}</div>`);
+    }
+    if (f.disclaimer.on) {
+      previewLines.push(`<div class="cb-preview-line muted" style="font-size:10.5px; margin-top:6px;">Mutual Fund investments are subject to market risks. Read all scheme-related documents carefully.</div>`);
+    }
+
+    el.innerHTML = `<div class="cb-caption-grid">
+      <div>${editorHtml}</div>
+      <div>
+        <div class="cb-sec-title" style="margin-bottom:8px;">Live preview</div>
+        <div class="cb-preview-box">${previewLines.join('')}</div>
+      </div>
+    </div>`;
+  }
+  function setCampaignName(v) { campaignState.name = v; }
+  function toggleFooterBlock(key) {
+    campaignState.footer[key].on = !campaignState.footer[key].on;
+    renderFooterEditor();
+  }
+  function toggleFooterContactMethod(key) {
+    campaignState.footer.contact.methods[key] = !campaignState.footer.contact.methods[key];
+    renderFooterEditor();
+  }
+  function setFooterCta(id) { campaignState.footer.cta.id = id; renderFooterEditor(); }
+  function setFooterHashtags(id) { campaignState.footer.hashtags.id = id; renderFooterEditor(); }
 
   function setJourneyStageFilter(stage) {
     campaignState.journeyStage = campaignState.journeyStage === stage ? null : stage;
@@ -3076,11 +3307,13 @@
     campaignState.touched = { channels: true, cadence: true, duration: true };
     campaignState.contentSource = 'custom';
     campaignState.configureLocked = true;
+    campaignState.captionLocked = true;
     campaignState.selectedCards = new Set(Array((c.totalPosts||0)).fill(0).map((_,i) => campaignState.contentCat + ':' + i));
     const days = Math.max(1, Math.round((new Date(c.endDate) - new Date(c.startDate)) / 86400000) + 1);
     campaignState.cadence.duration = days;
     campaignInitialSnapshot = snapshotStr(campaignState);
     document.getElementById('modalBackdrop').classList.add('show');
+    document.getElementById('cbNameInput').value = campaignState.name || '';
     renderCamp2();
   }
 
@@ -4251,26 +4484,46 @@
     home:      { title: 'Home',       crumb: 'Marketing / Home' },
     campaigns: { title: 'Campaigns',  crumb: 'Marketing / Scheduler / Campaigns' },
     posts:     { title: 'Scheduler',  crumb: 'Marketing / Scheduler' },
-    analytics: { title: 'Analytics',  crumb: 'Marketing / Scheduler / Analytics' },
   };
 
   function renderMainNav() {
-    const plannerPages = ['campaigns','posts','analytics'];
+    const plannerPages = ['campaigns','posts'];
     const plannerActive = plannerPages.includes(currentPage);
     document.getElementById('mainNav').innerHTML = `
-      <div class="mn-logo">✦ Scheduler</div>
-      <div class="mn-item ${currentPage==='home'?'active':''}" onclick="navigateTo('home')">🏠 <span>Home</span></div>
+      <div class="mn-workspace">
+        <div class="mn-ws-icon">✦</div>
+        <div>
+          <div class="mn-ws-name">TheFinPedia</div>
+          <div class="mn-ws-sub">Advisor workspace</div>
+        </div>
+      </div>
+
+      <div class="mn-section-label" style="padding-top:2px;">Workspace</div>
+      <div class="mn-item ${currentPage==='home'?'active':''}" onclick="navigateTo('home')">🏠 <span>Dashboard</span></div>
+      <div class="mn-item ${plannerActive?'active':''}" onclick="openSchedulerMenu()">📅 <span>Scheduler</span></div>
+      <div class="mn-item static">📚 <span>Library</span></div>
+      <div class="mn-item static">👥 <span>Clients</span></div>
+      <div class="mn-item static">💬 <span>Inbox</span></div>
+      <div class="mn-item static">📈 <span>Insights</span></div>
+
+      <div class="mn-nav-divider"></div>
+      <div class="mn-section-label">Marketing</div>
       <div class="mn-item ${plannerActive?'active':''} ${campaignPlannerExpanded?'expanded':''}" onclick="openSchedulerMenu()">
-        🗓️ <span>Scheduler</span><span class="mn-chev">▾</span>
+        📣 <span>Scheduler</span><span class="mn-chev">▾</span>
       </div>
       <div class="mn-submenu ${campaignPlannerExpanded?'':'collapsed'}">
+        <div class="mn-subitem ${currentPage==='posts'?'active':''}" onclick="navigateTo('posts')">Calendar</div>
         <div class="mn-subitem ${currentPage==='campaigns'?'active':''}" onclick="navigateTo('campaigns')">Campaigns</div>
-        <div class="mn-subitem ${currentPage==='analytics'?'active':''}" onclick="navigateTo('analytics')">Analytics</div>
       </div>
       <div class="mn-item ${socialConnectionsExpanded?'expanded':''}" id="btnConnectChannel" onclick="toggleSocialConnectionsMenu()">
         🔗 <span>Social Connections</span><span class="mn-chev">▾</span>
       </div>
-      <div class="mn-submenu mn-submenu-channels ${socialConnectionsExpanded?'':'collapsed'}" id="mnSocialChannels"></div>`;
+      <div class="mn-submenu mn-submenu-channels ${socialConnectionsExpanded?'':'collapsed'}" id="mnSocialChannels"></div>
+
+      <div class="mn-footer">
+        <div class="mn-status-row"><span class="mn-status-dot"></span>Data · Jul 15, 8:45 AM</div>
+        <div class="mn-item static" style="margin-top:2px;">⚙️ <span>Settings</span></div>
+      </div>`;
     if (socialConnectionsExpanded) renderMainNavChannels();
   }
 
